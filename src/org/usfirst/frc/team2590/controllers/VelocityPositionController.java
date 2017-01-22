@@ -1,8 +1,8 @@
-package controllers;
+package org.usfirst.frc.team2590.controllers;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class PIDF {
+public class VelocityPositionController extends Controller {
 
 	//gains
 	private double kP;
@@ -18,7 +18,7 @@ public class PIDF {
 	private double velSetpoint;
 	private double rpmSetpoint;
 
-	public PIDF(double kP , double kD , double kF) {
+	public VelocityPositionController(double kP , double kD , double kF) {
 		this.kP = kP;
 		this.kD = kD;
 		this.kF = kF;
@@ -30,6 +30,7 @@ public class PIDF {
 		lastSetpoint = 0;
 	}
 	
+	@Override
 	public void setSetpoint(double rpm) {
 		rpmSetpoint = rpm;
 		velSetpoint = rpm;
@@ -41,6 +42,7 @@ public class PIDF {
 		this.kP = kp;
 	}
 	
+	@Override
 	public double calculate(double processVariable) {
 		double currentTime = Timer.getFPGATimestamp()*1000;
 		double currentError = rpmSetpoint - processVariable;
@@ -50,11 +52,17 @@ public class PIDF {
 			lastTime  = currentTime;
 		}
 		
+		//delta calculations
 		double dT = currentTime  - lastTime;
 		double dE = currentError - lastError;
+		
+		//D motor calculations 
 		double newD = kD * (dE / (dT - velSetpoint));
+		
+		//output calculation
 		double output = (kP*currentError) + newD + (kF*velSetpoint);
 		
+		//set all lasts
 		lastTime = currentTime;
 		lastError = currentError;
 		

@@ -1,42 +1,54 @@
 package subsystem;
 
+import org.usfirst.frc.team2590.controllers.VelocityPositionController;
 import org.usfirst.frc.team2590.looper.Loop;
+import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
-import controllers.PIDF;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter implements RobotMap{
 	
 	//system states
 	private enum shooterState {
-		STOP , SHOOT_READY , SHOOT_NOW
+		STOP , SHOOT_READY , SHOOT_NOW , SPEED_UP
 	};
 	private shooterState shooter = shooterState.STOP;
 	
+	//basic variables
+	private double stp;
+	private final double TOLERANCE = 50; //the controller should be tuned more so this can be < 10
+	
 	//sensors motors and controllers
-	private PIDF pidfLoop;
-	private double stp = 0;
-	private double output;
 	private Victor feederVictor;
 	private Victor shooterVictor;
 	private Encoder shooterEncoder;
-
+	private VelocityPositionController shooterController;
+	
 	public Shooter() {
-		output = 0;
-		//0.085 0.35 0.000083
-		//0.001 0.01 1.0E-4 //seems to work
-		//0.004 0.45 1.0E-4
-		pidfLoop = new PIDF(0.0042 ,0.45, 1E-4 );
+		//variables
+		stp = 0;
+
+		//controller
+		//0.0042 0.45 1.0E-4
+		shooterController = new VelocityPositionController(0.01 ,0.9, 2E-4 );
+		
+		//motors
 		feederVictor = new Victor(feederPWM);
 		shooterVictor = new Victor(shooterPWM);
+		shooterVictor.setInverted(true);
+		
+		//encoder and settings
 		shooterEncoder = new Encoder(shooterEncA , shooterEncB , false , EncodingType.k1X);
 		shooterEncoder.setPIDSourceType(PIDSourceType.kRate);
 		
+		//360 ticks in 1 revolution , dots are for float point math
 		shooterEncoder.setDistancePerPulse(1./360.);
 
 	}
@@ -50,30 +62,36 @@ public class Shooter implements RobotMap{
 
 		@Override
 		public void loop() {
+			
 			switch(shooter) {
-			case STOP : 
-				shooterVictor.set(0);
+			  case STOP : 
+				feederVictor.set(0);
+			    shooterVictor.set(0);
 				break;
-			case SHOOT_READY : //fall through
-				output = pidfLoop.calculate(shooterEncoder.getRate()*60);
-				shooterVictor.set(output );
-				if(Math.abs(shooterEncoder.getRate() - stp) < 100) {
-					feederVictor.set(1);
-				} else {
-					feederVictor.set(0);
-				}
+			  case SHOOT_READY : //only shoots when the wheel hits speed
+			    feederVictor.set( ( Math.abs( (shooterEncoder.getRate()*60) - stp) <= TOLERANCE) ? 1 : 0);
+				//fall through
+			  case SPEED_UP : //spins up to setpoint speed
+				shooterVictor.set(shooterController.calculate(shooterEncoder.getRate()*60));
 				break;
-			case SHOOT_NOW :
-				output = pidfLoop.calculate(shooterEncoder.getRate()*60);
-				shooterVictor.set(output );
+			  case SHOOT_NOW : //spins up to speed while shooting holds the setpoint rpm
+				shooterVictor.set(shooterController.calculate(shooterEncoder.getRate()*60));
+				feederVictor.set(1);
 				break;
+			  default : //nothing here , just adhering to googles style guide
 			}
-
+			SmartDashboard.putNumber("Encoder", shooterEncoder.getRate()*60);
+			shooterController.updateGains(SmartDashboard.getNumber("DB/Slider 1", 0), 
+									      SmartDashboard.getNumber("DB/Slider 2", 0),
+									      SmartDashboard.getNumber("DB/Slider 3", 0));
+			
+			//Robot.display.LCDwriteCMD(Robot.display.LCD_CLEARDISPLAY);
+			//Robot.display.LCDwriteString("Encoder " + shooterEncoder.getRate()*60 , 1);
 		}
 
 		@Override
 		public void onEnd() {
-			
+			shooter = shooterState.STOP;
 		}
 		
 	};
@@ -82,21 +100,45 @@ public class Shooter implements RobotMap{
 		return loop_;
 	}
 	
+	
 	public void setSetpoint(double setpoint) {
 		stp = setpoint;
-		pidfLoop.setSetpoint(setpoint);
+		shooterController.setSetpoint(setpoint);
 	}
 	
+	/**
+	 * Gets the shooter wheels up to speed
+	 * does not move the feeder
+	 */
+	public void getReady() {
+		shooter = shooterState.SPEED_UP;
+	}
+	
+	/**
+	 * Spins the feeder roller immediatly and
+	 * uses the controller to maintain setpoint
+	 */
 	public void takeShot() {
 		shooter = shooterState.SHOOT_NOW;
 	}
 	
+	/**
+	 * Stops the wheels and feeder
+	 */
 	public void stopShot() {
 		shooter = shooterState.STOP;
 	}
 
+	/**
+	 * Only starts the feeder when the shooter is 
+	 * within a certain tolerance of a setpoint
+	 */
 	public void patienceIsKey() {
 		shooter = shooterState.SHOOT_READY;
+	}
+	
+	public double getEncoderVal() {
+		return shooterEncoder.getRate()*60;
 	}
 	
 }
