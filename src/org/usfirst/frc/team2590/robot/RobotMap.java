@@ -19,10 +19,30 @@ public interface RobotMap {
 	public static final int rightEncoderB = 5;
 	
 	
-	//control variables 
+	//solenoids
+	public static final int leftShiftSol = 0;
+	public static final int rightShiftSol = 1;
+	
+	//***********************************\\
+	//**********CONTROL VARIABLES********\\
+	//***********************************\\
+	
+	//shooter
 	public static final double ShooterkP = 0;
 	public static final double ShooterkD = 0;
 	public static final double ShooterkF = 0;
+
+	//drive vel controller
+	public static final double DrVelkP = 0;
+	public static final double DrVelkD = 0;
+	public static final double DrVelkF = 0;
+	public static final double DrVelkT = 0;
+
+	
+	//turn controller
+	public static final double turnkP = 0;
+	public static final double turnkD = 0;
+	public static final double turnkF = 0;
 
 	
 

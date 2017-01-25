@@ -2,5 +2,5 @@ package autonomousCommands;
 
 @FunctionalInterface
 public interface Checkable {
-	public boolean done();
+	public void runner();
 }

@@ -12,9 +12,10 @@ public abstract class Routine {
 	 * Does not continue until the checkable returns ture
 	 * @param check thing to be checked for
 	 */
-	public void waitUntilDone(Checkable check) {
+	public void waitUntilDone(boolean check , Checkable run) {
 		//just delay the thread until the check is good to go
-		while(!check.done()) {
+		while(!check) {
+			run.runner();
 			try {
 				Thread.sleep(100);
 			} catch(Exception e) {}

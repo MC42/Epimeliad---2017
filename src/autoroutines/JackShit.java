@@ -1,5 +1,10 @@
 package autoroutines;
 
+/**
+ * Does absolutely nothing
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class JackShit extends Routine {
 	@Override
 	public void run() {

@@ -1,6 +1,6 @@
 package subsystem;
 
-import org.usfirst.frc.team2590.controllers.VelocityPositionController;
+import org.usfirst.frc.team2590.controllers.VelocityController;
 import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
@@ -29,7 +29,7 @@ public class Shooter implements RobotMap{
 	private Victor feederVictor;
 	private Victor shooterVictor;
 	private Encoder shooterEncoder;
-	private VelocityPositionController shooterController;
+	private VelocityController shooterController;
 	
 	public Shooter() {
 		//variables
@@ -37,7 +37,9 @@ public class Shooter implements RobotMap{
 
 		//controller
 		//0.0042 0.45 1.0E-4
-		shooterController = new VelocityPositionController(0.01 ,0.9, 2E-4 );
+		//0.06 0.2 5E-4
+		//0.0045 0.45 1.0E-4
+		shooterController = new VelocityController(0.00445, 0.45, 1.0E-4 );
 		
 		//motors
 		feederVictor = new Victor(feederPWM);
@@ -81,9 +83,9 @@ public class Shooter implements RobotMap{
 			  default : //nothing here , just adhering to googles style guide
 			}
 			SmartDashboard.putNumber("Encoder", shooterEncoder.getRate()*60);
-			shooterController.updateGains(SmartDashboard.getNumber("DB/Slider 1", 0), 
+		/*	shooterController.updateGains(SmartDashboard.getNumber("DB/Slider 1", 0), 
 									      SmartDashboard.getNumber("DB/Slider 2", 0),
-									      SmartDashboard.getNumber("DB/Slider 3", 0));
+									      SmartDashboard.getNumber("DB/Slider 3", 0));*/
 			
 			//Robot.display.LCDwriteCMD(Robot.display.LCD_CLEARDISPLAY);
 			//Robot.display.LCDwriteString("Encoder " + shooterEncoder.getRate()*60 , 1);

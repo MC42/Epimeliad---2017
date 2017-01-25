@@ -11,7 +11,7 @@ public class StopShot extends AutoCommand {
 
 	@Override
 	public boolean done() {
-		return false;
+		return true;
 	}
 
 	

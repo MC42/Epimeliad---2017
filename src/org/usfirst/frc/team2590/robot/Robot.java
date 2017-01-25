@@ -3,14 +3,14 @@ package org.usfirst.frc.team2590.robot;
 
 import org.usfirst.frc.team2590.looper.Looper;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import sensors.LED;
+import screen.LED;
+import screen.Profile;
+import screen.ProfileHandler;
 import subsystem.DriveTrain;
-import subsystem.Intake;
 import subsystem.Shooter;
 
 
@@ -24,10 +24,9 @@ import subsystem.Shooter;
 public class Robot extends IterativeRobot {
 	
 	//subsystems
-	public static Intake intake;
+	public static LED display;
 	public static DriveTrain dt;
 	public static Shooter shooter;
-	public static LED display;
 	
 	//joystick
 	private static Joystick left;
@@ -35,33 +34,44 @@ public class Robot extends IterativeRobot {
 
 	private static Looper enabledLooper;
 
+	//profiles 
+	public static Profile autoProfile;
+	public static Profile teleopProfile;
+	public static Profile disabledProfile;
+	public static ProfileHandler profiles;
+
 	@Override
 	public void robotInit() {
+		
 		
 		//joysticks
 		left = new Joystick(0);
 		right = new Joystick(1);
 		
 		display = new LED();
-		intake = new Intake();
 		shooter = new Shooter();
 		dt = new DriveTrain(left, right);
-
 	
 		//looper
-		enabledLooper = new Looper(5);
+		enabledLooper = new Looper(1);
 		enabledLooper.register(shooter.getShooterLoop());
-		enabledLooper.register(intake.getIntakeLoop());
 		enabledLooper.register(dt.getDriveLoop());
+		
+		autoProfile = new Profile("Auto", "Auto mode is now Enabled!");
+		disabledProfile = new Profile("Disabled", "I am disabled , safe to touch :)");
+		teleopProfile = new Profile("Teleop", "Teleop mode is now Enabled!" , "Shooter " + shooter.getEncoderVal());
+		profiles = new ProfileHandler(autoProfile , disabledProfile , teleopProfile);
+		
 	}
 
 	@Override
 	public void disabledInit() {
 		enabledLooper.onEnd();
-
+		profiles.setProfile("Disabled");
 	}
 	@Override
 	public void autonomousInit() {
+		profiles.setProfile("Auto");
 	}
 
 	@Override
@@ -70,6 +80,7 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
+		profiles.setProfile("Teleop");
 		enabledLooper.startLoops();
 		dt.driveOpenLoop();
 	}
@@ -77,24 +88,13 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0", 3100));
-		
-		
+				
 		if(right.getRawButton(1)) {
-		  shooter.getReady();
+		  shooter.takeShot();
 		} else {
 		  shooter.stopShot();
 		}
-		
-		if (left.getRawButton(1)) {
-		  intake.suckBalls();
-		} else if (left.getRawButton(2)) {
-		  intake.unSuck();
-		} else {
-		  intake.stopSuck();
-		}
-		
-		display.LCDwriteCMD(display.LCD_CLEARDISPLAY);
-		display.LCDwriteString("Encoder " + shooter.getEncoderVal() , 1);
+
 	}
 
 	@Override

@@ -2,15 +2,13 @@ package autonomousCommands;
 
 import org.usfirst.frc.team2590.robot.Robot;
 
-import edu.wpi.first.wpilibj.Timer;
-
 public class DriveForTime extends AutoCommand {
 	
 	//in seconds
 	private double time;
-	private double timeError;
-	private double startTime;
-	private boolean firstRun = true;
+	private TimeOut timer;
+	private boolean done = false;
+	private boolean firstTime = true;
 	
 	public DriveForTime(double timeToDrive) {
 		time = timeToDrive;
@@ -18,20 +16,23 @@ public class DriveForTime extends AutoCommand {
 
 	@Override
 	public void run() {
-		if(firstRun) {
-			startTime = Timer.getFPGATimestamp();
+		
+		if(firstTime) {
+			timer = new TimeOut(time*1000);
+			firstTime = false;
 		}
-		timeError = time - (Timer.getFPGATimestamp() - startTime);
-		if(timeError > 1) {
+		
+		if(!timer.isTimedOut()) {
 			Robot.dt.deadReckon(0.5, 0.5);
 		} else {
+			done = true;
 			Robot.dt.lock();
 		}
 	}
 
 	@Override
 	public boolean done() {
-		return timeError <= 1;
+		return done;
 	}
 	
 	

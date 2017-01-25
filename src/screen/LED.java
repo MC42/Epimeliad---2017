@@ -1,4 +1,4 @@
-package sensors;
+package screen;
 
 import edu.wpi.first.wpilibj.I2C;
 

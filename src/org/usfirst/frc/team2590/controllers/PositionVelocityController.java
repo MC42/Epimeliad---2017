@@ -2,23 +2,25 @@ package org.usfirst.frc.team2590.controllers;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class VelocityPositionController extends Controller {
+public class PositionVelocityController extends Controller {
 
 	//gains
 	private double kP;
 	private double kD;
 	private double kF;
+	private double maxAcc;
 	
 	//holders
 	private double lastTime;
 	private double lastError;
 	private double lastSetpoint;
+	private double currentError ;
 	
 	//setpoints
 	private double velSetpoint;
 	private double rpmSetpoint;
 
-	public VelocityPositionController(double kP , double kD , double kF) {
+	public PositionVelocityController(double kP , double kD , double kF , double maxAcceleration) {
 		this.kP = kP;
 		this.kD = kD;
 		this.kF = kF;
@@ -28,13 +30,15 @@ public class VelocityPositionController extends Controller {
 		velSetpoint = 0;
 		rpmSetpoint = 0;
 		lastSetpoint = 0;
+		currentError = 0;
+		maxAcc = maxAcceleration;
 	}
 	
 	@Override
-	public void setSetpoint(double rpm) {
-		rpmSetpoint = rpm;
-		velSetpoint = rpm;
+	public void setSetpoint(double dist) {
+		rpmSetpoint = dist;
 	}
+	
 	
 	public void updateGains(double kp , double kd , double kf) {
 		this.kF = kf;
@@ -44,13 +48,19 @@ public class VelocityPositionController extends Controller {
 	
 	@Override
 	public double calculate(double processVariable) {
-		double currentTime = Timer.getFPGATimestamp()*1000;
-		double currentError = rpmSetpoint - processVariable;
 		
+		//store needed variables
+		double currentTime = Timer.getFPGATimestamp()*1000;
+		
+		currentError = rpmSetpoint - processVariable;
+		
+		//if the setpoint changes
 		if(lastSetpoint != rpmSetpoint) {
 			lastError = currentError;
 			lastTime  = currentTime;
 		}
+		
+		velSetpoint =  Math.sqrt(2 * maxAcc * currentError);
 		
 		//delta calculations
 		double dT = currentTime  - lastTime;
@@ -67,5 +77,9 @@ public class VelocityPositionController extends Controller {
 		lastError = currentError;
 		
 		return output;
+	}
+	
+	public boolean done() {
+		return Math.abs(currentError) < 0.5;
 	}
 }

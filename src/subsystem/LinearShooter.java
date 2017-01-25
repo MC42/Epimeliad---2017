@@ -1,6 +1,6 @@
 package subsystem;
 
-import org.usfirst.frc.team2590.controllers.VelocityPositionController;
+import org.usfirst.frc.team2590.controllers.VelocityController;
 import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
@@ -27,12 +27,12 @@ public class LinearShooter implements RobotMap {
 		 frontEncoder.setDistancePerPulse(1./360.);
 
 		 
-		 backRoller = new ControlledManipulator(new VelocityPositionController(ShooterkP, ShooterkD, ShooterkF), 
+		 backRoller = new ControlledManipulator(new VelocityController(ShooterkP, ShooterkD, ShooterkF), 
 				 								backEncoder, 
 				 								new Victor(5), 
 				 								true );
 		 
-		 frontRoller = new ControlledManipulator(new VelocityPositionController(ShooterkP, ShooterkD, ShooterkF), 
+		 frontRoller = new ControlledManipulator(new VelocityController(ShooterkP, ShooterkD, ShooterkF), 
 				 								frontEncoder, 
 				 								new Victor(6), 
 				 								true );

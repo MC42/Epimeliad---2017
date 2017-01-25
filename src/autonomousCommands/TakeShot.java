@@ -2,7 +2,7 @@ package autonomousCommands;
 
 import org.usfirst.frc.team2590.robot.Robot;
 
-public class TakeShot extends AutoCommand{
+public class TakeShot extends AutoCommand {
 
 	@Override
 	public void run() {
@@ -11,6 +11,6 @@ public class TakeShot extends AutoCommand{
 
 	@Override
 	public boolean done() {
-		return false;
+		return true;
 	}
 }
