@@ -65,7 +65,7 @@ public class VelocityController extends Controller {
 		double dE = currentError - lastError;
 		
 		//D motor calculations 
-		double newD = kD * (dE / (dT - velSetpoint));
+		double newD = kD * (dE / dT);
 		
 		//output calculation
 		double output = (kP*currentError) + newD + (kF*velSetpoint);

@@ -1,15 +1,14 @@
 package subsystem;
 
+import org.usfirst.frc.team2590.controllers.PositionVelocityController;
 import org.usfirst.frc.team2590.controllers.VelocityController;
 import org.usfirst.frc.team2590.looper.Loop;
-import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.TalonSRX;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -29,17 +28,18 @@ public class Shooter implements RobotMap{
 	private Victor feederVictor;
 	private Victor shooterVictor;
 	private Encoder shooterEncoder;
-	private VelocityController shooterController;
+	private PositionVelocityController shooterController;
 	
 	public Shooter() {
 		//variables
 		stp = 0;
-
+		
 		//controller
 		//0.0042 0.45 1.0E-4
 		//0.06 0.2 5E-4
 		//0.0045 0.45 1.0E-4
-		shooterController = new VelocityController(0.00445, 0.45, 1.0E-4 );
+		//0,25 0.5 0.014
+		shooterController = new PositionVelocityController(0.016, 0.04, 0.014 , 16 );
 		
 		//motors
 		feederVictor = new Victor(feederPWM);
@@ -74,21 +74,18 @@ public class Shooter implements RobotMap{
 			    feederVictor.set( ( Math.abs( (shooterEncoder.getRate()*60) - stp) <= TOLERANCE) ? 1 : 0);
 				//fall through
 			  case SPEED_UP : //spins up to setpoint speed
-				shooterVictor.set(shooterController.calculate(shooterEncoder.getRate()*60));
+				//shooterVictor.set(shooterController.calculate(shooterEncoder.getRate()*60));
+				  shooterVictor.set(0.5);
 				break;
 			  case SHOOT_NOW : //spins up to speed while shooting holds the setpoint rpm
-				shooterVictor.set(shooterController.calculate(shooterEncoder.getRate()*60));
+				//shooterVictor.set(shooterController.calculate(shooterEncoder.getRate()*60));				  
+				 shooterVictor.set(0.5);
 				feederVictor.set(1);
 				break;
 			  default : //nothing here , just adhering to googles style guide
 			}
 			SmartDashboard.putNumber("Encoder", shooterEncoder.getRate()*60);
-		/*	shooterController.updateGains(SmartDashboard.getNumber("DB/Slider 1", 0), 
-									      SmartDashboard.getNumber("DB/Slider 2", 0),
-									      SmartDashboard.getNumber("DB/Slider 3", 0));*/
-			
-			//Robot.display.LCDwriteCMD(Robot.display.LCD_CLEARDISPLAY);
-			//Robot.display.LCDwriteString("Encoder " + shooterEncoder.getRate()*60 , 1);
+		
 		}
 
 		@Override
