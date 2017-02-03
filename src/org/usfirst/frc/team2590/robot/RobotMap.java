@@ -1,49 +1,42 @@
 package org.usfirst.frc.team2590.robot;
 
 public interface RobotMap {
-	public static final int leftPWM = 0;
-	public static final int climbPWM = 5;
-	public static final int rightPWM = 1;
-	public static final int intakePWM = 4;
-	public static final int shooterPWM = 3;
-	public static final int feederPWM = 9;
+
+	//motors
+	public static final int LEFTMOTORPWM = 0;
+	public static final int RIGHTMOTORPWM = 1;
+	public static final int CLIMBMOTORPWM = 2;
+	public static final int PULLYMOTORPWM = 4;
+	public static final int INTAKEMOTORPWM = 3;
+
+	public static final int SHOOTERMASTERID = 0;
+      public static final int SHOOTERSLAVEID  = 1;
+
+	//sol
+	public static final int INTAKE_SOLENOID = 0;
 	
 	//encoders
-	public static final int shooterEncA = 0;
-	public static final int shooterEncB = 1;
+	public static final int LEFTENCODERA = 0;
+	public static final int LEFTENCODERB = 1;
+	public static final int RIGHTENCODERA = 2;
+	public static final int RIGHTENCODERB = 3;
 	
-	public static final int leftEncoderA = 2;
-	public static final int leftEncoderB = 3;
-	
-	public static final int rightEncoderA = 4;
-	public static final int rightEncoderB = 5;
-	
-	
-	//solenoids
-	public static final int leftShiftSol = 0;
-	public static final int rightShiftSol = 1;
-	
-	//***********************************\\
-	//**********CONTROL VARIABLES********\\
-	//***********************************\\
-	
-	//shooter
-	public static final double ShooterkP = 0;
-	public static final double ShooterkD = 0;
-	public static final double ShooterkF = 0;
+	//Shooter 
+	public static final double SHOOTERKP = 0.0;
+	public static final double SHOOTERKI = 0.0;
+	public static final double SHOOTERKD = 0.0;
+	public static final double SHOOTERKF = 0.0;
+	public static final double SHOOTERKA = 0.0;
 
-	//drive vel controller
-	public static final double DrVelkP = 0;
-	public static final double DrVelkD = 0;
-	public static final double DrVelkF = 0;
-	public static final double DrVelkT = 0;
-
+	//drive straight
+	public static final double MAXACC = 12;
+	public static final double VELFF = 0.0; //velocity feed forward
 	
-	//turn controller
-	public static final double turnkP = 0;
-	public static final double turnkD = 0;
-	public static final double turnkF = 0;
-
+	//pure pursuit
+	public static final double PUREKV = 0.01;
+	public static final double LOOKAHEAD = 2; //in feet
+	public static final double DRIVEBASE = 2.333;
 	
-
+	//adaptive controller
+	public static final double DRIVETURNCOMP = 0.05;
 }
