@@ -4,16 +4,15 @@ package org.usfirst.frc.team2590.navigation;
 /**
  * Describes a point on the XY-plane
  * X-axis points at 0 rad
- * @author Connor_Hofenbitzer
  *
  */
 
 public class Point {
   private static final double kEp = 1E-9;
 
-  double _x;
-  double _y;
-  double _theta;
+  public double _x;
+  public double _y;
+  public double _theta;
 
   public Point(double x, double y, double theta){
     _x = x;

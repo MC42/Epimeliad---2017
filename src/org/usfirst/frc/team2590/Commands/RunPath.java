@@ -9,7 +9,7 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 public class RunPath extends Command {
 
-  Path paths;
+  private Path paths;
 
   public RunPath(PathSegment... path) {
     paths = new Path(new ArrayList<PathSegment>(Arrays.asList(path)));
@@ -22,6 +22,11 @@ public class RunPath extends Command {
   @Override
   public void run() {
     Robot.dt.followPath();
+  }
+
+  @Override
+  public boolean isDone() {
+    return false;
   }
 
 

@@ -7,11 +7,20 @@ import edu.wpi.first.wpilibj.Victor;
 
 public class Climber implements RobotMap {
 
+  private static Climber climbe = null;
+  public static Climber getClimberInstance() {
+    if(climbe == null) {
+      climbe = new Climber();
+    }
+    return climbe;
+  }
+  
   private enum climbStates {
     CLIMBING , NOT_CLIMBING
   }
   private climbStates climber = climbStates.NOT_CLIMBING;
-
+  
+  
   private Victor climbVictor;
   private static double CLIMBSPEED = 1;
   private static double STALLSPEED = 0;
@@ -24,6 +33,7 @@ public class Climber implements RobotMap {
 
     @Override
     public void onStart() {
+      
     }
 
     @Override

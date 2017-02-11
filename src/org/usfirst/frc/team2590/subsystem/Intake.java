@@ -8,8 +8,16 @@ import util.NemesisSolenoid;
 
 public class Intake implements RobotMap {
 
+  private static Intake intak = null;
+  public static Intake getIntakeInstance() {
+    if(intak == null) {
+      intak = new Intake();
+    }
+    return intak;
+  }
+  
   private enum intakeStates {
-    STOP , INTAKE , EXAUST , INTAKE_NO_PULL , JUST_PULL
+    STOP , INTAKE , EXAUST , INTAKE_NO_PULL , OUTTAKE_NO_PULL ,  JUST_PULL , JUST_SPIT
   };
   private intakeStates intake = intakeStates.STOP;
 
@@ -53,8 +61,17 @@ public class Intake implements RobotMap {
           intakeMotor.set(1);
           intakeSolenoid.set(true);
           break;
+        case OUTTAKE_NO_PULL :
+          pullyMotor.set(0);
+          intakeMotor.set(-1);
+          intakeSolenoid.set(true);
+          break;
         case JUST_PULL :
           pullyMotor.set(1);
+          intakeMotor.set(0);
+          break;
+        case JUST_SPIT :
+          pullyMotor.set(-1);
           intakeMotor.set(0);
           break;
       }
@@ -98,6 +115,14 @@ public class Intake implements RobotMap {
   public void onlyIntake() {
     intake = intakeStates.INTAKE_NO_PULL;
   }
+  
+  /**
+   * Intake balls no pully
+   */
+  public void onlyOuttake() {
+    intake = intakeStates.OUTTAKE_NO_PULL;
+  }
+
 
   /**
    * Only run the pully
@@ -106,5 +131,11 @@ public class Intake implements RobotMap {
     intake = intakeStates.JUST_PULL;
   }
 
+  /**
+   * Only run the pully
+   */
+  public void onlySpitBalls() {
+    intake = intakeStates.JUST_SPIT;
+  }
 
 }

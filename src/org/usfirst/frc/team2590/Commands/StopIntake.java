@@ -9,4 +9,9 @@ public class StopIntake extends Command {
     Robot.intake.stopIntake();
   }
 
+  @Override
+  public boolean isDone() {
+    return true;
+  }
+
 }

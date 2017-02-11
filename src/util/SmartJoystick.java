@@ -8,10 +8,10 @@ import edu.wpi.first.wpilibj.Joystick;
  */
 public class SmartJoystick extends Joystick {
 
-  double xdeadband;
-  double ydeadband;
-  boolean[] lastRisingVal = new boolean[10];
-  boolean[] lastFallingVal = new boolean[10];
+  private double xdeadband;
+  private double ydeadband;
+  private boolean[] lastRisingVal = new boolean[10];
+  private boolean[] lastFallingVal = new boolean[10];
 
   public SmartJoystick(int port , double xdeadband , double ydeadband) {
     super(port);
@@ -47,16 +47,16 @@ public class SmartJoystick extends Joystick {
    * gets the x axis value after being constrained to the xdead band
    * @return x axis
    */
-  public double getXValue() {
-    return constrain(getX() , xdeadband);
+  public double getXVal() {
+    return constrain(super.getX() , xdeadband);
   }
 
   /**
    * gets the y axis value after being constrained to the ydeadband
    * @return y axis
    */
-  public double getYValue() {
-    return constrain(getY(), ydeadband);
+  public double getYVal() {
+    return constrain(super.getY(), ydeadband);
   }
 
   /**

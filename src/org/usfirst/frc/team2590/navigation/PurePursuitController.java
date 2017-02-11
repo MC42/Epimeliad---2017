@@ -39,7 +39,6 @@ public class PurePursuitController {
     //current distance from the start of the path to current point
     double currDist = (new PathSegment(new Point(0,0,0) , currPoint).length) +
         ( (driveLength/2) * ((isRight)?-1:1) );
-
     //sets the velocity controllers setpoint and calculates output
     velCont.setSetpoint(travel);
     return velCont.calculate(currDist);

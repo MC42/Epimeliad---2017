@@ -4,7 +4,7 @@ import org.usfirst.frc.team2590.Commands.DriveAtAngle;
 
 public class OnlyHopper extends AutoRoutine{
 
-  DriveAtAngle driveIntoHopper;
+  private DriveAtAngle driveIntoHopper;
 
   public OnlyHopper() {
     driveIntoHopper = new DriveAtAngle(12.75, 43);

@@ -4,24 +4,21 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 public class DriveStraight extends Command {
 
-  double time;
-  double distance;
-  boolean isFinished;
+  private double distance;
 
-  /**
-   *
-   * @param distance : DISTANCE MAY NOT BE NEGITIVE
-   */
   public DriveStraight(double distance) {
-    this.distance = Math.abs(distance);
+    this.distance = distance;
   }
 
   @Override
   public void run() {
+    System.out.println("started");
+    Robot.dt.resetAllSensors();
     Robot.dt.setDriveSetpoint(distance);
   }
 
   public boolean isDone() {
+    System.out.println("done " + Robot.dt.driveStDone() );
     return Robot.dt.driveStDone();
   }
 }
