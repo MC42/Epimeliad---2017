@@ -11,6 +11,7 @@ public class RunPath extends Command {
 
   Path paths;
 
+  //paths
   public RunPath(PathSegment... path) {
     paths = new Path(new ArrayList<PathSegment>(Arrays.asList(path)));
   }

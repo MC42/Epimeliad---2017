@@ -6,19 +6,29 @@ import org.usfirst.frc.team2590.navigation.Point;
 
 public class OnlyHopper extends AutoRoutine{
 
-  RunPath driveIntoHopper;
-  PathSegment middleSegment;
-  PathSegment boilerSegment;
   Point middlePoint;
-  Point hopper;
-  
+  Point frontHopper;
+  Point middleHopper;
+  PathSegment endSegment;
+  RunPath driveIntoHopper;
+  PathSegment boilerSegment;
+  PathSegment middleSegment;
+   
   public OnlyHopper() {
+
+    //drive to a point in between the start point and the hopper
+    middlePoint = new Point(5 , 1, 0);
+    //drive to the front of the hopper
+    frontHopper = new Point( 8 ,1.5, 0); //3.75
+    //drive past the hopper
+    middleHopper = new Point(10, 1.5, 0);
     
-    middlePoint = new Point(5.5 , 3.5, 0);
-    hopper = new Point(10.91, 3.6666, 0);
+    //binding the points
     middleSegment = new PathSegment(new Point(0,0,0), middlePoint);
-    boilerSegment = new PathSegment(middlePoint, hopper);
-    driveIntoHopper = new RunPath(middleSegment , boilerSegment);
+    boilerSegment = new PathSegment(middlePoint, frontHopper);
+    endSegment = new PathSegment(frontHopper, middleHopper);
+    
+    driveIntoHopper = new RunPath(middleSegment, boilerSegment, endSegment);
   }
 
   @Override

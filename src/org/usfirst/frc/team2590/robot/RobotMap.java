@@ -34,7 +34,7 @@ public interface RobotMap {
 	
 	//pure pursuit
 	public static final double PUREKV = 0.2;
-	public static final double LOOKAHEAD = 3; //in feet
+	public static final double LOOKAHEAD = 1.5; //in feet 3 //1.5
 	public static final double DRIVEBASE = 2.333;
 	
 	//adaptive controller

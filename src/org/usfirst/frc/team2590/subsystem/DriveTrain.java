@@ -2,7 +2,6 @@ package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.navigation.DriveAtAngleController;
-import org.usfirst.frc.team2590.navigation.DriveStraightController;
 import org.usfirst.frc.team2590.navigation.NavigationalSystem;
 import org.usfirst.frc.team2590.navigation.Path;
 import org.usfirst.frc.team2590.navigation.PurePursuitController;
@@ -18,14 +17,14 @@ import util.NemesisDrive;
 public class DriveTrain implements RobotMap {
 
   private enum driveStates {
-    STOP , TELEOP , AUTO
+    STOP , VELOCITY_CONTROL , OPEN_LOOP , BENT_DRIVE , PATH_FOLLOWING
   };
   private driveStates drives = driveStates.STOP;
 
   //joysticks
   private Joystick left;
   private Joystick right;
-
+  private boolean flipped;
   private static final double WHEEL_DIAM = 4;
 
   //motors
@@ -43,7 +42,6 @@ public class DriveTrain implements RobotMap {
   private NavigationalSystem NASA;
   private PurePursuitController purell;
   private DriveAtAngleController bentDrive;
-  private DriveStraightController straightVelocity;
 
   public DriveTrain(Joystick leftJ , Joystick rightJ) {
 
@@ -52,6 +50,7 @@ public class DriveTrain implements RobotMap {
     right = rightJ;
 
     //motors
+    flipped = false;
     driveSignal = DualSignal.DEAD;
     leftVictor = new Victor(LEFTMOTORPWM);
     rightVictor = new Victor(RIGHTMOTORPWM);
@@ -65,11 +64,10 @@ public class DriveTrain implements RobotMap {
     rightEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
 
     //control systems
-    straightVelocity = new DriveStraightController(MAXACC, VELFF);
+    empimiliad = new NemesisDrive(gyro,  leftVictor, rightVictor);
     NASA = new NavigationalSystem(leftEncoder, rightEncoder , gyro);
+    purell = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD);
     bentDrive = new DriveAtAngleController(MAXACC, VELFF, DRIVETURNCOMP);
-    purell = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD, DRIVEBASE);
-    empimiliad = new NemesisDrive(gyro,  leftVictor, rightVictor, DRIVETURNCOMP);
 
   }
 
@@ -86,23 +84,32 @@ public class DriveTrain implements RobotMap {
       switch (drives) {
         case STOP:
           break;
-
-        case TELEOP:
-          empimiliad.correctiveDrive(left.getY(), right.getX(), 0 , 0.1);
+        case VELOCITY_CONTROL:
+          //main drive
+          empimiliad.velocityDrive(left.getY(), right.getX());
           break;
-
-        case AUTO :
-          
-          driveSignal.updateSignal(purell.Calculate(NASA.getCurrentPoint(), true) ,
-              purell.Calculate(NASA.getCurrentPoint(), false));
-          
-          
-          empimiliad.tankDrive( driveSignal.getSignals()[0],
-                                driveSignal.getSignals()[1] );          
+        case OPEN_LOOP :
+          //if a sensor breaks
+          empimiliad.openLoopDrive(-left.getY(), right.getX());
           break;
-
+        case PATH_FOLLOWING :
+          //update signals for path following
+          driveSignal.updateSignal(purell.Calculate(NASA.getCurrentPoint(), !flipped) ,
+                                   purell.Calculate(NASA.getCurrentPoint(), flipped)); 
+          break;
+        case BENT_DRIVE :
+          //update signals for drive at an angle
+          driveSignal.updateSignal(bentDrive.calculate(leftEncoder.getDistance() , gyro.getAngle() , false , false) ,
+                                   bentDrive.calculate(rightEncoder.getDistance() , gyro.getAngle() , true , false));
+          break;
       }
       
+      if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.BENT_DRIVE) {
+        //send signals 
+        empimiliad.tankDrive( driveSignal.getSignals()[0],
+                              driveSignal.getSignals()[1] );  
+      }
+
     }
 
     @Override
@@ -117,28 +124,29 @@ public class DriveTrain implements RobotMap {
   }
 
   /**
-   * Sets the drivetrain to corrective human control
-   */
-  public void setTeleop() {
-    drives = driveStates.TELEOP;
-  }
-
-  /**
    * Stops the drivetrain
    */
   public void setStop() {
     drives = driveStates.STOP;
   }
-
-
-  public void setDriveSetpoint(double setpoint) {
-    drives = driveStates.AUTO;
-    straightVelocity.setSetpoint(setpoint);
-    driveSignal.updateSignal(straightVelocity.calculate(leftEncoder.getDistance()) ,
-                              straightVelocity.calculate(rightEncoder.getDistance()));
-
+  
+  //teleop control
+  
+  /**
+   * Starts teleop in velocity control mode
+   */
+  public void startTelop() {
+    drives = driveStates.VELOCITY_CONTROL;
+  }
+  
+  /**
+   * Sets open loop control
+   */
+  public void setOpenLoop() {
+    drives = driveStates.OPEN_LOOP;
   }
 
+  //Path Following
 
   /**
    * Changes the path the purell follows
@@ -152,25 +160,31 @@ public class DriveTrain implements RobotMap {
    * Follows the path using the purell controller
    */
   public void followPath() {
-    drives = driveStates.AUTO;
-
+    drives = driveStates.PATH_FOLLOWING;
   }
 
-  public boolean driveStDone() {
-    return straightVelocity.isDone();
+  public void flip() {
+    purell.flip(true);
+  }
+  
+  //angled drive 
+  
+  /**
+   * Makes the drive controler drive at an angle
+   * @param driveSet : setpoint to drive to
+   * @param angleSet : angle to turn to
+   */
+  public void driveAtAngle(double driveSet ,double angleSet) {
+    drives = driveStates.BENT_DRIVE;
+    bentDrive.setSetpoint(driveSet , angleSet);
   }
 
+  /**
+   * angle drive check
+   * @return if the angle drive is done
+   */
   public boolean angleDriveDone() {
     return bentDrive.isDone();
-    
   }
-
-  public void driveAtAngle(double driveSet ,double angleSet) {
-    drives = driveStates.AUTO;
-    bentDrive.setSetpoint(driveSet , angleSet);
-    driveSignal.updateSignal(bentDrive.calculate(leftEncoder.getDistance() , gyro.getAngle() , false) ,
-        bentDrive.calculate(rightEncoder.getDistance() , gyro.getAngle() , true));
-  }
-
-
+  
 }

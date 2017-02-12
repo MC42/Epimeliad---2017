@@ -37,15 +37,16 @@ public class Path {
 
     //get the percent across the path
     double closestPointIndex = pathSeg.getPercentAcross(new PathSegment(pathSeg.startPoint , pointAfterLook).length );
-    System.out.println("closest point " + closestPointIndex);
     
     if(currentIndex == segments.size()) {
       return myPos;
     }
-
+    
+    //if the CPI is less than one then return the point
     if(closestPointIndex < 1) {
       return pointAfterLook;
     }  else {
+      //other wise increment the index
       currentIndex +=1;
       System.out.println("current index " + currentIndex);
       return findPoint(pointAfterLook , lookAhead);

@@ -15,11 +15,19 @@ public class Point {
   double _y;
   public double _theta;
 
-  public Point(double x, double y, double theta){
+  public Point(double x , double y) {
+    _x = x;
+    _y = y;
+    _theta = 0;
+  }
+  
+  public Point(double x, double y, double theta) {
     _x = x;
     _y = y;
     _theta = theta;
   }
+  
+  
 
   public double getX() {
     return _x;
@@ -49,6 +57,9 @@ public class Point {
     return new Point(newX, newY, _theta + theta);
   }
 
+  public Point flip(double theta) {
+    return new Point(-_x , -_y , _theta+theta);
+  }
   /**
    * Fits a circular arc to a given length and exit angle
    * @param arcLength Length of the arc

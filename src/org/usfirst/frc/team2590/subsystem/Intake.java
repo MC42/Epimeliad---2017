@@ -34,26 +34,31 @@ public class Intake implements RobotMap {
     public void loop() {
       switch (intake) {
         case STOP :
+          //set motor speeds
           pullyMotor.set(0);
           intakeMotor.set(0);
           intakeSolenoid.set(false);
           break;
         case EXAUST :
+          //spit out balls
           pullyMotor.set(-1);
           intakeMotor.set(-1);
           intakeSolenoid.set(true);
           break;
         case INTAKE :
+          //suck balls
           pullyMotor.set(1);
           intakeMotor.set(1);
           intakeSolenoid.set(true);
           break;
         case INTAKE_NO_PULL :
+          //intake balls without the pully
           pullyMotor.set(0);
           intakeMotor.set(1);
           intakeSolenoid.set(true);
           break;
         case JUST_PULL :
+          //only use the pully
           pullyMotor.set(1);
           intakeMotor.set(0);
           break;

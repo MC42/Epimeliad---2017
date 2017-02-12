@@ -14,8 +14,10 @@ public class NavigationalSystem extends Thread {
 
   //gyro and sensor readings
   private double lastGyro;
+  private boolean inverted;
   private double lastReadingleft;
   private double lastReadingright;
+  
 
   //position based stuff
   ADXRS450_Gyro gyro;
@@ -28,6 +30,7 @@ public class NavigationalSystem extends Thread {
 
     //sensor readings
     lastGyro = 0;
+    inverted = false;
     lastReadingleft = 0;
     lastReadingright = 0;
 
@@ -49,7 +52,7 @@ public class NavigationalSystem extends Thread {
       //get all encoders and gyro positions
       double currEncoderleft = leftEncoder.getDistance();
       double currEncoderright = rightEncoder.getDistance();
-      double currGyro = Math.toRadians(-gyro.getAngle());
+      double currGyro = Math.toRadians(gyro.getAngle() * (inverted?1:-1));
 
       //get the delta between the last reading and now
       double dEncoderleft = currEncoderleft - lastReadingleft;
@@ -73,6 +76,10 @@ public class NavigationalSystem extends Thread {
     }
   }
 
+  public void setInverted(boolean inverted) {
+    this.inverted = inverted;
+  }
+  
   public Point getCurrentPoint() {
     return pose;
   }

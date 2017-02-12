@@ -23,11 +23,15 @@ public class DriveStraightController {
   }
 
   public double calculate(double processVar) {
+    //error
     error = distanceStp-processVar;
+    
     //velocity calculations
     velocity = Math.sqrt(Math.abs(2*maxAcc*error));
     flipped = error < 0;
     velocity *= (flipped?-1:1);
+    
+    
     //if it is flip the output
     System.out.println("out " + velocity*kF);
     return velocity * kF;

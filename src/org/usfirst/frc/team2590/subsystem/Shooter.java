@@ -13,6 +13,7 @@ public class Shooter implements RobotMap{
   };
   private shooterStates shooter = shooterStates.STOP;
   
+  //setpoint
   private double setpoint;
 
   //motors
