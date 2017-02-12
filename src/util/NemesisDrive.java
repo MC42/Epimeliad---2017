@@ -1,54 +1,45 @@
 package util;
 
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/**
- * 
- * @author Connor_Hofenbitzer
- *
- */
 public class NemesisDrive {
 
-  private Victor left;
-  private Victor right;
-  private Encoder leftE;
-  private Encoder rightE;
-  private double feedBack;
-  private double wheelSize;
-  
-  public NemesisDrive(Victor left , Victor right , Encoder leftE , Encoder rightE , double feedBack , double wheelSize) {
+  Victor left;
+  Victor right;
+
+  double turnComp;
+  double driveComp;
+  double angleError;
+  double velocityError;
+
+  Encoder leftE;
+  Encoder rightE;
+  ADXRS450_Gyro gyro;
+
+  RobotDrive robotDrive;
+
+  public NemesisDrive(ADXRS450_Gyro gyro ,Victor left , Victor right , double turnComp) {
+    this.gyro = gyro;
     this.left = left;
     this.right = right;
-    this.leftE = leftE;
-    this.rightE = rightE;
-    this.feedBack = feedBack;
-    this.wheelSize = wheelSize;
+    this.turnComp = turnComp;
+
+    robotDrive = new RobotDrive(left , right);
+    angleError = 0;
+    velocityError = 0;
   }
 
-  public void setVelocitySetpoints(double leftVelocity , double rightVelocity ) {
-    double leftError = fpstoRPM(leftVelocity) - (leftE.getRate());
-    double rightError = fpstoRPM(rightVelocity) - (rightE.getRate());
-    System.out.println("left " + fpstoRPM(leftVelocity) + " " + (leftE.getRate()*60));
-    SmartDashboard.putNumber("left encoder error ", leftError);
-    SmartDashboard.putNumber("right encoder error ", rightError);
-    left.set(leftError*feedBack);
-    right.set(rightError*feedBack);
+  public void correctiveDrive(double move , double turn , double setPointAngle, double turnBand) {
+ 
+    robotDrive.arcadeDrive(move , turn);
   }
 
-  public void tankDrive(double leftP , double rightP) {
-    left.set(leftP);
-    right.set(rightP);
+  public void tankDrive(double leftM , double rightM) {
+    robotDrive.tankDrive(leftM, rightM);
   }
-  
-  private double feetToRotations(double feet) {
-    return feet / (wheelSize * Math.PI);
-  }
-
-  private double fpstoRPM(double fps) {
-    return feetToRotations(fps) * 60;
-}
 
 
 }

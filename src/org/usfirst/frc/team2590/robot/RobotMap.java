@@ -3,11 +3,11 @@ package org.usfirst.frc.team2590.robot;
 public interface RobotMap {
 
 	//motors
-	public static final int LEFTMOTORPWM = 7; //1
-	public static final int RIGHTMOTORPWM = 6; //0
-	public static final int CLIMBMOTORPWM = 3;
+	public static final int LEFTMOTORPWM = 0;
+	public static final int RIGHTMOTORPWM = 1;
+	public static final int CLIMBMOTORPWM = 2;
 	public static final int PULLYMOTORPWM = 4;
-	public static final int INTAKEMOTORPWM = 5;
+	public static final int INTAKEMOTORPWM = 3;
 
 	public static final int SHOOTERMASTERID = 0;
       public static final int SHOOTERSLAVEID  = 1;
@@ -27,17 +27,16 @@ public interface RobotMap {
 	public static final double SHOOTERKD = 0.0;
 	public static final double SHOOTERKF = 0.0;
 	public static final double SHOOTERKA = 0.0;
-	public static final int MINCYCLESONTARGET = 10;
 
 	//drive straight
 	public static final double MAXACC = 6;
-	public static final double VELFF = 0.04; //velocity feed forward
+	public static final double VELFF = 0.13; //velocity feed forward
 	
 	//pure pursuit
-	public static final double PUREKV = 0.05;
-	public static final double LOOKAHEAD = 2; //in feet
+	public static final double PUREKV = 0.2;
+	public static final double LOOKAHEAD = 3; //in feet
 	public static final double DRIVEBASE = 2.333;
 	
 	//adaptive controller
-	public static final double DRIVETURNCOMP = 0.005;
+	public static final double DRIVETURNCOMP = 0.01; //.025
 }

@@ -18,13 +18,13 @@ public class NavigationalSystem extends Thread {
   private double lastReadingright;
 
   //position based stuff
+  ADXRS450_Gyro gyro;
   private Point pose;
-  private ADXRS450_Gyro gyro;
   private Encoder leftEncoder;
   private Encoder rightEncoder;
 
 
-  public NavigationalSystem(Encoder left , Encoder right ,ADXRS450_Gyro gyro) {
+  public NavigationalSystem(Encoder left , Encoder right , ADXRS450_Gyro gyro) {
 
     //sensor readings
     lastGyro = 0;
@@ -59,7 +59,7 @@ public class NavigationalSystem extends Thread {
       //play with the point to calculate it on a x y field
       Point arcPoint = Point.fromVelocity((dEncoderleft + dEncoderright)/2, dTheta);
       pose = pose.translateBy(arcPoint);
-      //System.out.println("pose " + pose._x + " " + pose._y);
+
       //save all values
       lastGyro = currGyro;
       lastReadingleft = currEncoderleft;

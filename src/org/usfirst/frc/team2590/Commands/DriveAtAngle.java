@@ -4,22 +4,27 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 public class DriveAtAngle extends Command{
 
-  private double angle;
-  private double distance;
+  double angle;
+  double distance;
+  boolean started;
 
+  /**
+   *
+   * @param distance : DISTANCE MAY NOT BE NEGITIVE
+   */
   public DriveAtAngle(double distance , double angle) {
     this.angle = angle;
     this.distance = distance;
+    started = false;
   }
 
   @Override
   public void run() {
-    Robot.dt.resetAllSensors();
     Robot.dt.driveAtAngle(distance , angle);
+    started = true;
   }
 
-  @Override
   public boolean isDone() {
-    return Robot.dt.angleDriveDone();
+    return started && Robot.dt.angleDriveDone();
   }
 }

@@ -2,35 +2,30 @@ package org.usfirst.frc.team2590.routine;
 
 import org.usfirst.frc.team2590.Commands.DriveAtAngle;
 import org.usfirst.frc.team2590.Commands.DriveStraight;
+import org.usfirst.frc.team2590.robot.Robot;
 
-/**
- * Drops the gear on the center peg and hits the hopper
- * @author Connor_Hofenbitzer
- *
- */
+import edu.wpi.first.wpilibj.Timer;
+
 public class FrontGearDrop extends AutoRoutine {
 
-  private DriveStraight driveForward;
-  private DriveAtAngle driveToHopper;
-  private DriveStraight driveToDropGear;
+  DriveAtAngle driveForward;
+  DriveAtAngle driveToHopper;
+  DriveAtAngle driveToDropGear;
 
   public FrontGearDrop() {
-    driveForward = new DriveStraight(5);
-    driveToHopper = new DriveAtAngle(-10,-45);
-    driveToDropGear = new DriveStraight(-5);
+    driveForward = new DriveAtAngle(0.5, 0);
+    driveToHopper = new DriveAtAngle(3,80);
+    driveToDropGear = new DriveAtAngle(-7,0);
   }
 
   @Override
   public void run() {
-    
-    //drive backwards to drop the gear
-    runCommand(driveToDropGear);
-    
-    //drives out after releasing gear
-    runCommand(driveForward);
-    
-    //drives over to the hopper
-    runCommand(driveToHopper);
+    driveToDropGear.run();
+    Timer.delay(3);
+    driveForward.run();
+    Timer.delay(2);
+    driveToHopper.run();
+   // driveToHopper.run();
   }
 
   @Override

@@ -25,27 +25,30 @@ public class Path {
    * @return a point on the path
    */
   public Point findPoint(Point myPos , double lookAhead) {
+
     //get the path segment the robot is currently on
     PathSegment pathSeg = segments.get(currentIndex);
-    System.out.println("path seg length " + pathSeg.getLength());
+
     //find the closest point on the path
     Point closestPoint = pathSeg.getClosestOnPath(myPos);
-    System.out.println("current closest " + closestPoint._x);
+
     //get the point after adding the lookahead
     Point pointAfterLook = pathSeg.pointTransform(closestPoint,lookAhead);
-    System.out.println("point after look " + pointAfterLook._x);
+
     //get the percent across the path
     double closestPointIndex = pathSeg.getPercentAcross(new PathSegment(pathSeg.startPoint , pointAfterLook).length );
-
+    System.out.println("closest point " + closestPointIndex);
+    
     if(currentIndex == segments.size()) {
       return myPos;
     }
 
-    if(closestPointIndex < 0.99) {
+    if(closestPointIndex < 1) {
       return pointAfterLook;
     }  else {
       currentIndex +=1;
-      return pointAfterLook;
+      System.out.println("current index " + currentIndex);
+      return findPoint(pointAfterLook , lookAhead);
     }
   }
 

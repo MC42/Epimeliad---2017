@@ -9,9 +9,4 @@ public class StartIntake extends Command {
     Robot.intake.intakeBalls();
   }
 
-  @Override
-  public boolean isDone() {
-    return true;
-  }
-
 }

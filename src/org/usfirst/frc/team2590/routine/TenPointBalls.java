@@ -14,8 +14,11 @@ public class TenPointBalls extends AutoRoutine {
 
   @Override
   public void run() {
-    runCommand(wallToPt1);
-    runCommand(pt1Toboiler);
+    wallToPt1.run();
+    waitUntilDone(wallToPt1.isDone());
+    
+    pt1Toboiler.run();
+    waitUntilDone(pt1Toboiler.isDone());
 
     //start shots
   }

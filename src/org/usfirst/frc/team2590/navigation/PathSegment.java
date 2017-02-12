@@ -8,11 +8,11 @@ package org.usfirst.frc.team2590.navigation;
  */
 public class PathSegment {
 
-  public double slope;
+  double slope;
+  double length;
+  Point endPoint;
+  Point startPoint;
   public double theta_;
-  public double length;
-  public Point endPoint;
-  public Point startPoint;
 
   public PathSegment(Point start , Point end) {
 

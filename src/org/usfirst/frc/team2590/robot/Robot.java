@@ -11,11 +11,10 @@ import org.usfirst.frc.team2590.routine.TenPointBalls;
 import org.usfirst.frc.team2590.subsystem.Climber;
 import org.usfirst.frc.team2590.subsystem.DriveTrain;
 import org.usfirst.frc.team2590.subsystem.Intake;
-import org.usfirst.frc.team2590.subsystem.ShitShooter;
+import org.usfirst.frc.team2590.subsystem.Shooter;
 
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
 import util.SmartJoystick;
 
 /**
@@ -31,10 +30,8 @@ public class Robot extends IterativeRobot implements RobotMap{
   public static DriveTrain dt;
   public static Climber climb;
   public static Intake intake;
-  public static ShitShooter shooter;
-  //public static Shooter shooter;
-  Compressor compressor;
-  
+  public static Shooter shooter;
+
   //autonomous
   private static String autoMode;
   private static AutoRoutine auto;
@@ -64,17 +61,15 @@ public class Robot extends IterativeRobot implements RobotMap{
     autoMap.put("Front Gear", new FrontGearDrop());
     autoMap.put("Ten Balls", new TenPointBalls(true));
 		
-    autoMode = "Five Drive";
+    autoMode = "Hopper";
     auto = autoMap.get(autoMode);
 		
     //subsystems
-    intake = Intake.getIntakeInstance();
-    climb = Climber.getClimberInstance();    
-    //shooter = Shooter.getShooterInstance();
-    shooter = new ShitShooter();
-    dt = DriveTrain.getDriveInstance(left, right);
-    compressor = new Compressor();
-    
+    climb = new Climber();    
+    intake = new Intake();
+    shooter = new Shooter();
+    dt = new DriveTrain(left, right);
+	
     //looper
     loopsStarted = false;
     enabledLooper = new Looper(10);
@@ -82,9 +77,7 @@ public class Robot extends IterativeRobot implements RobotMap{
     enabledLooper.register(climb.getClimbLoop());
     enabledLooper.register(intake.getIntakeLoop());
     enabledLooper.register(shooter.getShootLoop());
-    //enabledLooper.register(shooter.getShootLoop());
 
-    //this loop always runs , no matter what, it never stops , NEVER
 }
 
   @Override
@@ -94,8 +87,6 @@ public class Robot extends IterativeRobot implements RobotMap{
       enabledLooper.onEnd();
       loopsStarted = false;
     }
-    compressor.start();
-    
   }
 	
   @Override
@@ -118,14 +109,11 @@ public class Robot extends IterativeRobot implements RobotMap{
 
 	
   public void teleopInit() {
-    //start the loops if they have not already been started
     if(!loopsStarted) {
       System.out.println("Starting loops");
       enabledLooper.startLoops();
       loopsStarted = true;
     }
-        
-
     dt.setTeleop();
   }
   /**
@@ -133,27 +121,23 @@ public class Robot extends IterativeRobot implements RobotMap{
    */
   @Override
   public void teleopPeriodic() {
-    dt.setTeleop();
-
-    //big succ for little buck
+    
+    //big succ
     if(left.getRawButton(1)) {
       intake.intakeBalls();
-    } else if(left.getRawButton(2)) {
+    } else if(left.getRawButton(2)){
       intake.outtakeBalls();
     } else {
       intake.stopIntake();
     }
-    if(right.getRawButton(1)) {
-      
-      shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0" , 1));
-    } else {
-      shooter.setSetpoint(0);
-    }
     
-    if(right.getFallingEdge(5)) {
-      dt.shift(true);
-    } else if(right.getFallingEdge(3)) {
-      dt.shift(false);
+    //little blow
+    if(right.getRawButton(1)) {
+      shooter.setSetpoint(5600, true);
+    } else if(right.getRawButton(2)){
+      shooter.setSetpoint(4000, true);
+    } else {
+      
     }
     
   }
