@@ -2,13 +2,14 @@ package org.usfirst.frc.team2590.looper;
 
 import java.util.ArrayList;
 
+import edu.wpi.first.wpilibj.Notifier;
+
 /**
  * The handler for update loops
  * @author Connor_Hofenbitzer
  */
 public class Looper {
 
-  private long delay_;
   private ArrayList<Loop> loopArray;
   private boolean running_ = false;
 
@@ -21,14 +22,6 @@ public class Looper {
           for(Loop loop : loopArray) {
             loop.loop();
           }
-
-          // let the thread get some rest
-          try {
-            Thread.sleep(delay_);
-          } catch(Exception e) {
-            e.printStackTrace();
-          }
-
         }
       }
     }
@@ -36,10 +29,8 @@ public class Looper {
 
 
   public Looper(long delayTime) {
-    delay_ = delayTime;
     loopArray = new ArrayList<Loop>();
-
-    new Thread(looper_).start();
+    new Notifier(looper_).startPeriodic(delayTime/1000);
   }
 
   /**

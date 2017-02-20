@@ -1,14 +1,25 @@
 package org.usfirst.frc.team2590.routine;
 
-public class DoNothing extends AutoRoutine {
+import org.usfirst.frc.team2590.Commands.TurnToCamera;
 
+public class DoNothing extends AutoRoutine {
+   
+  
+  TurnToCamera turn;
+  
+  public DoNothing() {
+    turn = new TurnToCamera();
+  }
+ 
   @Override
   public void run() {
+    turn.run();
+ 
   }
 
   @Override
   public void end() {
-
+    
   }
 
 }

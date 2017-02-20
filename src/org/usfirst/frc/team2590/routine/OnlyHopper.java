@@ -19,9 +19,9 @@ public class OnlyHopper extends AutoRoutine{
     //drive to a point in between the start point and the hopper
     middlePoint = new Point(5 , 1, 0);
     //drive to the front of the hopper
-    frontHopper = new Point( 8 ,1.5, 0); //3.75
+    frontHopper = new Point( 8 ,2.5, 0); //3.75
     //drive past the hopper
-    middleHopper = new Point(10, 1.5, 0);
+    middleHopper = new Point(10, 2.5, 0);
     
     //binding the points
     middleSegment = new PathSegment(new Point(0,0,0), middlePoint);

@@ -24,6 +24,9 @@ public class NavigationalSystem extends Thread {
   private Point pose;
   private Encoder leftEncoder;
   private Encoder rightEncoder;
+  
+  //thread sleep rate
+  private static final long SLEEPRATE = 200; 
 
 
   public NavigationalSystem(Encoder left , Encoder right , ADXRS450_Gyro gyro) {
@@ -59,7 +62,7 @@ public class NavigationalSystem extends Thread {
       double dEncoderright = currEncoderright - lastReadingright;
       double dTheta = currGyro - lastGyro;
 
-      //play with the point to calculate it on a x y field
+      //translate the point to calculate it on an x y field
       Point arcPoint = Point.fromVelocity((dEncoderleft + dEncoderright)/2, dTheta);
       pose = pose.translateBy(arcPoint);
 
@@ -69,7 +72,8 @@ public class NavigationalSystem extends Thread {
       lastReadingright = currEncoderright;
 
       try {
-        Thread.sleep(200);
+        //don't need to calculate the rate
+        Thread.sleep(SLEEPRATE);
       } catch(Exception e) {
 
       }
@@ -82,5 +86,17 @@ public class NavigationalSystem extends Thread {
   
   public Point getCurrentPoint() {
     return pose;
+  }
+  
+  public void reset() {
+    leftEncoder.reset();
+    rightEncoder.reset();
+    gyro.reset();
+    lastGyro = 0;
+    lastGyro = 0;
+    inverted = false;
+    lastReadingleft = 0;
+    lastReadingright = 0;
+    pose = new Point(0, 0, 0);
   }
 }

@@ -12,6 +12,7 @@ public class Path {
   private int currentIndex = 0;
 
   public Path(ArrayList<PathSegment> segments) {
+    System.out.println("started");
     this.segments = segments;
 
   }
@@ -28,7 +29,7 @@ public class Path {
 
     //get the path segment the robot is currently on
     PathSegment pathSeg = segments.get(currentIndex);
-
+    
     //find the closest point on the path
     Point closestPoint = pathSeg.getClosestOnPath(myPos);
 
@@ -36,21 +37,23 @@ public class Path {
     Point pointAfterLook = pathSeg.pointTransform(closestPoint,lookAhead);
 
     //get the percent across the path
-    double closestPointIndex = pathSeg.getPercentAcross(new PathSegment(pathSeg.startPoint , pointAfterLook).length );
+    double closestPointPercent = pathSeg.getPercentAcross(new PathSegment(pathSeg.startPoint , pointAfterLook).length );
     
+    //prevents index out of bounds
     if(currentIndex == segments.size()) {
       return myPos;
     }
     
     //if the CPI is less than one then return the point
-    if(closestPointIndex < 1) {
+    if(closestPointPercent < 1) {
       return pointAfterLook;
     }  else {
       //other wise increment the index
-      currentIndex +=1;
+      currentIndex+=1;
       System.out.println("current index " + currentIndex);
       return findPoint(pointAfterLook , lookAhead);
     }
+    
   }
 
   public double getRemaningPathLength(Point curr) {

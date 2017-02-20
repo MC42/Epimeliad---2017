@@ -1,5 +1,7 @@
 package org.usfirst.frc.team2590.navigation;
 
+import util.NemesisVector;
+
 /**
  * A segment of two points , can calculate the closest point on segment to the robot
  * A segment will always be straight
@@ -13,6 +15,7 @@ public class PathSegment {
   Point endPoint;
   Point startPoint;
   public double theta_;
+  private NemesisVector unitVector;
 
   public PathSegment(Point start , Point end) {
 
@@ -20,10 +23,13 @@ public class PathSegment {
     startPoint = start;
 
     //arch length calculations
+    //field coordinates
     double dX = end._x - start._x;
     double dY = end._y - start._y;
-    length = Math.sqrt( (dX*dX) + (dY*dY) );
-    theta_ = Math.toDegrees(Math.asin(dY/length));
+    length = Math.hypot(dX, dY);
+    theta_ = Math.toDegrees(Math.atan2(dY, dX));
+    System.out.println("x length " + dX + " " + dY);
+    unitVector = new NemesisVector(dX/length, dY/length, 1);
     slope = dY/dX;
   }
 
@@ -33,11 +39,16 @@ public class PathSegment {
    * @return the closest point on the line segment
    */
   public Point getClosestOnPath( Point current ) {
+/*
+    double xPoint = (startPoint._x * (slope*slope) - (startPoint._y - current._y)*slope + current._x) / ((slope*slope)+1);
+    double yPoint = slope * (xPoint - startPoint._x) + startPoint._y;*/
 
-    double s = (endPoint._y-startPoint._y)/(endPoint._x-startPoint._x);
-    double xPoint = (startPoint._x * (s*s) - (startPoint._y - current._y)*s + current._x) / ((s*s)+1);
-    double yPoint = s * (xPoint - startPoint._x) + startPoint._y;
-
+    double distance = unitVector.getX()*(current._y - startPoint._y) - 
+                      unitVector.getY()*(current._x - startPoint._x);
+    
+    double xPoint = current._x + distance*unitVector.getY();
+    double yPoint = current._y - distance*unitVector.getX();
+    
     return new Point(xPoint , yPoint , endPoint._theta);
   }
 
@@ -47,8 +58,7 @@ public class PathSegment {
    * @return : a double representing percentage across
    */
   public double getPercentAcross(double partLength) {
-    /*double partLength = Math.sqrt( (closest._x - startPoint._x) * (closest._x - startPoint._x) +
-										(closest._y - startPoint._y) * (closest._y - startPoint._y));*/
+
     return (partLength) / length;
   }
 
@@ -72,7 +82,7 @@ public class PathSegment {
     double r = Math.sqrt(1 + (slope*slope));
     double x = start._x + (distance/r);
     double y = start._y + ((distance*slope)/r);
-
+    
     return new Point(x , y , 0);
   }
 

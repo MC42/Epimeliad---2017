@@ -26,10 +26,10 @@ public class DriveAtAngleController {
   public void setSetpoint(double setPoint , double angle ) {
     angleStp = angle;
     distanceStp = setPoint;
-    //flipped = setPoint < 0;
   }
 
-  public double calculate(double processVar , double gyroA , boolean right , boolean isFlipped) {
+  public double calculate(double processVar , double gyroA , boolean right) {
+    //calculate error
     error = distanceStp-processVar;
     
     //velocity calculations
@@ -41,17 +41,17 @@ public class DriveAtAngleController {
 
     //if it is flip the output
     double out = ((velocity*kF)) + (((angleStp-gyroA)*kT) * (right?1:-1));
-    System.out.println("error = " + error);
     
-    if(Math.abs(error) >= 0.2) {
-      return out * (isFlipped?-1:1);
+    //do this other wise it will continue driving once youve hit drive setpoint because
+    //it wants to get to the angle setpoint
+    if(Math.abs(error) > 0.1) { 
+      return out;
     }
     
     return 0.0;
   }
 
   public boolean isDone() {
-    System.out.println("error " + (Math.abs(error) < 0.5));
-    return Math.abs(error) < 0.5;
+    return Math.abs(error) < 0.1;
   }
 }

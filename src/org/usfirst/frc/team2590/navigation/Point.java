@@ -57,9 +57,6 @@ public class Point {
     return new Point(newX, newY, _theta + theta);
   }
 
-  public Point flip(double theta) {
-    return new Point(-_x , -_y , _theta+theta);
-  }
   /**
    * Fits a circular arc to a given length and exit angle
    * @param arcLength Length of the arc

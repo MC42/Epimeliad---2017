@@ -3,18 +3,29 @@ package org.usfirst.frc.team2590.subsystem;
 import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Victor;
 
 public class Climber implements RobotMap {
 
+  private static Climber climb = null;
+  public static Climber getClimber() {
+    if(climb == null) {
+      climb = new Climber();
+    }
+    return climb;
+  }
+  
   private enum climbStates {
     CLIMBING , NOT_CLIMBING
   }
   private climbStates climber = climbStates.NOT_CLIMBING;
 
   private Victor climbVictor;
+  //ranges from 0 to 1
+  //0 = stop, 1 = full speed
   private static double CLIMBSPEED = 1;
-  private static double STALLSPEED = 0;
+  private static double STALLSPEED = 0; 
 
   public Climber() {
     climbVictor = new Victor(CLIMBMOTORPWM);
@@ -37,6 +48,11 @@ public class Climber implements RobotMap {
           //stop climbing
         case NOT_CLIMBING :
           climbVictor.set(STALLSPEED);
+          break;
+          
+          //default don't climb
+        default :
+          DriverStation.reportWarning("Hit default case in climber", false);
           break;
       }
     }

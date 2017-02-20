@@ -2,7 +2,9 @@ package org.usfirst.frc.team2590.Commands;
 
 import org.usfirst.frc.team2590.robot.Robot;
 
-public class DriveAtAngle extends Command{
+import edu.wpi.first.wpilibj.Timer;
+
+public class DriveAtAngle extends NemesisCommand {
 
   double angle;
   double distance;
@@ -20,11 +22,13 @@ public class DriveAtAngle extends Command{
 
   @Override
   public void run() {
-    Robot.dt.driveAtAngle(distance , angle);
+    Timer.delay(.01);
+    Robot.driveT.resetSensors();
+    Robot.driveT.driveAtAngle(distance , angle);
     started = true;
   }
 
-  public boolean isDone() {
-    return started && Robot.dt.angleDriveDone();
+  public boolean done() {
+    return started && Robot.driveT.angleDriveDone();
   }
 }

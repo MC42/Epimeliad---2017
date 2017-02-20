@@ -11,20 +11,19 @@ public class FivePointBoi extends AutoRoutine {
   Point pastLinePoint;
   
   public FivePointBoi() {
-    pastLinePoint = new Point(5, 1,0);
+    pastLinePoint = new Point(5, 0,0);
     testPath = new RunPath(new PathSegment(new Point(0,0,0) , pastLinePoint)); 
   }
 
   @Override
   public void run() {
-    Robot.dt.flip();
     testPath.startChange();
     testPath.run();
   }
 
   @Override
   public void end() {
-    Robot.dt.setStop();
+    Robot.driveT.setStop();
   }
 
 }
