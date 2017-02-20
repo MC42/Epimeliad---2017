@@ -41,17 +41,19 @@ public class PurePursuitController implements RobotMap{
     /*if(flip) {
       currTheta -= 180;
     }*/
+    double theta = new PathSegment(currPoint , lookAheadPoint).theta_;
 
     //calculates travel from start of path to lookahead
-    double travel = (new PathSegment(new Point(0,0,0), lookAheadPoint).length);
+    double travel = (new PathSegment(new Point(0,0,0), lookAheadPoint).length)*(flip?-1:1);
     
     //current distance from the start of the path to current point
-    double currDist = (new PathSegment(new Point(0,0,0) , currPoint).length);
+    double currDist = (new PathSegment(new Point(0,0,0) , currPoint).length)*(flip?-1:1);
     
-    double theta = new PathSegment(currPoint , lookAheadPoint).theta_;
+    
     velCont.setSetpoint(travel , theta );
     //calculates output to drive motor
-    return velCont.calculate(currDist , currTheta*(flip?-1:1) , isRight);
+    System.out.println("curr " + currPoint._x + " " + currPoint._y);
+    return velCont.calculate(currDist , currTheta , isRight);
   }
 
   public boolean isDone() {

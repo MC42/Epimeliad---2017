@@ -85,15 +85,14 @@ public class Robot extends IterativeRobot implements RobotMap{
     driveT  = DriveTrain.getDriveTrain(leftJoy, rightJoy);
 	
     //looper
-    enabledLooper = new Looper(5);
+    enabledLooper = new Looper(.5);
     enabledLooper.register(driveT.getDriveLoop());
     enabledLooper.register(climb.getClimbLoop());
     enabledLooper.register(intake.getIntakeLoop());
     enabledLooper.register(shooter.getShootLoop());
     enabledLooper.register(gearHold.getGearLoop());
     
-    plug3 = new Solenoid(3);
-    plug4 = new Solenoid(4);
+    plug4 = new Solenoid(2);
     
     //vision
 
@@ -141,7 +140,6 @@ public class Robot extends IterativeRobot implements RobotMap{
     driveT.setOpenLoop();
     
     //close all excess vents
-    plug3.set(false);
     plug4.set(false);
   }
   

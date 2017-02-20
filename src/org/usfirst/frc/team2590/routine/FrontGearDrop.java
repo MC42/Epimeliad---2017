@@ -31,7 +31,7 @@ public class FrontGearDrop extends AutoRoutine {
   
   public FrontGearDrop() {
     driveAway = new  DriveAtAngle(6, 0);
-    driveToDropGear = new DriveAtAngle(-7, 0);
+    driveToDropGear = new DriveAtAngle(-6, 0);
     TurnToGear = new TurnToCamera();
     end = new Point(5.5 , -5);
     start = new Point(0, 0);

@@ -27,7 +27,7 @@ public class Shooter implements RobotMap {
   };
   private shooterStates shooter = shooterStates.STOP;
 
-  private static final double TOLERANCE = 50;
+  private static final double TOLERANCE = 100;
   
   //setpoint
   private double setpoint;
@@ -40,7 +40,7 @@ public class Shooter implements RobotMap {
   
   public Shooter() {
     //desired speed of the shooter (RPM)
-    setpoint = 3000;
+    setpoint = 0;
     pullyMotor = new Victor(PULLEYMOTORPWM);
 
     //master shooter motor
@@ -49,18 +49,19 @@ public class Shooter implements RobotMap {
     shooterMaster.setFeedbackDevice(FeedbackDevice.QuadEncoder);
     shooterMaster.setPID(SHOOTERKP, SHOOTERKI, SHOOTERKD, SHOOTERKF, 0, 0.0, 0);
     shooterMaster.enableBrakeMode(false); //motor can move
-    shooterMaster.clearStickyFaults();
     shooterMaster.reverseSensor(true);
-    shooterMaster.setInverted(true);
-    
+    shooterMaster.reverseOutput(true);
+    shooterMaster.clearStickyFaults();
+
+    /*
     //slave shooter motor
     shooterSlave = new CANTalon(SHOOTERSLAVEID);
     shooterSlave.changeControlMode(CANTalon.TalonControlMode.Follower);
     shooterSlave.set(SHOOTERMASTERID);
     shooterSlave.enableBrakeMode(false);
+    shooterSlave.reverseOutput(true);
     shooterSlave.clearStickyFaults();
-    shooterSlave.setInverted(true);
-    pdb = new PowerDistributionPanel();
+    pdb = new PowerDistributionPanel();*/
     
   }
   
@@ -87,8 +88,13 @@ public class Shooter implements RobotMap {
           break;
         case SHOOT_NOW :
           //feeds the balls instantly (runs shooter motor and conveyer)
-          shooterMaster.changeControlMode(TalonControlMode.Speed);          
-          shooterMaster.set(setpoint);
+          shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
+          if(shooterMaster.getSpeed() < setpoint-50) {
+            shooterMaster.set(-1);
+          } else {
+            shooterMaster.set(0);
+          }
+          //shooterMaster.set(setpoint);
           handlePully(true);
           break;
         
