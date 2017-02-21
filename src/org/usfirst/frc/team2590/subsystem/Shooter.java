@@ -51,6 +51,7 @@ public class Shooter implements RobotMap {
     shooterMaster.enableBrakeMode(false); //motor can move
     shooterMaster.reverseSensor(true);
     shooterMaster.reverseOutput(true);
+    shooterMaster.configPeakOutputVoltage(0, -12);
     shooterMaster.clearStickyFaults();
 
     /*
@@ -88,19 +89,17 @@ public class Shooter implements RobotMap {
           break;
         case SHOOT_NOW :
           //feeds the balls instantly (runs shooter motor and conveyer)
-          shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
-          if(shooterMaster.getSpeed() < setpoint-50) {
-            shooterMaster.set(-1);
-          } else {
-            shooterMaster.set(0);
-          }
+          shooterMaster.changeControlMode(TalonControlMode.Speed);
+          shooterMaster.set(setpoint);
           //shooterMaster.set(setpoint);
-          handlePully(true);
+          //handlePully(true);
           break;
         
         //just running the pulley
         case PULLEY_IN :
-          pullyMotor.set(1);
+          shooterMaster.changeControlMode(TalonControlMode.Speed);
+          shooterMaster.set(setpoint);
+          pullyMotor.set(0.5);
           break;
         case PULLEY_OUT :
           pullyMotor.set(-1);
@@ -112,7 +111,7 @@ public class Shooter implements RobotMap {
       }
       
       //System.out.println("pdb " + pdb.getCurrent(10) + " " + pdb.getCurrent(11));
-
+      SmartDashboard.putNumber("shooter motor", shooterMaster.getOutputVoltage());
       SmartDashboard.putNumber("shooter enc", shooterMaster.getSpeed());
     }
 

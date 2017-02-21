@@ -85,7 +85,7 @@ public class DriveTrain implements RobotMap {
     NASA = new NavigationalSystem(leftEncoder, rightEncoder , gyro);
     purell = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD);
     straightDrive = new NemesisDrive(gyro,  leftVictor, rightVictor);
-    angledDriveCont = new DriveAtAngleController(MAXACC, VELFF, 0.05);
+    angledDriveCont = new DriveAtAngleController(3, VELFF, 0.075);
     turn = new PID(TURNKP, TURNKI, TURNKD, false, 1);
   }
 
@@ -222,6 +222,10 @@ public class DriveTrain implements RobotMap {
     angledDriveCont.setSetpoint(driveSet , angleSet);
   }
   
+  public void unInvert() {
+    leftEncoder.setReverseDirection(false);
+    rightEncoder.setReverseDirection(false);
+  }
   public void flipPath() {
     purell.flip();
     leftEncoder.setReverseDirection(true);
@@ -240,6 +244,7 @@ public class DriveTrain implements RobotMap {
     NASA.reset();
   }
   public void resetSensors() {
+    gyro.reset();
     leftEncoder.reset();
     rightEncoder.reset();
   }

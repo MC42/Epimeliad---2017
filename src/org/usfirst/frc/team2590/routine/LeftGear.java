@@ -1,18 +1,22 @@
 package org.usfirst.frc.team2590.routine;
 
+import org.usfirst.frc.team2590.Commands.DriveAtAngle;
 import org.usfirst.frc.team2590.Commands.RunPath;
 import org.usfirst.frc.team2590.navigation.PathSegment;
 import org.usfirst.frc.team2590.navigation.Point;
 import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class LeftGear extends AutoRoutine {
   
   //needs to change
   private Alliance side;
- 
+  private DriveAtAngle driveToBoiler;
+  
   //points
   private Point onGear;
   private Point beforeGear;
@@ -30,12 +34,13 @@ public class LeftGear extends AutoRoutine {
     
     //get the alliance were on
     side = DriverStation.getInstance().getAlliance();
-
+    driveToBoiler = new DriveAtAngle(9.4, -27);
     //points
     //onGear = new Point()
     beforeGear = new Point(4.5 , 0 , 0);
-    nextToGear = new Point(7.5, -2 , 0);
-    onGear = new Point(9 , -4 , 0);
+    nextToGear = new Point(8, -2 , 0);
+    onGear = new Point(10 , -4 , 0);
+    
     //segments
     straight = new PathSegment(new Point(0,0,0), beforeGear);
     getNextToGear = new PathSegment(beforeGear, nextToGear);
@@ -46,11 +51,20 @@ public class LeftGear extends AutoRoutine {
   
   @Override
   public void run() {
+    Robot.gearHold.closeWings();
     Robot.driveT.setSolenoid(false);
     getToGear.startChange();
     getToGear.flip();
     getToGear.run();
-    waitUntilDone(3, getToGear.done());
+    Timer.delay(2.35);
+    Robot.gearHold.openWings();
+    Timer.delay(1);
+    Robot.shooter.setSetpoint(6650, true);
+    Robot.shooter.shootNow();
+    Robot.driveT.unInvert();
+    driveToBoiler.run();
+    Timer.delay(3);
+    Robot.shooter.onlyPulley();
   }
 
   @Override

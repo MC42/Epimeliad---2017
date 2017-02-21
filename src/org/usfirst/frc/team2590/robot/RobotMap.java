@@ -19,7 +19,7 @@ public interface RobotMap {
 	//sol
 	public static final int INTAKE_SOLENOID = 1;
 	public static final int SHIFTER_SOLENOID = 0;
-	public static final int GEAR_HOLDER_SOLENOID = 5;
+	public static final int GEAR_HOLDER_SOLENOID = 2;
 	
 	//encoders
 	public static final int LEFTENCODERA = 2; 
@@ -36,15 +36,15 @@ public interface RobotMap {
 	public static final double SHOOTERKA = 0.0; */
 	
 	//real shooter
-	public static final double SHOOTERKP = 0.4; //0.05
-      public static final double SHOOTERKI = 0.0;
-      public static final double SHOOTERKD = 0.8;
-      public static final double SHOOTERKF = 0.075;
+	public static final double SHOOTERKP = 0.45; //0.05
+      public static final double SHOOTERKI = 0.;
+      public static final double SHOOTERKD = 0.0;
+      public static final double SHOOTERKF = 0.072; //0.083
       public static final double SHOOTERKA = 0.0; 
 
 	//drive straight
-	public static final double MAXACC = 6;
-	public static final double VELFF = 0.13; //velocity feed forward
+	public static final double MAXACC = 6; //6
+	public static final double VELFF = 0.2; //velocity feed forward //0.13
 	
 	//pure pursuit
 	public static final double PUREKV = 0.175;

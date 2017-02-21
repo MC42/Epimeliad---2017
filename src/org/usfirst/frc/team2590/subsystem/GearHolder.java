@@ -38,10 +38,10 @@ public class GearHolder implements RobotMap {
     public void loop() {
       switch(gear) {
         case OPEN :
-          gearSolenoid.set(true);
+          gearSolenoid.set(false);
           break;
         case CLOSED :
-          gearSolenoid.set(false);
+          gearSolenoid.set(true);
           break;
         default :
           DriverStation.reportWarning("Hit default case in gear holder", false);
