@@ -57,7 +57,7 @@ public class PurePursuitController implements RobotMap{
   }
 
   public boolean isDone() {
-    return done;
+    return done || path.isDone();
   }
   
   public void setPath(Path newPath) {

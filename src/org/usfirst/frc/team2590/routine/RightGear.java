@@ -8,13 +8,8 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
 
-/**
- * From the side where the boiler is on your left (BLUE)
- * @author Connor_Hofenbitzer
- *
- */
-public class LeftGear extends AutoRoutine {
-  
+public class RightGear extends AutoRoutine{
+
   //needs to change
   private DriveAtAngle driveToBoiler;
   
@@ -31,14 +26,14 @@ public class LeftGear extends AutoRoutine {
   //path
   private RunPath getToGear;
   
-  public LeftGear(boolean side) {
+  public RightGear(boolean side) {
   
-    //straight dash to the boiler or hopper , depending on side
-    driveToBoiler = new DriveAtAngle((side?9.4:3), (side?-25 : 12));
+    //straight dash to the boiler 
+    driveToBoiler = new DriveAtAngle((side?3:9.4), (side?12 : -47));
 
     //points
-    onGear = new Point(9 , -5, 0);
-    nextToGear = new Point(8, -2 , 0);
+    onGear = new Point(10 , 4, 0);
+    nextToGear = new Point(8, 2 , 0);
     beforeGear = new Point(4.5 , 0 , 0);
     
     //segments
@@ -63,7 +58,7 @@ public class LeftGear extends AutoRoutine {
     getToGear.flip();
     getToGear.run();
     
-    /*//open the wings just before we get there 
+    //open the wings just before we get there 
     Timer.delay(2.35);
     Robot.gearHold.openWings();
     Timer.delay(1);
@@ -75,7 +70,7 @@ public class LeftGear extends AutoRoutine {
     
     //shoot when we get to the boiler
     waitUntilDone(2, driveToBoiler.done());
-    Robot.shooter.shootWhenReady();*/
+    Robot.shooter.shootWhenReady();
   }
 
   @Override
@@ -84,5 +79,4 @@ public class LeftGear extends AutoRoutine {
   }
 
   
-
 }

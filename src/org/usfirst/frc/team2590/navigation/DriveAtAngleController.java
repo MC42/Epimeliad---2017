@@ -27,6 +27,10 @@ public class DriveAtAngleController {
     angleStp = angle;
     distanceStp = setPoint;
   }
+  
+  public double getSetpoint() {
+    return distanceStp;
+  }
 
   public double calculate(double processVar , double gyroA , boolean right) {
     //calculate error
@@ -44,7 +48,7 @@ public class DriveAtAngleController {
     
     //do this other wise it will continue driving once youve hit drive setpoint because
     //it wants to get to the angle setpoint
-    if(Math.abs(error) > 0.1) { 
+    if(Math.abs(error) > 0.01) { 
       return out;
     }
     

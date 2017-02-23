@@ -61,11 +61,11 @@ public class Intake implements RobotMap {
           break;
         case INTAKE :
           //intake balls
-          intakeMotor.set(-0.5);
+          intakeMotor.set(1);
           intakeSolenoid.set(true);
           break;
         case AGIGTATE :
-          intakeMotor.set(-0.8);
+          intakeMotor.set(0.8);
           intakeSolenoid.set(false);
           break;
         default :

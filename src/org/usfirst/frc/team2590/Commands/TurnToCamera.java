@@ -9,7 +9,7 @@ public class TurnToCamera extends NemesisCommand {
 
   @Override
   public void run() {
-    Robot.driveT.setSolenoid(true);
+    Robot.driveT.shiftLow();
     System.out.println("turn " + Robot.vision.angleToTarget());
     Robot.driveT.turnToAngle(Robot.vision.angleToTarget());
   }

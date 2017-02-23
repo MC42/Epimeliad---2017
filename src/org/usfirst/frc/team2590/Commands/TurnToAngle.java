@@ -12,7 +12,7 @@ public class TurnToAngle extends NemesisCommand{
   
   @Override
   public void run() {
-    Robot.driveT.setSolenoid(true);
+    Robot.driveT.shiftLow();
     Robot.driveT.turnToAngle(setpoint);
   }
 

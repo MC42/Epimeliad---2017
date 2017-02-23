@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class Path {
   private ArrayList<PathSegment> segments;
   private int currentIndex = 0;
+  private boolean done = false;
 
   public Path(ArrayList<PathSegment> segments) {
     System.out.println("started");
@@ -40,7 +41,8 @@ public class Path {
     double closestPointPercent = pathSeg.getPercentAcross(new PathSegment(pathSeg.startPoint , pointAfterLook).length );
     
     //prevents index out of bounds
-    if(currentIndex == segments.size()) {
+    if(currentIndex >= segments.size()) {
+      done = true;
       return myPos;
     }
     
@@ -56,6 +58,9 @@ public class Path {
     
   }
 
+  public boolean isDone() {
+    return done;
+  }
   public double getRemaningPathLength(Point curr) {
     return new PathSegment(curr , segments.get(segments.size()-1).endPoint).length;
   }

@@ -4,6 +4,7 @@ import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.NemesisSolenoid;
 
 public class GearHolder implements RobotMap {
@@ -38,15 +39,16 @@ public class GearHolder implements RobotMap {
     public void loop() {
       switch(gear) {
         case OPEN :
-          gearSolenoid.set(false);
+          gearSolenoid.set(true);
           break;
         case CLOSED :
-          gearSolenoid.set(true);
+          gearSolenoid.set(false);
           break;
         default :
           DriverStation.reportWarning("Hit default case in gear holder", false);
           break;
       }
+      SmartDashboard.putBoolean("Gear Holder Open", gearSolenoid.get());
     }
 
     @Override

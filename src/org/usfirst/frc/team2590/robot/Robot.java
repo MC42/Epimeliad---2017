@@ -5,9 +5,9 @@ import org.usfirst.frc.team2590.looper.Looper;
 import org.usfirst.frc.team2590.routine.AutoRoutine;
 import org.usfirst.frc.team2590.routine.DoNothing;
 import org.usfirst.frc.team2590.routine.FivePointBoi;
+import org.usfirst.frc.team2590.routine.FourtyBall;
 import org.usfirst.frc.team2590.routine.FrontGearDrop;
 import org.usfirst.frc.team2590.routine.LeftGear;
-import org.usfirst.frc.team2590.routine.OnlyHopper;
 import org.usfirst.frc.team2590.subsystem.Climber;
 import org.usfirst.frc.team2590.subsystem.DriveTrain;
 import org.usfirst.frc.team2590.subsystem.GearHolder;
@@ -69,11 +69,13 @@ public class Robot extends IterativeRobot implements RobotMap{
 		
     //autonomous modes
     autoMap = new HashMap<String , AutoRoutine>();
-    autoMap.put("Left Gear",  new LeftGear());
     autoMap.put("Nothing",    new DoNothing());
-    autoMap.put("Hopper",     new OnlyHopper());
     autoMap.put("Five Drive", new FivePointBoi());
-    autoMap.put("Front Gear", new FrontGearDrop());
+    autoMap.put("Left Gear Left",  new LeftGear(true));
+    autoMap.put("Left Gear Right",  new LeftGear(false));
+    autoMap.put("Front Gear Left", new FrontGearDrop(true));
+    autoMap.put("Front Gear Right", new FrontGearDrop(false));
+    autoMap.put("Hopper", new FourtyBall());
 
     autoMode = "Hopper";
 		
@@ -158,20 +160,18 @@ public class Robot extends IterativeRobot implements RobotMap{
    
     //handle shifting
     if(rightJoy.getFallingEdge(5)) {
-      driveT.setSolenoid(true);
+      driveT.shiftHigh();
     } else if(rightJoy.getFallingEdge(3)) {
-      driveT.setSolenoid(false);
+      driveT.shiftLow();
     }
     
     //handle shooting
     if(rightJoy.getRawButton(1)) {
-      intake.agitate();
-      shooter.shootNow();
+      shooter.revShooter();
     } else if(rightJoy.getRawButton(2)) {
       intake.agitate();
-      shooter.onlyPulley();
+      shooter.shootNow();
     } else if (!rightJoy.getRawButton(1) && !leftJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
-
       shooter.stopShooter();
     }
     
@@ -186,7 +186,7 @@ public class Robot extends IterativeRobot implements RobotMap{
       gearHold.toggleWings();
     }
     
-    shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0"), true);
+    shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0" , 0));
   }
 }
 

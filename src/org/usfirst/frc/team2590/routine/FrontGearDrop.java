@@ -2,65 +2,69 @@ package org.usfirst.frc.team2590.routine;
 
 import org.usfirst.frc.team2590.Commands.DriveAtAngle;
 import org.usfirst.frc.team2590.Commands.RunPath;
-import org.usfirst.frc.team2590.Commands.TurnToCamera;
 import org.usfirst.frc.team2590.navigation.PathSegment;
 import org.usfirst.frc.team2590.navigation.Point;
 import org.usfirst.frc.team2590.robot.Robot;
 
-import edu.wpi.first.wpilibj.Timer;
-
 public class FrontGearDrop extends AutoRoutine {
 
-  //drive straight
-  DriveAtAngle driveAway;
-  DriveAtAngle driveToVision;
-  DriveAtAngle driveToDropGear;
-
-  TurnToCamera TurnToGear;
-  
   //points
-  Point start;
-  Point front;
-  Point start1;
-  Point middle;
-  Point end;
+  private Point start;
+  private Point front;
+  private Point middle;
   
-
+  //drive straight
+  private DriveAtAngle driveToDropGear;
+ 
   //path
-  RunPath pathToBoil;
+  private RunPath pathToBoil;
   
-  public FrontGearDrop() {
-    driveAway = new  DriveAtAngle(6, 0);
+  public FrontGearDrop(boolean side) {
+    
+    //drive straight
     driveToDropGear = new DriveAtAngle(-6, 0);
-    TurnToGear = new TurnToCamera();
-    end = new Point(5.5 , -5);
-    start = new Point(0, 0);
-    front = new Point(4.6 , -8.2);
-    middle = new Point(4 , -4.8);
-    pathToBoil = new RunPath(new PathSegment(start , middle) , new PathSegment(middle, front));// , new PathSegment(front, end));
+    
+    //points
+    start = new Point(0, 0); 
+    middle = new Point(4 , -4.8 * (side?1:-1)); 
+    front = new Point(4.6 , -8.2 * (side?1:-1)); 
+    
+    //path
+    pathToBoil = new RunPath(new PathSegment(start , middle) , new PathSegment(middle, front));
   }
 
   @Override
   public void run() {
-    Robot.driveT.setSolenoid(false);
-    //TurnToGear.run();
-    //waitUntilDone(2, Robot.driveT.getTurnDone());
+
+    //make sure were in high gear
+    Robot.driveT.resetSensors();
+    Robot.driveT.shiftHigh();
+    
+    //drive to the gear
     driveToDropGear.run();    
-    AutoRoutine.waitUntilDone(3, driveToDropGear.done());
-    Timer.delay(.5);
+    waitUntilDone(3, driveToDropGear.done());
+    
+    //drop the gear on the peg
     Robot.gearHold.openWings();
-    Timer.delay(.5);
+    
+    //revv the shooter
+    Robot.shooter.setSetpoint(6600);
+    Robot.shooter.revShooter();
+    
+    //get to the boiler
     Robot.driveT.reset();
     pathToBoil.startChange();
     pathToBoil.run();
-    Timer.delay(3);
-    Robot.shooter.setSetpoint(6600, true);
-    Robot.shooter.shootNow();
+    waitUntilDone(3 , pathToBoil.done());
+    
+    //shoot
+    Robot.shooter.shootWhenReady();
   }
 
   @Override
   public void end() {
-
+    Robot.driveT.setStop();
   }
 
+  
 }

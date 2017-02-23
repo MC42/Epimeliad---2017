@@ -28,7 +28,7 @@ public class PathSegment {
     double dY = end._y - start._y;
     length = Math.hypot(dX, dY);
     theta_ = Math.toDegrees(Math.atan2(dY, dX));
-    System.out.println("x length " + dX + " " + dY);
+    //System.out.println("x length " + dX + " " + dY);
     unitVector = new NemesisVector(dX/length, dY/length, 1);
     slope = dY/dX;
   }

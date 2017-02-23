@@ -13,8 +13,8 @@ public interface RobotMap {
 	public static final int INTAKEMOTORPWM = 3;
 	//public static final int SHOOTERBASICPWM = 6;
 	
-      public static final int SHOOTERSLAVEID = 1; //3
-	public static final int SHOOTERMASTERID = 0; //3
+      public static final int SHOOTERSLAVEID = 0; //1 for real
+	public static final int SHOOTERMASTERID = 1; //0 for real
 
 	//sol
 	public static final int INTAKE_SOLENOID = 1;
@@ -36,19 +36,19 @@ public interface RobotMap {
 	public static final double SHOOTERKA = 0.0; */
 	
 	//real shooter
-	public static final double SHOOTERKP = 0.45; //0.05
-      public static final double SHOOTERKI = 0.;
-      public static final double SHOOTERKD = 0.0;
-      public static final double SHOOTERKF = 0.072; //0.083
+	public static final double SHOOTERKP = 0.0505; //0.0429
+      public static final double SHOOTERKI = 0.0;
+      public static final double SHOOTERKD = 0.2;
+      public static final double SHOOTERKF = 0.065; //0.083
       public static final double SHOOTERKA = 0.0; 
 
 	//drive straight
-	public static final double MAXACC = 6; //6
-	public static final double VELFF = 0.2; //velocity feed forward //0.13
+	public static final double MAXACC = 8; //6
+	public static final double VELFF = 0.05; //velocity feed forward //0.13
 	
 	//pure pursuit
 	public static final double PUREKV = 0.175;
-	public static final double LOOKAHEAD = 1; //in feet 3 //1.5
+	public static final double LOOKAHEAD = 1; //in feet 3 //1.5 //1
 	public static final double DRIVEBASE = 2.333;
 	public static final double DRIVETURNCOMP = 0.0075; //.015 0.0075
 	

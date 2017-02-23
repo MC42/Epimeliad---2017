@@ -7,16 +7,17 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 public class FivePointBoi extends AutoRoutine {
 
-  RunPath testPath;
-  Point pastLinePoint;
+  private RunPath testPath;
+  private Point pastLinePoint;
   
   public FivePointBoi() {
-    pastLinePoint = new Point(5, 0,0);
+    pastLinePoint = new Point(10, 0,0);
     testPath = new RunPath(new PathSegment(new Point(0,0,0) , pastLinePoint)); 
   }
 
   @Override
   public void run() {
+    Robot.driveT.resetSensors();
     testPath.startChange();
     testPath.run();
   }
@@ -26,4 +27,5 @@ public class FivePointBoi extends AutoRoutine {
     Robot.driveT.setStop();
   }
 
+  
 }
