@@ -6,11 +6,11 @@ public abstract class AutoRoutine {
   
   public abstract void run();
   public abstract void end();
-
-  public static void waitUntilDone(double timeOut , boolean condition) {
+  
+  public static void waitUntilDone(double timeOut , Checkable condition) {
     double start = Timer.getFPGATimestamp();
     while(Timer.getFPGATimestamp() - start < timeOut) {
-      if(condition) 
+      if(condition.checker()) 
         return;
       try {
         Thread.sleep(10);

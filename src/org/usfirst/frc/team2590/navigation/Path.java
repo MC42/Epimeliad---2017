@@ -51,7 +51,14 @@ public class Path {
       return pointAfterLook;
     }  else {
       //other wise increment the index
+      pathSeg.endPoint.runInsideCommand();
+      
       currentIndex+=1;
+      
+      if(currentIndex >= segments.size()-1) {
+        segments.get(currentIndex).startPoint.runInsideCommand();
+      }
+      
       System.out.println("current index " + currentIndex);
       return findPoint(pointAfterLook , lookAhead);
     }

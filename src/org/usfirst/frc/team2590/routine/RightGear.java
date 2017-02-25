@@ -69,7 +69,7 @@ public class RightGear extends AutoRoutine{
     driveToBoiler.run();
     
     //shoot when we get to the boiler
-    waitUntilDone(2, driveToBoiler.done());
+    waitUntilDone(2, driveToBoiler::done);
     Robot.shooter.shootWhenReady();
   }
 

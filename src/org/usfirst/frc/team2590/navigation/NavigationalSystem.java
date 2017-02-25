@@ -26,7 +26,7 @@ public class NavigationalSystem extends Thread {
   private Encoder rightEncoder;
   
   //thread sleep rate
-  private static final long SLEEPRATE = 200; 
+  private static final long SLEEPRATE = 10; 
 
 
   public NavigationalSystem(Encoder left , Encoder right , ADXRS450_Gyro gyro) {

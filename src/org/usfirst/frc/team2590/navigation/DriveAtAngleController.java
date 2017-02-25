@@ -24,6 +24,7 @@ public class DriveAtAngleController {
   }
 
   public void setSetpoint(double setPoint , double angle ) {
+    error = setPoint;
     angleStp = angle;
     distanceStp = setPoint;
   }
@@ -48,7 +49,7 @@ public class DriveAtAngleController {
     
     //do this other wise it will continue driving once youve hit drive setpoint because
     //it wants to get to the angle setpoint
-    if(Math.abs(error) > 0.01) { 
+    if(Math.abs(error) > 0.1) { 
       return out;
     }
     

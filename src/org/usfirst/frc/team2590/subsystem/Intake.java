@@ -47,23 +47,26 @@ public class Intake implements RobotMap {
     @Override
     public void loop() {
       switch (intake) {
-       
+        
+        //stop the intake 
         case STOP :
-          //set motor speeds
           intakeMotor.set(0);
           intakeSolenoid.set(false);
           break;
+          
+        //spit out balls
         case EXAUST :
-          //spit out balls
-          intakeMotor.set(-1);
-          intakeSolenoid.set(true);
-
-          break;
-        case INTAKE :
-          //intake balls
           intakeMotor.set(1);
           intakeSolenoid.set(true);
           break;
+          
+        //intake balls
+        case INTAKE :
+          intakeMotor.set(-1);
+          intakeSolenoid.set(true);
+          break;
+          
+        //run the intake to agitate balls
         case AGIGTATE :
           intakeMotor.set(0.8);
           intakeSolenoid.set(false);

@@ -6,6 +6,8 @@ import org.usfirst.frc.team2590.navigation.PathSegment;
 import org.usfirst.frc.team2590.navigation.Point;
 import org.usfirst.frc.team2590.robot.Robot;
 
+import edu.wpi.first.wpilibj.Timer;
+
 public class FrontGearDrop extends AutoRoutine {
 
   //points
@@ -22,11 +24,11 @@ public class FrontGearDrop extends AutoRoutine {
   public FrontGearDrop(boolean side) {
     
     //drive straight
-    driveToDropGear = new DriveAtAngle(-6, 0);
+    driveToDropGear = new DriveAtAngle(-5.3, 0);
     
     //points
-    start = new Point(0, 0); 
-    middle = new Point(4 , -4.8 * (side?1:-1)); 
+    start = new Point(0, 0 ); 
+    middle = new Point(2 , -1 * (side?1:-1) , Robot.gearHold::closeWings); 
     front = new Point(4.6 , -8.2 * (side?1:-1)); 
     
     //path
@@ -36,29 +38,27 @@ public class FrontGearDrop extends AutoRoutine {
   @Override
   public void run() {
 
+    Robot.shooter.setSetpoint(6600);
+    
     //make sure were in high gear
     Robot.driveT.resetSensors();
     Robot.driveT.shiftHigh();
     
     //drive to the gear
-    driveToDropGear.run();    
-    waitUntilDone(3, driveToDropGear.done());
-    
+    driveToDropGear.run(); 
+    waitUntilDone(3, driveToDropGear::done);
     //drop the gear on the peg
     Robot.gearHold.openWings();
-    
-    //revv the shooter
-    Robot.shooter.setSetpoint(6600);
-    Robot.shooter.revShooter();
-    
+    Timer.delay(.5);
+       
     //get to the boiler
     Robot.driveT.reset();
     pathToBoil.startChange();
     pathToBoil.run();
-    waitUntilDone(3 , pathToBoil.done());
+    //waitUntilDone(3 , pathToBoil.done());
     
     //shoot
-    Robot.shooter.shootWhenReady();
+    //Robot.shooter.shootWhenReady();
   }
 
   @Override

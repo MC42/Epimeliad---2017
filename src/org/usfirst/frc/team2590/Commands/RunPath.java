@@ -10,11 +10,8 @@ import org.usfirst.frc.team2590.robot.Robot;
 public class RunPath extends NemesisCommand {
 
   Path paths;
-  boolean pathFlip;
-  
-  //paths
+ 
   //... means array
-  //2D array that's fed into the drivetrain
   public RunPath(PathSegment... path) {
     paths = new Path(new ArrayList<PathSegment>(Arrays.asList(path)));
   }

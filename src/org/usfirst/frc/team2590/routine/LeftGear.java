@@ -5,6 +5,7 @@ import org.usfirst.frc.team2590.Commands.RunPath;
 import org.usfirst.frc.team2590.navigation.PathSegment;
 import org.usfirst.frc.team2590.navigation.Point;
 import org.usfirst.frc.team2590.robot.Robot;
+import org.usfirst.frc.team2590.subsystem.GearHolder;
 
 import edu.wpi.first.wpilibj.Timer;
 
@@ -34,20 +35,20 @@ public class LeftGear extends AutoRoutine {
   public LeftGear(boolean side) {
   
     //straight dash to the boiler or hopper , depending on side
-    driveToBoiler = new DriveAtAngle((side?9.4:3), (side?-25 : 12));
+    driveToBoiler = new DriveAtAngle((side?1.5:3), (side?0 : 12));//-25
 
-    //points
-    onGear = new Point(9 , -5, 0);
-    nextToGear = new Point(8, -2 , 0);
-    beforeGear = new Point(4.5 , 0 , 0);
+    //points 
+    onGear = new Point(7, -2, 0, Robot.driveT::shiftLow); //9.2 -3
+    //nextToGear = new Point(7, -2 , 0);
+    beforeGear = new Point(4, 0 , 0 ); //5.4
     
     //segments
-    getOntoGear = new PathSegment(nextToGear, onGear);
-    getNextToGear = new PathSegment(beforeGear, nextToGear);
+    getOntoGear = new PathSegment(beforeGear, onGear);
+    //getNextToGear = new PathSegment(beforeGear, nextToGear);
     straight = new PathSegment(new Point(0,0,0), beforeGear);
     
     //path
-    getToGear = new RunPath(straight , getNextToGear,getOntoGear);
+    getToGear = new RunPath(straight , getOntoGear);//getNextToGear,getOntoGear);
   }
   
   @Override
@@ -62,20 +63,16 @@ public class LeftGear extends AutoRoutine {
     getToGear.startChange();
     getToGear.flip();
     getToGear.run();
+    waitUntilDone(4.5, getToGear::done);
+    //open the wings just before we get there 
+    Timer.delay(.5);
     
-    /*//open the wings just before we get there 
-    Timer.delay(2.35);
-    Robot.gearHold.openWings();
-    Timer.delay(1);
     //start the shooter and drive over to the boiler
-    Robot.shooter.setSetpoint(6650);
-    Robot.shooter.revShooter();
-    Robot.driveT.unInvert();
-    driveToBoiler.run();
+    //Robot.driveT.unInvert();
+    //driveToBoiler.run();
     
     //shoot when we get to the boiler
-    waitUntilDone(2, driveToBoiler.done());
-    Robot.shooter.shootWhenReady();*/
+    //Robot.shooter.shootWhenReady();
   }
 
   @Override

@@ -11,7 +11,6 @@ public interface RobotMap {
 	public static final int CLIMBMOTORPWM = 4;
 	public static final int PULLEYMOTORPWM = 2;
 	public static final int INTAKEMOTORPWM = 3;
-	//public static final int SHOOTERBASICPWM = 6;
 	
       public static final int SHOOTERSLAVEID = 0; //1 for real
 	public static final int SHOOTERMASTERID = 1; //0 for real
@@ -27,14 +26,6 @@ public interface RobotMap {
 	public static final int RIGHTENCODERA = 0;
 	public static final int RIGHTENCODERB = 1;
 	
-	//Shooter
-	//PBOT
-	/*public static final double SHOOTERKP = 0.35; //0.05
-	public static final double SHOOTERKI = 0.0;
-	public static final double SHOOTERKD = 0.55;
-	public static final double SHOOTERKF = 0.072;
-	public static final double SHOOTERKA = 0.0; */
-	
 	//real shooter
 	public static final double SHOOTERKP = 0.0505; //0.0429
       public static final double SHOOTERKI = 0.0;
@@ -43,19 +34,16 @@ public interface RobotMap {
       public static final double SHOOTERKA = 0.0; 
 
 	//drive straight
-	public static final double MAXACC = 8; //6
-	public static final double VELFF = 0.05; //velocity feed forward //0.13
+	public static final double MAXACC = 6; //6
+	public static final double VELFF = 0.13; //velocity feed forward //0.13 //0.05
+	public static final double ROBOTLENGTH = 18;
 	
 	//pure pursuit
-	public static final double PUREKV = 0.175;
+	public static final double PUREKV = 0.2;
 	public static final double LOOKAHEAD = 1; //in feet 3 //1.5 //1
 	public static final double DRIVEBASE = 2.333;
 	public static final double DRIVETURNCOMP = 0.0075; //.015 0.0075
 	
-	//turn in place
-	public static final double TURNKP = 0.01;
-	public static final double TURNKI = 0.0;
-	public static final double TURNKD = 0.0;
-
+	
 	
 }

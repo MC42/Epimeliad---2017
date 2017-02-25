@@ -1,5 +1,6 @@
 package org.usfirst.frc.team2590.navigation;
 
+import java.util.Optional;
 
 /**
  * Describes a point on the XY-plane
@@ -11,22 +12,45 @@ package org.usfirst.frc.team2590.navigation;
 public class Point {
   private static final double kEp = 1E-9;
 
-  double _x;
-  double _y;
+  public double _x;
+  public double _y;
   public double _theta;
+  private boolean firstRun;
+  Optional<Runnable> runner;
 
   public Point(double x , double y) {
     _x = x;
     _y = y;
     _theta = 0;
+    firstRun = true;
+    this.runner = Optional.ofNullable(null);
   }
   
   public Point(double x, double y, double theta) {
     _x = x;
     _y = y;
     _theta = theta;
+    firstRun = true;
+    this.runner = Optional.ofNullable(null);
   }
   
+  
+  public Point(double x , double y , Runnable run) {
+    _x = x;
+    _y = y;
+    _theta = 0;
+    firstRun = true;
+    this.runner = Optional.ofNullable(run);
+  }
+  
+  public Point(double x, double y, double theta , Runnable run) {
+    _x = x;
+    _y = y;
+    _theta = theta;
+    firstRun = true;
+    this.runner = Optional.ofNullable(run);
+  }
+ 
   
 
   public double getX() {
@@ -43,6 +67,17 @@ public class Point {
     return _theta;
   }
 
+  /**
+   * Runs the command that the point is
+   * holding
+   */
+  public void runInsideCommand() {
+    if(firstRun && runner.isPresent()) {
+      System.out.println("running ");
+      runner.get().commandToRun();
+      firstRun = false;
+    }
+  }
 
   /**
    * Returns this rotated about the origin

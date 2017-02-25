@@ -8,6 +8,7 @@ import org.usfirst.frc.team2590.routine.FivePointBoi;
 import org.usfirst.frc.team2590.routine.FourtyBall;
 import org.usfirst.frc.team2590.routine.FrontGearDrop;
 import org.usfirst.frc.team2590.routine.LeftGear;
+import org.usfirst.frc.team2590.routine.LeftGearSimple;
 import org.usfirst.frc.team2590.subsystem.Climber;
 import org.usfirst.frc.team2590.subsystem.DriveTrain;
 import org.usfirst.frc.team2590.subsystem.GearHolder;
@@ -38,7 +39,6 @@ public class Robot extends IterativeRobot implements RobotMap{
   public static GearHolder gearHold;
 
   //autonomous
-  private static String autoMode;
   private static AutoRoutine auto;
     //super class ::
   private static HashMap<String, AutoRoutine> autoMap;
@@ -67,25 +67,14 @@ public class Robot extends IterativeRobot implements RobotMap{
     leftJoy = new SmartJoystick(0 , 0.1 , 0.1);
     rightJoy = new SmartJoystick(1 , 0.1 , 0.1);
 		
-    //autonomous modes
-    autoMap = new HashMap<String , AutoRoutine>();
-    autoMap.put("Nothing",    new DoNothing());
-    autoMap.put("Five Drive", new FivePointBoi());
-    autoMap.put("Left Gear Left",  new LeftGear(true));
-    autoMap.put("Left Gear Right",  new LeftGear(false));
-    autoMap.put("Front Gear Left", new FrontGearDrop(true));
-    autoMap.put("Front Gear Right", new FrontGearDrop(false));
-    autoMap.put("Hopper", new FourtyBall());
-
-    autoMode = "Hopper";
-		
     //subsystems
     intake  = Intake.getIntake();
     climb   = Climber.getClimber();    
     shooter = Shooter.getShooter();
     gearHold = GearHolder.getGearHolder();
     driveT  = DriveTrain.getDriveTrain(leftJoy, rightJoy);
-	
+      
+    
     //looper
     enabledLooper = new Looper(10);
     enabledLooper.register(driveT.getDriveLoop());
@@ -94,7 +83,22 @@ public class Robot extends IterativeRobot implements RobotMap{
     enabledLooper.register(shooter.getShootLoop());
     enabledLooper.register(gearHold.getGearLoop());
     
-    plug4 = new Solenoid(3);
+    //autonomous modes
+    autoMap = new HashMap<String , AutoRoutine>();
+    autoMap.put("Nothing",    new DoNothing());
+    autoMap.put("Five Drive", new FivePointBoi());
+    autoMap.put("Left Gear Left",  new LeftGear(true));
+    autoMap.put("Left Gear Right",  new LeftGear(false));
+    autoMap.put("Left Gear Simple", new LeftGearSimple());
+    autoMap.put("Front Gear Left", new FrontGearDrop(true));
+    autoMap.put("Front Gear Right", new FrontGearDrop(false));
+    autoMap.put("Hopper", new FourtyBall());
+		
+   
+   
+    
+    plug3 = new Solenoid(3);
+    plug4 = new Solenoid(4);
     
     //vision
 
@@ -123,8 +127,8 @@ public class Robot extends IterativeRobot implements RobotMap{
 	
   @Override
   public void autonomousInit() {
-    auto = autoMap.get(SmartDashboard.getString("DB/String 0" , "Front Gear"));
-    System.out.println("Starting loops");
+    auto = autoMap.get(SmartDashboard.getString("DB/String 0" , "Left Gear Left"));
+    System.out.println("Starting loops , auto = " + SmartDashboard.getString("DB/String 0" , "Front Gear Left"));
     enabledLooper.startLoops(); 
     auto.run();
     
@@ -142,6 +146,7 @@ public class Robot extends IterativeRobot implements RobotMap{
     driveT.setOpenLoop();
     
     //close all excess vents
+    plug3.set(false);
     plug4.set(false);
   }
   

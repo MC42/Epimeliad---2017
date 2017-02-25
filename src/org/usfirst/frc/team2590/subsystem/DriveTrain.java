@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.DualSignal;
 import util.NemesisDrive;
 import util.NemesisSolenoid;
@@ -35,13 +34,15 @@ public class DriveTrain implements RobotMap {
   private enum shiftState {
     MANUAL_HIGH , MANUAL_LOW , AUTOMATIC
   };
-  private shiftState shift = shiftState.AUTOMATIC;
+  private shiftState shift = shiftState.MANUAL_HIGH;
   
   //joysticks
   private boolean done;
   private Joystick left;
   private Joystick right;
   private double turnStp;
+  private double driveStp;
+
   private static final double WHEEL_DIAM = 4;
   private static final double LOW_THRESHOLD = 6; //the point at which to shift
 
@@ -68,6 +69,7 @@ public class DriveTrain implements RobotMap {
     //joysticks
     done = false;
     turnStp = 0;
+    driveStp = 0;
     left = leftJ;
     right = rightJ;
 
@@ -87,10 +89,10 @@ public class DriveTrain implements RobotMap {
     rightEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
 
     //control systems
+    angledDriveCont = new DriveAtAngleController(3, VELFF, 0.09); //0.075
     NASA = new NavigationalSystem(leftEncoder, rightEncoder , gyro);
     purell = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD);
     straightDrive = new NemesisDrive(gyro,  leftVictor, rightVictor);
-    angledDriveCont = new DriveAtAngleController(3, VELFF, 0.075);
   }
 
   private Loop loop_ = new Loop() {
@@ -131,16 +133,18 @@ public class DriveTrain implements RobotMap {
           break;
           
         case TURN :
+          System.out.println("turning to " + turnStp);
           double error = turnStp - gyro.getAngle();
-          double kP = 0.2;
+          double kP = 0.25;
           if(Math.abs(error) > 1) {
-          done = false;
-          driveSignal.updateSignal(-error*kP, 
-                                    error*kP);  
+            done = false;
+            driveSignal.updateSignal(-error*kP, error*kP);  
           } else {
             System.out.println("done " + error);
             done = true;
           }
+          straightDrive.tankDrive( driveSignal.getSignals()[0],
+              driveSignal.getSignals()[1] );  
           break;
           
         default :
@@ -164,7 +168,7 @@ public class DriveTrain implements RobotMap {
           break;
       }
       
-      //System.out.println("enc l "+ leftEncoder.getDistance() + " " + rightEncoder.getDistance() + " " + gyro.getAngle());
+     // System.out.println("enc l "+ leftEncoder.getDistance() + " " + rightEncoder.getDistance() + " " + gyro.getAngle());
       if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE || drives == driveStates.TURN) {
         //send signals 
         straightDrive.tankDrive( driveSignal.getSignals()[0],
@@ -241,6 +245,7 @@ public class DriveTrain implements RobotMap {
    */
   public void driveAtAngle(double driveSet ,double angleSet) {
     drives = driveStates.ANGLED_DRIVE;
+    driveStp = driveSet;
     angledDriveCont.setSetpoint(driveSet , angleSet);
   }
   
@@ -260,8 +265,7 @@ public class DriveTrain implements RobotMap {
    * @return if the angle drive is done
    */
   public boolean angleDriveDone() {
-    return Math.abs(leftEncoder.getDistance() - angledDriveCont.getSetpoint()) < .5 ||
-           Math.abs(rightEncoder.getDistance() - angledDriveCont.getSetpoint()) < .5;
+    return angledDriveCont.isDone(); 
   }
   
   public void reset() {
@@ -277,10 +281,11 @@ public class DriveTrain implements RobotMap {
   //turning 
   public void turnToAngle(double angle) {
     System.out.println("starting turn" + angle);
-    if(Math.abs(turnStp) > 1) {
+    if(Math.abs(angle) > 1) {
       turnStp = angle;
       drives = driveStates.TURN;
     } else {
+      System.out.println("f it");
       done = true;
     }
   }

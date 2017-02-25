@@ -21,9 +21,9 @@ public class FourtyBall extends AutoRoutine {
   
   public FourtyBall() {
     //points
-    hitHopper = new Point(8,1,0);
+    hitHopper = new Point(5,0.9,0);
     startPoint = new Point(0,0,0);
-    catchBalls = new Point(5,1,0);
+    catchBalls = new Point(6.8,2.5,0);
     
     //segments
     openHopper = new PathSegment(startPoint, hitHopper);
@@ -43,7 +43,7 @@ public class FourtyBall extends AutoRoutine {
     getHopperBalls.startChange();
     getHopperBalls.flip();
     getHopperBalls.run();
-    waitUntilDone(3, getHopperBalls.done());
+    waitUntilDone(3, getHopperBalls::done);
     
     //get ready for the return
     Robot.shooter.setSetpoint(6600);
