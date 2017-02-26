@@ -25,6 +25,7 @@ public class DriveAtAngle extends NemesisCommand {
     Timer.delay(.01);
     Robot.driveT.resetSensors();
     Robot.driveT.driveAtAngle(distance , angle);
+    System.out.println("running");
     started = true;
   }
 

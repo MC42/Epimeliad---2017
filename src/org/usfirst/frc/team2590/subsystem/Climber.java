@@ -38,7 +38,7 @@ public class Climber implements RobotMap {
     }
 
     @Override
-    public void loop() {
+    public void loop(double delta) {
       switch(climber) {
         //start climbing
         case CLIMBING :
@@ -60,6 +60,8 @@ public class Climber implements RobotMap {
     @Override
     public void onEnd() {
     }
+
+    
 
   };
   public Loop getClimbLoop() {

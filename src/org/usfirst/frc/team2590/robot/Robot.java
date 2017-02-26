@@ -3,12 +3,14 @@ import java.util.HashMap;
 
 import org.usfirst.frc.team2590.looper.Looper;
 import org.usfirst.frc.team2590.routine.AutoRoutine;
+import org.usfirst.frc.team2590.routine.CoolDahanyAuto;
 import org.usfirst.frc.team2590.routine.DoNothing;
 import org.usfirst.frc.team2590.routine.FivePointBoi;
 import org.usfirst.frc.team2590.routine.FourtyBall;
 import org.usfirst.frc.team2590.routine.FrontGearDrop;
 import org.usfirst.frc.team2590.routine.LeftGear;
 import org.usfirst.frc.team2590.routine.LeftGearSimple;
+import org.usfirst.frc.team2590.routine.RightGearSimple;
 import org.usfirst.frc.team2590.subsystem.Climber;
 import org.usfirst.frc.team2590.subsystem.DriveTrain;
 import org.usfirst.frc.team2590.subsystem.GearHolder;
@@ -18,6 +20,7 @@ import org.usfirst.frc.team2590.subsystem.Shooter;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.SmartJoystick;
 import util.Vision;
@@ -38,6 +41,9 @@ public class Robot extends IterativeRobot implements RobotMap{
   public static DriveTrain driveT;
   public static GearHolder gearHold;
 
+  private double lastTime = 0;
+  private double currentTime = 0;
+  
   //autonomous
   private static AutoRoutine auto;
     //super class ::
@@ -76,7 +82,7 @@ public class Robot extends IterativeRobot implements RobotMap{
       
     
     //looper
-    enabledLooper = new Looper(10);
+    enabledLooper = new Looper(0.02);
     enabledLooper.register(driveT.getDriveLoop());
     enabledLooper.register(climb.getClimbLoop());
     enabledLooper.register(intake.getIntakeLoop());
@@ -90,18 +96,16 @@ public class Robot extends IterativeRobot implements RobotMap{
     autoMap.put("Left Gear Left",  new LeftGear(true));
     autoMap.put("Left Gear Right",  new LeftGear(false));
     autoMap.put("Left Gear Simple", new LeftGearSimple());
+    autoMap.put("Cool Dahany Auto", new CoolDahanyAuto());
+    autoMap.put("Right Gear Simple", new RightGearSimple());
     autoMap.put("Front Gear Left", new FrontGearDrop(true));
     autoMap.put("Front Gear Right", new FrontGearDrop(false));
     autoMap.put("Hopper", new FourtyBall());
 		
-   
-   
-    
+    //solenoids
     plug3 = new Solenoid(3);
     plug4 = new Solenoid(4);
     
-    //vision
-
     //compressor
     compressor = new Compressor();
     compressor.start();
@@ -152,6 +156,7 @@ public class Robot extends IterativeRobot implements RobotMap{
   
   @Override
   public void teleopPeriodic() {
+    currentTime = Timer.getFPGATimestamp();
     
     //intake balls
     if(leftJoy.getRawButton(1)) {
@@ -174,6 +179,7 @@ public class Robot extends IterativeRobot implements RobotMap{
     if(rightJoy.getRawButton(1)) {
       shooter.revShooter();
     } else if(rightJoy.getRawButton(2)) {
+      driveT.shiftLow();
       intake.agitate();
       shooter.shootNow();
     } else if (!rightJoy.getRawButton(1) && !leftJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
@@ -182,8 +188,11 @@ public class Robot extends IterativeRobot implements RobotMap{
     
     //handle climber
     if(rightJoy.getRawButton(6)) {
+      compressor.stop();
+      driveT.shiftLow();
       climb.startClimb(); 
     } else {
+      compressor.start();
       climb.stopClimb();
     }
     
@@ -192,6 +201,8 @@ public class Robot extends IterativeRobot implements RobotMap{
     }
     
     shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0" , 0));
+    //System.out.println("delta t " + (currentTime - lastTime));
+    lastTime = currentTime;
   }
 }
 

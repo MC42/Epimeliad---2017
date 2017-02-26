@@ -29,13 +29,14 @@ public interface RobotMap {
 	//real shooter
 	public static final double SHOOTERKP = 0.0505; //0.0429
       public static final double SHOOTERKI = 0.0;
-      public static final double SHOOTERKD = 0.2;
-      public static final double SHOOTERKF = 0.065; //0.083
+      public static final double SHOOTERKD = 0.0;
+      public static final double SHOOTERKF = 0.2; //0.083
       public static final double SHOOTERKA = 0.0; 
 
 	//drive straight
 	public static final double MAXACC = 6; //6
 	public static final double VELFF = 0.13; //velocity feed forward //0.13 //0.05
+	public static final double SMALLFF = 0.3;
 	public static final double ROBOTLENGTH = 18;
 	
 	//pure pursuit

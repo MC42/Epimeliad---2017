@@ -3,6 +3,7 @@ package org.usfirst.frc.team2590.looper;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * The handler for update loops
@@ -10,27 +11,37 @@ import edu.wpi.first.wpilibj.Notifier;
  */
 public class Looper {
 
-  private ArrayList<Loop> loopArray;
+  private double delayT = 0;
+  private double lastTime = 0;
+  private double currentTime = 0;
   private boolean running_ = false;
+  private Object loopLock = new Object();
+  private ArrayList<Loop> loopArray;
+  private Notifier notfifier;
+  
 
   private Runnable looper_ = new Runnable() {
     @Override
     public void run() {
-      while(true) {
-        if(running_) {
-          //periodically update the loops
-          for(Loop loop : loopArray) {
-            loop.loop();
+      if(running_) {
+        synchronized (loopLock) {
+            //periodically update the loops
+            currentTime = Timer.getFPGATimestamp();
+            for(Loop loop : loopArray) {
+              loop.loop(currentTime - lastTime);
+            }
+            lastTime = currentTime;
           }
         }
-      }
     }
   };
-
-
-  public Looper(long delayTime) {
+ 
+  public Looper(double delayTime) {
     loopArray = new ArrayList<Loop>();
-    new Notifier(looper_).startPeriodic(delayTime/1000);
+    delayT = delayTime;
+    notfifier = new Notifier(looper_);
+    
+
   }
 
   /**
@@ -49,8 +60,10 @@ public class Looper {
       System.out.println("starting");
       for(Loop loop : loopArray) {
         loop.onStart();
+        
       }
       running_ = true;
+      notfifier.startPeriodic(delayT);
     }
   }
 
@@ -66,3 +79,5 @@ public class Looper {
     }   
   }
 }
+  
+

@@ -48,6 +48,7 @@ public class Shooter implements RobotMap {
     shooterMaster.setFeedbackDevice(FeedbackDevice.QuadEncoder);
     shooterMaster.setPID(SHOOTERKP, SHOOTERKI, SHOOTERKD , SHOOTERKF, 0, 0, 0);
     shooterMaster.setCloseLoopRampRate(0.0);
+    shooterMaster.configPeakOutputVoltage(12.0, 0.0);
     shooterMaster.setIZone(0);
     shooterMaster.enableBrakeMode(false); //motor can move
     
@@ -73,7 +74,7 @@ public class Shooter implements RobotMap {
     }
 
     @Override
-    public void loop() {
+    public void loop(double delta) {
       switch(shooter) {
         
         //selfex
@@ -85,7 +86,7 @@ public class Shooter implements RobotMap {
           
         //only runs shooter motor
         case ACCELERATING :
-          shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
+          shooterMaster.changeControlMode(TalonControlMode.Speed);
           shooterMaster.set(setpoint); 
           break;
         
@@ -116,7 +117,7 @@ public class Shooter implements RobotMap {
           break;      
       }
       SmartDashboard.putNumber("enc ", shooterMaster.getSpeed());
-
+      //System.out.println("enc " + shooterMaster.getSpeed());
     }
 
     @Override
@@ -160,7 +161,7 @@ public class Shooter implements RobotMap {
   }
   
   public void handlePully() {
-    pullyMotor.set( (shooterMaster.getSpeed() > setpoint )? 1 : 0);
+    pullyMotor.set( (shooterMaster.getSpeed() > setpoint-10 )? 1 : 0);
   }
   
  }

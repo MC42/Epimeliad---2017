@@ -45,7 +45,7 @@ public class Intake implements RobotMap {
     }
 
     @Override
-    public void loop() {
+    public void loop(double delta) {
       switch (intake) {
         
         //stop the intake 

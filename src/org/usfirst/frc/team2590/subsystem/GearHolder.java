@@ -36,7 +36,7 @@ public class GearHolder implements RobotMap {
     }
 
     @Override
-    public void loop() {
+    public void loop(double delta) {
       switch(gear) {
         case OPEN :
           gearSolenoid.set(true);

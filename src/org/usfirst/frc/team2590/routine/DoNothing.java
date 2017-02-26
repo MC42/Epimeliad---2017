@@ -1,18 +1,19 @@
 package org.usfirst.frc.team2590.routine;
 
-import org.usfirst.frc.team2590.Commands.TurnToCamera;
+import org.usfirst.frc.team2590.robot.Robot;
 
 public class DoNothing extends AutoRoutine {
    
-  TurnToCamera testTurn;
   
   public DoNothing() {
-    testTurn = new TurnToCamera();
+    
   }
  
   @Override
   public void run() { 
-    testTurn.run();
+    Robot.driveT.commandModelReset();
+    Robot.driveT.setVelSetpoint(10, 6);
+    Robot.driveT.setVelControl();
   }
 
   @Override
