@@ -19,7 +19,6 @@ public class Vision {
     }
     return vision;
   }
-<<<<<<< HEAD
 
   static NetworkTable contours = NetworkTable.getTable("GRIP/myContoursReport");
 	
@@ -107,10 +106,7 @@ public class Vision {
     }
   }
 }
-=======
-  
- 
-  
+    
   private double[] frontCamValues;
   private double[] backCamValues;
   private boolean backValuesRequested;
@@ -257,4 +253,3 @@ public class Vision {
     return backCamValues;
   }
 }
->>>>>>> origin/master
