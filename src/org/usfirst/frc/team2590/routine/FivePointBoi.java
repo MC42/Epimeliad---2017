@@ -17,14 +17,18 @@ public class FivePointBoi extends AutoRoutine {
 
   @Override
   public void run() {
+    
+    //go forward far enough to get 5 points
     Robot.driveT.resetSensors();
+    Robot.driveT.shiftHigh();    
+    Robot.gearHold.closeWings();    
     testPath.startChange();
     testPath.run();
   }
 
   @Override
   public void end() {
-    Robot.driveT.setStop();
+    Robot.driveT.setOpenLoop();
   }
 
   

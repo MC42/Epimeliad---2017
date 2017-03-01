@@ -14,7 +14,7 @@ public abstract class Loop {
   /**
    * Code that runs while it is looping
    */
-  public abstract void loop();
+  public abstract void loop(double deltaT);
 
   /**
    * Code that runs when the loop ends

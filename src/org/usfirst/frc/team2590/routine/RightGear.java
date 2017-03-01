@@ -62,6 +62,7 @@ public class RightGear extends AutoRoutine{
     Timer.delay(2.35);
     Robot.gearHold.openWings();
     Timer.delay(1);
+    
     //start the shooter and drive over to the boiler
     Robot.shooter.setSetpoint(6650);
     Robot.shooter.revShooter();
@@ -70,7 +71,6 @@ public class RightGear extends AutoRoutine{
     
     //shoot when we get to the boiler
     waitUntilDone(2, driveToBoiler::done);
-    Robot.shooter.shootWhenReady();
   }
 
   @Override

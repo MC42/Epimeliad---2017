@@ -8,7 +8,6 @@ import com.ctre.CANTalon.FeedbackDevice;
 import com.ctre.CANTalon.TalonControlMode;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter implements RobotMap {
@@ -22,7 +21,7 @@ public class Shooter implements RobotMap {
   }
   
   private enum shooterStates {
-    STOP , ACCELERATING , SHOOT_NOW , SHOOT_WHEN_READY , PULLEY_IN , PULLEY_OUT
+    STOP , ACCELERATING
   };
   private shooterStates shooter = shooterStates.STOP;
   
@@ -30,7 +29,6 @@ public class Shooter implements RobotMap {
   private double setpoint;
    
   //motors
-  private Victor pullyMotor;
   private CANTalon shooterSlave;
   private CANTalon shooterMaster;
   
@@ -38,16 +36,14 @@ public class Shooter implements RobotMap {
     
     //desired speed of the shooter (RPM)
     setpoint = 6600;
-    
-    //motor from hopper to shooter
-    pullyMotor = new Victor(PULLEYMOTORPWM);
-
+   
     //master shooter motor
     shooterMaster = new CANTalon(SHOOTERMASTERID);
     shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
     shooterMaster.setFeedbackDevice(FeedbackDevice.QuadEncoder);
     shooterMaster.setPID(SHOOTERKP, SHOOTERKI, SHOOTERKD , SHOOTERKF, 0, 0, 0);
     shooterMaster.setCloseLoopRampRate(0.0);
+    shooterMaster.configPeakOutputVoltage(12.0, 0.0);
     shooterMaster.setIZone(0);
     shooterMaster.enableBrakeMode(false); //motor can move
     
@@ -73,50 +69,24 @@ public class Shooter implements RobotMap {
     }
 
     @Override
-    public void loop() {
+    public void loop(double delta) {
       switch(shooter) {
-        
-        //selfex
         case STOP :
           shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
           shooterMaster.set(0);
-          pullyMotor.set(0);
           break;
           
         //only runs shooter motor
         case ACCELERATING :
-          shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
-          shooterMaster.set(setpoint); 
-          break;
-        
-        //feeds the balls instantly (runs shooter motor and conveyer)
-        case SHOOT_NOW :
           shooterMaster.changeControlMode(TalonControlMode.Speed);
           shooterMaster.set(setpoint); 
-          pullyMotor.set(0.75);
           break;
-          
-        //runs pulley when we get to speed
-        case SHOOT_WHEN_READY :
-          shooterMaster.changeControlMode(TalonControlMode.Speed);
-          shooterMaster.set(setpoint);
-          handlePully();
-          break;
-          
-        //just running the pulley
-        case PULLEY_IN :
-          pullyMotor.set(1);
-          break;
-        case PULLEY_OUT :
-          pullyMotor.set(-1);
-          break;
-          
+    
         default :          
           DriverStation.reportWarning("Hit default case in shooter", false);
           break;      
       }
       SmartDashboard.putNumber("enc ", shooterMaster.getSpeed());
-
     }
 
     @Override
@@ -138,29 +108,24 @@ public class Shooter implements RobotMap {
   public void stopShooter() {
     shooter = shooterStates.STOP;
   }
-  
-  public void shootNow() {
-    shooter = shooterStates.SHOOT_NOW;
-  }
-  
-  public void shootWhenReady() {
-    shooter = shooterStates.SHOOT_WHEN_READY;
-  }
-  
+
   public void revShooter() {
     shooter = shooterStates.ACCELERATING;
   }
   
-  public void onlyPulley() {
-    shooter = shooterStates.PULLEY_IN;
+  public double getSetpoint() {
+    return setpoint;
   }
   
-  public void reversePully() {
-    shooter = shooterStates.PULLEY_OUT;
+  public boolean getOnTarget() {
+    return Math.abs(setpoint - shooterMaster.getSpeed()) < 100;
   }
   
-  public void handlePully() {
-    pullyMotor.set( (shooterMaster.getSpeed() > setpoint )? 1 : 0);
+  public boolean getAboveTarget() {
+    return shooterMaster.getSpeed() > setpoint-50;
   }
   
+  public double getSpeed() {
+    return shooterMaster.getSpeed();
+  }
  }

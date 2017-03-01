@@ -17,16 +17,15 @@ import edu.wpi.first.wpilibj.Timer;
 public class LeftGear extends AutoRoutine {
   
   //needs to change
-  private DriveAtAngle driveToBoiler;
+  private DriveAtAngle driveAway;
   
   //points
   private Point onGear;
+  private Point getBeforeG;
   private Point beforeGear;
-  private Point nextToGear;
   
   //segments
   private PathSegment straight;
-  private PathSegment getNextToGear;
   private PathSegment getOntoGear;
   
   //path
@@ -35,20 +34,19 @@ public class LeftGear extends AutoRoutine {
   public LeftGear(boolean side) {
   
     //straight dash to the boiler or hopper , depending on side
-    driveToBoiler = new DriveAtAngle((side?1.5:3), (side?0 : 12));//-25
+    driveAway = new DriveAtAngle(2 , 0);//-25
 
     //points 
-    onGear = new Point(7, -2, 0, Robot.driveT::shiftLow); //9.2 -3
-    //nextToGear = new Point(7, -2 , 0);
-    beforeGear = new Point(4, 0 , 0 ); //5.4
+    onGear = new Point(8.7, -5, 0); //9.2 -3
+    getBeforeG = new Point(6.4 , -2 , 0);
+    beforeGear = new Point(4.4, 0 , 0 ); //5.4
     
     //segments
-    getOntoGear = new PathSegment(beforeGear, onGear);
-    //getNextToGear = new PathSegment(beforeGear, nextToGear);
+    getOntoGear = new PathSegment(beforeGear, getBeforeG);
     straight = new PathSegment(new Point(0,0,0), beforeGear);
     
     //path
-    getToGear = new RunPath(straight , getOntoGear);//getNextToGear,getOntoGear);
+    getToGear = new RunPath(straight  , getOntoGear , new PathSegment(getBeforeG, onGear)) ;//getNextToGear,getOntoGear);
   }
   
   @Override
@@ -64,15 +62,13 @@ public class LeftGear extends AutoRoutine {
     getToGear.flip();
     getToGear.run();
     waitUntilDone(4.5, getToGear::done);
-    //open the wings just before we get there 
+    Robot.gearHold.openWings();
     Timer.delay(.5);
     
     //start the shooter and drive over to the boiler
-    //Robot.driveT.unInvert();
-    //driveToBoiler.run();
+    Robot.driveT.unInvert();
+    driveAway.run();
     
-    //shoot when we get to the boiler
-    //Robot.shooter.shootWhenReady();
   }
 
   @Override

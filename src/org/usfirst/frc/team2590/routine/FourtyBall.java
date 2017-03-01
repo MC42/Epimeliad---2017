@@ -1,5 +1,6 @@
 package org.usfirst.frc.team2590.routine;
 
+import org.usfirst.frc.team2590.Commands.AutomatedShootingSequence;
 import org.usfirst.frc.team2590.Commands.RunPath;
 import org.usfirst.frc.team2590.navigation.PathSegment;
 import org.usfirst.frc.team2590.navigation.Point;
@@ -19,6 +20,8 @@ public class FourtyBall extends AutoRoutine {
   //paths
   private RunPath getHopperBalls;
   
+  private AutomatedShootingSequence shoot;
+  
   public FourtyBall() {
     //points
     hitHopper = new Point(5,0.9,0);
@@ -31,24 +34,25 @@ public class FourtyBall extends AutoRoutine {
     
     //path
     getHopperBalls = new RunPath(openHopper, catchHopper);
+    
+    //shoot the balls
+    shoot = new AutomatedShootingSequence(6600,4);
   }
   
   @Override
   public void run() {
+    
     //get ready for the path
     Robot.driveT.resetSensors();
-    Robot.driveT.shiftHigh();
+    Robot.driveT.shiftHigh();    
+    Robot.gearHold.closeWings();
     
     //run the path
     getHopperBalls.startChange();
     getHopperBalls.flip();
     getHopperBalls.run();
     waitUntilDone(3, getHopperBalls::done);
-    
-    //get ready for the return
-    Robot.shooter.setSetpoint(6600);
-    Robot.shooter.revShooter();
-    
+      
   }
 
   @Override

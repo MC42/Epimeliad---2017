@@ -29,6 +29,10 @@ public class DriveAtAngleController {
     distanceStp = setPoint;
   }
   
+  public void changeF(double newF) {
+    this.kF = newF;
+  }
+  
   public double getSetpoint() {
     return distanceStp;
   }

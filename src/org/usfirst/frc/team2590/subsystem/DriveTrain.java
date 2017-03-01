@@ -1,6 +1,8 @@
 package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.looper.Loop;
+import org.usfirst.frc.team2590.navigation.ConstantVelocityCommandModel;
+import org.usfirst.frc.team2590.navigation.ConstantVelocityController;
 import org.usfirst.frc.team2590.navigation.DriveAtAngleController;
 import org.usfirst.frc.team2590.navigation.NavigationalSystem;
 import org.usfirst.frc.team2590.navigation.Path;
@@ -12,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.DualSignal;
 import util.NemesisDrive;
 import util.NemesisSolenoid;
@@ -41,7 +44,6 @@ public class DriveTrain implements RobotMap {
   private Joystick left;
   private Joystick right;
   private double turnStp;
-  private double driveStp;
 
   private static final double WHEEL_DIAM = 4;
   private static final double LOW_THRESHOLD = 6; //the point at which to shift
@@ -61,15 +63,17 @@ public class DriveTrain implements RobotMap {
   //control systems
   private NavigationalSystem NASA;
   private NemesisDrive straightDrive;
-  private PurePursuitController purell;
+  private PurePursuitController purell;  
+  private ConstantVelocityController leftVelCont;
+  private ConstantVelocityController rightVelCont;
   private DriveAtAngleController angledDriveCont;
+  private ConstantVelocityCommandModel constantCommand;
 
   public DriveTrain(Joystick leftJ , Joystick rightJ) {
 
     //joysticks
     done = false;
     turnStp = 0;
-    driveStp = 0;
     left = leftJ;
     right = rightJ;
 
@@ -89,6 +93,9 @@ public class DriveTrain implements RobotMap {
     rightEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
 
     //control systems
+    leftVelCont = new ConstantVelocityController(0.05, 0.2);
+    rightVelCont = new ConstantVelocityController(0.05, 0.2);
+    constantCommand = new ConstantVelocityCommandModel(0.8, 0.4);
     angledDriveCont = new DriveAtAngleController(3, VELFF, 0.09); //0.075
     NASA = new NavigationalSystem(leftEncoder, rightEncoder , gyro);
     purell = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD);
@@ -103,60 +110,77 @@ public class DriveTrain implements RobotMap {
     }
 
     @Override
-    public void loop() {
+    public void loop(double delta) {
 
-      switch (drives) {
-        case STOP:
-          break;
+      synchronized(this) {
+        switch (drives) {
+          case STOP:
+            break;
           
-        case VELOCITY_CONTROL:
-          //teleop drive
-          straightDrive.velocityDrive(left.getY(), right.getX());
-          break;
+          case VELOCITY_CONTROL:
+            //teleop drive
+            constantCommand.calculate((leftEncoder.getDistance()+rightEncoder.getDistance())/2, 
+                (leftEncoder.getRate()+rightEncoder.getRate())/2, delta);
+            
+            //left drive signal calculations
+            double leftSignal = leftVelCont.calculate(constantCommand.getCurrentPosition(), 
+                                                      constantCommand.getCurrentVelocity(), 
+                                                      leftEncoder.getDistance());
+            
+            //right side signal calculations
+            double rightSignal = rightVelCont.calculate(constantCommand.getCurrentPosition(), 
+                                                       constantCommand.getCurrentVelocity(), 
+                                                       rightEncoder.getDistance());
+
+            
+            driveSignal.updateSignal(leftSignal, rightSignal);
+       
           
-        case OPEN_LOOP :
-          //if a sensor breaks, fall back
-          //pure driver control
-          straightDrive.openLoopDrive(-left.getY(), right.getX());
-          break;
+            break;
           
-        case PATH_FOLLOWING :
-          //update signals for path following
-          driveSignal.updateSignal(purell.Calculate(NASA.getCurrentPoint(), true) ,
+          case OPEN_LOOP :
+            
+            //pure driver control
+            straightDrive.openLoopDrive(-left.getY(), right.getX());
+            break;
+          
+          case PATH_FOLLOWING :
+            //update signals for path following
+            driveSignal.updateSignal(purell.Calculate(NASA.getCurrentPoint(), true) ,
                                    purell.Calculate(NASA.getCurrentPoint(), false)); 
-          break;
+            break;
           
-        case ANGLED_DRIVE :
-          //update signals for drive at an angle
-          driveSignal.updateSignal(angledDriveCont.calculate(leftEncoder.getDistance() , gyro.getAngle() , false) ,
-                                   angledDriveCont.calculate(rightEncoder.getDistance() , gyro.getAngle() , true));
-          break;
+          case ANGLED_DRIVE :
+            //update signals for drive at an angle
+            driveSignal.updateSignal(angledDriveCont.calculate(leftEncoder.getDistance() , gyro.getAngle() , false) ,
+                                      angledDriveCont.calculate(rightEncoder.getDistance() , gyro.getAngle() , true));
+            break;
           
-        case TURN :
-          System.out.println("turning to " + turnStp);
-          double error = turnStp - gyro.getAngle();
-          double kP = 0.25;
-          if(Math.abs(error) > 1) {
-            done = false;
-            driveSignal.updateSignal(-error*kP, error*kP);  
-          } else {
-            System.out.println("done " + error);
-            done = true;
-          }
-          straightDrive.tankDrive( driveSignal.getSignals()[0],
-              driveSignal.getSignals()[1] );  
-          break;
+          case TURN :
+            System.out.println("turning to " + turnStp);
+            double error = turnStp - gyro.getAngle();
+            double kP = 0.09;
+            if(Math.abs(error) > 1) {
+              done = false;
+              driveSignal.updateSignal(-error*kP, error*kP);  
+            } else {
+              System.out.println("done " + error);
+              done = true;
+            }
+            straightDrive.tankDrive( driveSignal.getSignals()[0],
+                                     driveSignal.getSignals()[1] );  
+            break;
           
-        default :
-          driveSignal.updateSignal(0,0);
-          DriverStation.reportWarning("Hit default case in drive train", false);
-          break;
+          default :
+            driveSignal.updateSignal(0,0);
+            DriverStation.reportWarning("Hit default case in drive train", false);
+            break;
       }
       
-      switch(shift) {
-        case MANUAL_HIGH :
-          shifters.set(false);
-          break;
+        switch(shift) {
+          case MANUAL_HIGH :
+            shifters.set(false);
+            break;
         case MANUAL_LOW :
           shifters.set(true);
           break;
@@ -167,14 +191,18 @@ public class DriveTrain implements RobotMap {
         default :
           break;
       }
+       
+     
+      //System.out.println("enc l "+ leftEncoder.getDistance() + " " + rightEncoder.getDistance() + " " + gyro.getAngle());
       
-     // System.out.println("enc l "+ leftEncoder.getDistance() + " " + rightEncoder.getDistance() + " " + gyro.getAngle());
-      if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE || drives == driveStates.TURN) {
+        if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE || drives == driveStates.TURN || drives == driveStates.VELOCITY_CONTROL) {
+        SmartDashboard.putNumber("left motor out", driveSignal.getSignals()[0]);
+        SmartDashboard.putNumber("right motor out", driveSignal.getSignals()[1]);
         //send signals 
         straightDrive.tankDrive( driveSignal.getSignals()[0],
-                              driveSignal.getSignals()[1] );  
+                                  driveSignal.getSignals()[1] );  
+        }
       }
-      
     }
 
     @Override
@@ -200,7 +228,7 @@ public class DriveTrain implements RobotMap {
   /**
    * Starts teleop in velocity control mode
    */
-  public void startTelop() {
+  public void setVelControl() {
     drives = driveStates.VELOCITY_CONTROL;
   }
   
@@ -238,6 +266,17 @@ public class DriveTrain implements RobotMap {
   
   //angled drive 
   
+  public void setVelSetpoint(double position , double velocity) {
+    constantCommand.setSetpoint(position, velocity);
+    leftVelCont.setSetpoint(position , false);
+    rightVelCont.setSetpoint(position , false);
+  }
+  
+  public void commandModelReset() {
+    constantCommand.reset();
+  }
+  
+ 
   /**
    * Makes the drive controller drive at an angle
    * @param driveSet : setpoint to drive to
@@ -245,7 +284,11 @@ public class DriveTrain implements RobotMap {
    */
   public void driveAtAngle(double driveSet ,double angleSet) {
     drives = driveStates.ANGLED_DRIVE;
-    driveStp = driveSet;
+    if(Math.abs(driveSet) < 1.5) {
+      angledDriveCont.changeF(SMALLFF);
+    } else {
+      angledDriveCont.changeF(VELFF);
+    }
     angledDriveCont.setSetpoint(driveSet , angleSet);
   }
   
@@ -285,7 +328,6 @@ public class DriveTrain implements RobotMap {
       turnStp = angle;
       drives = driveStates.TURN;
     } else {
-      System.out.println("f it");
       done = true;
     }
   }

@@ -37,16 +37,15 @@ public class FrontGearDrop extends AutoRoutine {
 
   @Override
   public void run() {
-
-    Robot.shooter.setSetpoint(6600);
-    
-    //make sure were in high gear
+    //get ready for auto
     Robot.driveT.resetSensors();
-    Robot.driveT.shiftHigh();
+    Robot.driveT.shiftHigh();    
+    Robot.gearHold.closeWings();
     
     //drive to the gear
     driveToDropGear.run(); 
     waitUntilDone(3, driveToDropGear::done);
+    
     //drop the gear on the peg
     Robot.gearHold.openWings();
     Timer.delay(.5);

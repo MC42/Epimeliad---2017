@@ -3,14 +3,17 @@ import java.util.HashMap;
 
 import org.usfirst.frc.team2590.looper.Looper;
 import org.usfirst.frc.team2590.routine.AutoRoutine;
+import org.usfirst.frc.team2590.routine.CoolDahanyAuto;
 import org.usfirst.frc.team2590.routine.DoNothing;
 import org.usfirst.frc.team2590.routine.FivePointBoi;
 import org.usfirst.frc.team2590.routine.FourtyBall;
 import org.usfirst.frc.team2590.routine.FrontGearDrop;
 import org.usfirst.frc.team2590.routine.LeftGear;
 import org.usfirst.frc.team2590.routine.LeftGearSimple;
+import org.usfirst.frc.team2590.routine.RightGearSimple;
 import org.usfirst.frc.team2590.subsystem.Climber;
 import org.usfirst.frc.team2590.subsystem.DriveTrain;
+import org.usfirst.frc.team2590.subsystem.Feeder;
 import org.usfirst.frc.team2590.subsystem.GearHolder;
 import org.usfirst.frc.team2590.subsystem.Intake;
 import org.usfirst.frc.team2590.subsystem.Shooter;
@@ -34,18 +37,20 @@ public class Robot extends IterativeRobot implements RobotMap{
   //subsystems
   public static Climber climb;
   public static Intake intake;
+  public static Feeder feeder;
   public static Shooter shooter;
   public static DriveTrain driveT;
   public static GearHolder gearHold;
 
-  //autonomous
+  
+  //autonomous uses polymorpism
   private static AutoRoutine auto;
-    //super class ::
   private static HashMap<String, AutoRoutine> autoMap;
 
   //joysticks
   private SmartJoystick leftJoy;
   private SmartJoystick rightJoy;
+  private SmartJoystick operatorJoy;
 	
   //Vision
   public static Vision vision;
@@ -66,8 +71,10 @@ public class Robot extends IterativeRobot implements RobotMap{
     //joysticks
     leftJoy = new SmartJoystick(0 , 0.1 , 0.1);
     rightJoy = new SmartJoystick(1 , 0.1 , 0.1);
+    operatorJoy = new SmartJoystick(2, 0.0, 0.0);
 		
     //subsystems
+    feeder = Feeder.getFeeder();
     intake  = Intake.getIntake();
     climb   = Climber.getClimber();    
     shooter = Shooter.getShooter();
@@ -76,32 +83,31 @@ public class Robot extends IterativeRobot implements RobotMap{
       
     
     //looper
-    enabledLooper = new Looper(10);
-    enabledLooper.register(driveT.getDriveLoop());
+    enabledLooper = new Looper(0.02);
     enabledLooper.register(climb.getClimbLoop());
+    enabledLooper.register(driveT.getDriveLoop());
+    enabledLooper.register(feeder.getFeederLoop());
     enabledLooper.register(intake.getIntakeLoop());
     enabledLooper.register(shooter.getShootLoop());
     enabledLooper.register(gearHold.getGearLoop());
     
     //autonomous modes
     autoMap = new HashMap<String , AutoRoutine>();
+    autoMap.put("Hopper", new FourtyBall());
     autoMap.put("Nothing",    new DoNothing());
     autoMap.put("Five Drive", new FivePointBoi());
     autoMap.put("Left Gear Left",  new LeftGear(true));
     autoMap.put("Left Gear Right",  new LeftGear(false));
     autoMap.put("Left Gear Simple", new LeftGearSimple());
+    autoMap.put("Cool Dahany Auto", new CoolDahanyAuto());
+    autoMap.put("Right Gear Simple", new RightGearSimple());
     autoMap.put("Front Gear Left", new FrontGearDrop(true));
     autoMap.put("Front Gear Right", new FrontGearDrop(false));
-    autoMap.put("Hopper", new FourtyBall());
 		
-   
-   
-    
+    //solenoids
     plug3 = new Solenoid(3);
     plug4 = new Solenoid(4);
     
-    //vision
-
     //compressor
     compressor = new Compressor();
     compressor.start();
@@ -156,10 +162,11 @@ public class Robot extends IterativeRobot implements RobotMap{
     //intake balls
     if(leftJoy.getRawButton(1)) {
       intake.intakeBalls();
-      shooter.reversePully();
+      feeder.expellBalls();
     } else if(leftJoy.getRawButton(2)) {
       intake.outtakeBalls();
-    } else if(!leftJoy.getRawButton(1) && !leftJoy.getRawButton(2)) {
+    } else if(!leftJoy.getRawButton(1) && !leftJoy.getRawButton(2) && 
+              !operatorJoy.getRawButton(3) && !shooter.getAboveTarget()) {
       intake.stopIntake();
     }
    
@@ -173,18 +180,31 @@ public class Robot extends IterativeRobot implements RobotMap{
     //handle shooting
     if(rightJoy.getRawButton(1)) {
       shooter.revShooter();
-    } else if(rightJoy.getRawButton(2)) {
-      intake.agitate();
-      shooter.shootNow();
-    } else if (!rightJoy.getRawButton(1) && !leftJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
+      
+      if(shooter.getAboveTarget()) {
+        intake.agitate();
+        feeder.feedIntoShooter();
+      } else {
+        feeder.stopFeeder();
+      }
+      
+    } else if(!rightJoy.getRawButton(1)){
       shooter.stopShooter();
+    }
+    
+    if(!rightJoy.getRawButton(1) && !leftJoy.getRawButton(1) && 
+       !operatorJoy.getRawButton(1) && !operatorJoy.getRawButton(2)) {
+      feeder.stopFeeder();
     }
     
     //handle climber
     if(rightJoy.getRawButton(6)) {
+      compressor.stop();
+      driveT.shiftLow();
       climb.startClimb(); 
     } else {
       climb.stopClimb();
+      compressor.start();
     }
     
     if(rightJoy.getFallingEdge(4)) {
@@ -192,6 +212,25 @@ public class Robot extends IterativeRobot implements RobotMap{
     }
     
     shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0" , 0));
+    
+    
+    //OPERATOR CONTROLLS 
+    if(operatorJoy.getRawButton(1)) {
+      feeder.expellBalls();
+    } else if(operatorJoy.getRawButton(2)) {
+      feeder.feedIntoShooter();
+    }
+    
+    if(operatorJoy.getRawButton(3)) {
+      intake.agitate();
+    }
+    
+    if(operatorJoy.getRawButton(4)) {
+      gearHold.closeWings();
+    } else if(operatorJoy.getRawButton(5)) {
+      gearHold.openWings();
+    }
+    
   }
 }
 

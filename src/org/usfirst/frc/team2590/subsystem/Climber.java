@@ -22,7 +22,7 @@ public class Climber implements RobotMap {
   private climbStates climber = climbStates.NOT_CLIMBING;
 
   private Victor climbVictor;
-  //ranges from 0 to 1
+  
   //0 = stop, 1 = full speed
   private static double CLIMBSPEED = 1;
   private static double STALLSPEED = 0; 
@@ -38,7 +38,7 @@ public class Climber implements RobotMap {
     }
 
     @Override
-    public void loop() {
+    public void loop(double delta) {
       switch(climber) {
         //start climbing
         case CLIMBING :
@@ -60,6 +60,8 @@ public class Climber implements RobotMap {
     @Override
     public void onEnd() {
     }
+
+    
 
   };
   public Loop getClimbLoop() {

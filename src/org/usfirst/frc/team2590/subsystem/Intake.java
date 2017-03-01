@@ -45,7 +45,7 @@ public class Intake implements RobotMap {
     }
 
     @Override
-    public void loop() {
+    public void loop(double delta) {
       switch (intake) {
         
         //stop the intake 
@@ -71,6 +71,7 @@ public class Intake implements RobotMap {
           intakeMotor.set(0.8);
           intakeSolenoid.set(false);
           break;
+          
         default :
           DriverStation.reportWarning("Hit default case in intake", false);
           break;
