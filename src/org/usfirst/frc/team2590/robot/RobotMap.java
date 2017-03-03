@@ -12,8 +12,8 @@ public interface RobotMap {
 	public static final int FEEDERMOTORPWM = 2;
 	public static final int INTAKEMOTORPWM = 3;
 	
-      public static final int SHOOTERSLAVEID = 0; //1 for real
-	public static final int SHOOTERMASTERID = 1; //0 for real
+      public static final int SHOOTERSLAVEID = 1; //1 for real
+	public static final int SHOOTERMASTERID = 0; //0 for real
 
 	//sol
 	public static final int INTAKE_SOLENOID = 1;
@@ -30,7 +30,7 @@ public interface RobotMap {
 	public static final double SHOOTERKP = 0.075; //0.0429 0.055
       public static final double SHOOTERKI = 0.0;
       public static final double SHOOTERKD = 0.0;
-      public static final double SHOOTERKF = 0.078; //0.083
+      public static final double SHOOTERKF = 0.08; //0.083
       public static final double SHOOTERKA = 0.0; 
 
 	//drive straight

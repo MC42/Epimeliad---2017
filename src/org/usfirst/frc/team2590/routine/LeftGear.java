@@ -37,16 +37,16 @@ public class LeftGear extends AutoRoutine {
     driveAway = new DriveAtAngle(2 , 0);//-25
 
     //points 
-    onGear = new Point(8.7, -5, 0); //9.2 -3
-    getBeforeG = new Point(6.4 , -2 , 0);
-    beforeGear = new Point(4.4, 0 , 0 ); //5.4
+    onGear = new Point(8.7, -4, 0 ); //9.2 -3
+    getBeforeG = new Point(6.5 , -2 , 0);
+    beforeGear = new Point(4, 0 , 0 ); //5.4
     
     //segments
     getOntoGear = new PathSegment(beforeGear, getBeforeG);
     straight = new PathSegment(new Point(0,0,0), beforeGear);
     
     //path
-    getToGear = new RunPath(straight  , getOntoGear , new PathSegment(getBeforeG, onGear)) ;//getNextToGear,getOntoGear);
+    getToGear = new RunPath(straight  , getOntoGear);// , new PathSegment(getBeforeG, onGear)) ;//getNextToGear,getOntoGear);
   }
   
   @Override
@@ -55,6 +55,7 @@ public class LeftGear extends AutoRoutine {
     //get ready to go
     Robot.gearHold.closeWings();
     Robot.driveT.resetSensors();
+    Robot.driveT.reset();
     Robot.driveT.shiftHigh();
     
     //drive to the gear
@@ -64,7 +65,7 @@ public class LeftGear extends AutoRoutine {
     waitUntilDone(4.5, getToGear::done);
     Robot.gearHold.openWings();
     Timer.delay(.5);
-    
+    Robot.driveT.shiftHigh();
     //start the shooter and drive over to the boiler
     Robot.driveT.unInvert();
     driveAway.run();

@@ -1,15 +1,19 @@
 package org.usfirst.frc.team2590.routine;
 
+import org.usfirst.frc.team2590.Commands.AutomatedShootingSequence;
 import org.usfirst.frc.team2590.Commands.DriveAtAngle;
 import org.usfirst.frc.team2590.Commands.RunPath;
 import org.usfirst.frc.team2590.navigation.PathSegment;
 import org.usfirst.frc.team2590.navigation.Point;
 import org.usfirst.frc.team2590.robot.Robot;
+import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class FrontGearDrop extends AutoRoutine {
+public class FrontGearDrop extends AutoRoutine implements RobotMap{
 
+  private AutomatedShootingSequence shootAtBoiler;
+  
   //points
   private Point start;
   private Point front;
@@ -24,7 +28,7 @@ public class FrontGearDrop extends AutoRoutine {
   public FrontGearDrop(boolean side) {
     
     //drive straight
-    driveToDropGear = new DriveAtAngle(-5.3, 0);
+    driveToDropGear = new DriveAtAngle(-((87-ROBOTLENGTH)/12), 0);
     
     //points
     start = new Point(0, 0 ); 
@@ -33,6 +37,7 @@ public class FrontGearDrop extends AutoRoutine {
     
     //path
     pathToBoil = new RunPath(new PathSegment(start , middle) , new PathSegment(middle, front));
+    shootAtBoiler = new AutomatedShootingSequence(5,6400);
   }
 
   @Override
@@ -54,15 +59,17 @@ public class FrontGearDrop extends AutoRoutine {
     Robot.driveT.reset();
     pathToBoil.startChange();
     pathToBoil.run();
-    //waitUntilDone(3 , pathToBoil.done());
+    waitUntilDone(3 , pathToBoil::done);
     
     //shoot
-    //Robot.shooter.shootWhenReady();
+    shootAtBoiler.run();
   }
 
   @Override
   public void end() {
     Robot.driveT.setStop();
+    Robot.shooter.stopShooter();
+    Robot.feeder.stopFeeder();
   }
 
   

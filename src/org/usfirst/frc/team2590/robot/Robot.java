@@ -96,11 +96,9 @@ public class Robot extends IterativeRobot implements RobotMap{
     autoMap.put("Hopper", new FourtyBall());
     autoMap.put("Nothing",    new DoNothing());
     autoMap.put("Five Drive", new FivePointBoi());
-    autoMap.put("Left Gear Left",  new LeftGear(true));
-    autoMap.put("Left Gear Right",  new LeftGear(false));
-    autoMap.put("Left Gear Simple", new LeftGearSimple());
+    autoMap.put("Turn Left Gear",  new LeftGearSimple());
+    autoMap.put("Turn Right Gear",  new RightGearSimple());
     autoMap.put("Cool Dahany Auto", new CoolDahanyAuto());
-    autoMap.put("Right Gear Simple", new RightGearSimple());
     autoMap.put("Front Gear Left", new FrontGearDrop(true));
     autoMap.put("Front Gear Right", new FrontGearDrop(false));
 		
@@ -162,12 +160,12 @@ public class Robot extends IterativeRobot implements RobotMap{
     //intake balls
     if(leftJoy.getRawButton(1)) {
       intake.intakeBalls();
-      feeder.expellBalls();
-    } else if(leftJoy.getRawButton(2)) {
+      //feeder.expellBalls();
+    } else if(leftJoy.getRawButton(3)) {
       intake.outtakeBalls();
-    } else if(!leftJoy.getRawButton(1) && !leftJoy.getRawButton(2) && 
-              !operatorJoy.getRawButton(3) && !shooter.getAboveTarget()) {
-      intake.stopIntake();
+    } else {
+      if(!operatorJoy.getRawButton(3) )
+        intake.stopIntake();
     }
    
     //handle shifting
@@ -188,12 +186,12 @@ public class Robot extends IterativeRobot implements RobotMap{
         feeder.stopFeeder();
       }
       
-    } else if(!rightJoy.getRawButton(1)){
+    } else if(!(operatorJoy.getRawAxis(3) > 0.1) && !rightJoy.getRawButton(1)) {
       shooter.stopShooter();
     }
     
     if(!rightJoy.getRawButton(1) && !leftJoy.getRawButton(1) && 
-       !operatorJoy.getRawButton(1) && !operatorJoy.getRawButton(2)) {
+        !operatorJoy.getRawButton(1) && !operatorJoy.getRawButton(2)) {
       feeder.stopFeeder();
     }
     
@@ -207,7 +205,7 @@ public class Robot extends IterativeRobot implements RobotMap{
       compressor.start();
     }
     
-    if(rightJoy.getFallingEdge(4)) {
+    if(leftJoy.getFallingEdge(2)) {
       gearHold.toggleWings();
     }
     
@@ -224,12 +222,17 @@ public class Robot extends IterativeRobot implements RobotMap{
     if(operatorJoy.getRawButton(3)) {
       intake.agitate();
     }
+  
     
-    if(operatorJoy.getRawButton(4)) {
-      gearHold.closeWings();
-    } else if(operatorJoy.getRawButton(5)) {
-      gearHold.openWings();
+    if(operatorJoy.getRawAxis(3) > 0.1) {
+      shooter.revShooter();
     }
+    
+    /*if(operatorJoy.getRawButton(5)) {
+      gearHold.closeWings();
+    } else if(operatorJoy.getRawButton(6)) {
+      gearHold.openWings();
+    }*/
     
   }
 }

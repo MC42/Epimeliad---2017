@@ -33,7 +33,7 @@ public class CoolDahanyAuto extends AutoRoutine implements RobotMap{
     
     //driving
     turnInPlace = new TurnToAngle(-66);
-    driveAwayGear = new DriveAtAngle(30/12, 0);
+    driveAwayGear = new DriveAtAngle(34/12, 0);
     driveBack = new DriveAtAngle(-(5.0/12.0), 0);
     driveBeforeTurn = new DriveAtAngle(-distanceToFirst, 0);
     driveToGear = new DriveAtAngle(-DistanceToPeg, AngleToGear);
@@ -43,20 +43,20 @@ public class CoolDahanyAuto extends AutoRoutine implements RobotMap{
   public void run() {
     
     Robot.driveT.resetSensors();
-    Robot.driveT.shiftHigh();    
+    Robot.driveT.shiftLow();    
     Robot.gearHold.closeWings();
-
+    Robot.driveT.setStop();
     //shoot
     shoot.run();
     stopShooting.run();
-    
+    Robot.driveT.shiftHigh();
     //drive to start position
     driveBack.run();
-    waitUntilDone(3, driveBack::done);
+    waitUntilDone(1.5, driveBack::done);
     Robot.driveT.resetSensors();
     Timer.delay(.1);
     turnInPlace.run();
-    Timer.delay(1);
+    Timer.delay(1.5);
     
     //drive to first point
     Robot.driveT.shiftHigh();

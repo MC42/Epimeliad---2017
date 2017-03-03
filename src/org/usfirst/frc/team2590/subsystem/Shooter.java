@@ -43,13 +43,13 @@ public class Shooter implements RobotMap {
     shooterMaster.setFeedbackDevice(FeedbackDevice.QuadEncoder);
     shooterMaster.setPID(SHOOTERKP, SHOOTERKI, SHOOTERKD , SHOOTERKF, 0, 0, 0);
     shooterMaster.setCloseLoopRampRate(0.0);
-    shooterMaster.configPeakOutputVoltage(12.0, 0.0);
+    shooterMaster.configPeakOutputVoltage(0.0, -12.0);
     shooterMaster.setIZone(0);
     shooterMaster.enableBrakeMode(false); //motor can move
     
     //if on the real robot uncomment this
-    /* shooterMaster.reverseOutput(true);
-    shooterMaster.reverseSensor(true); */
+    shooterMaster.reverseOutput(true);
+    shooterMaster.reverseSensor(true); 
 
     
     //slave shooter motor

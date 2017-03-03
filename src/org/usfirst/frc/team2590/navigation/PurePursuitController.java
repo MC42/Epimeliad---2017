@@ -24,10 +24,10 @@ public class PurePursuitController implements RobotMap{
     this.path = new Path(null);
     this.lookAhead = lookAhead;
     lookAheadPoint = new Point(0, 0, 0);
-    velCont = new DriveAtAngleController(maxAcc , kF , DRIVETURNCOMP);
+    velCont = new DriveAtAngleController(maxAcc , kF , DRIVETURNCOMP , 0);
   }
 
-  public double Calculate(Point currPoint , boolean isRight ) {
+  public double Calculate(Point currPoint , boolean isRight ,double dt) {
     
     //gets the lookahead point
     try {
@@ -50,7 +50,7 @@ public class PurePursuitController implements RobotMap{
     velCont.setSetpoint(travel , theta );
     //calculates output to drive motor
     //System.out.println("curr " + currPoint._x + " " + currPoint._y);
-    return velCont.calculate(currDist , currTheta , isRight);
+    return velCont.calculate(currDist , currTheta , isRight , dt);
   }
 
   public boolean isDone() {
