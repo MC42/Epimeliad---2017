@@ -25,7 +25,7 @@ public class Point {
     firstRun = true;
     this.runner = Optional.ofNullable(null);
   }
-  
+
   public Point(double x, double y, double theta) {
     _x = x;
     _y = y;
@@ -33,8 +33,8 @@ public class Point {
     firstRun = true;
     this.runner = Optional.ofNullable(null);
   }
-  
-  
+
+
   public Point(double x , double y , Runnable run) {
     _x = x;
     _y = y;
@@ -42,7 +42,7 @@ public class Point {
     firstRun = true;
     this.runner = Optional.ofNullable(run);
   }
-  
+
   public Point(double x, double y, double theta , Runnable run) {
     _x = x;
     _y = y;
@@ -50,8 +50,8 @@ public class Point {
     firstRun = true;
     this.runner = Optional.ofNullable(run);
   }
- 
-  
+
+
 
   public double getX() {
     return _x;

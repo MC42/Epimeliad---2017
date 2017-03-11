@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.looper.Loop;
+import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import com.ctre.CANTalon;
@@ -19,24 +20,26 @@ public class Shooter implements RobotMap {
     }
     return shoot;
   }
-  
+
   private enum shooterStates {
-    STOP , ACCELERATING
+    STOP , ACCELERATING , SHOOT_READY , LOCKED_SHOT
   };
   private shooterStates shooter = shooterStates.STOP;
-  
+
   //setpoint
   private double setpoint;
-   
+  private boolean lockingShot;
+
   //motors
   private CANTalon shooterSlave;
   private CANTalon shooterMaster;
-  
+
   public Shooter() {
-    
+
     //desired speed of the shooter (RPM)
     setpoint = 6600;
-   
+    lockingShot = false;
+    
     //master shooter motor
     shooterMaster = new CANTalon(SHOOTERMASTERID);
     shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
@@ -46,22 +49,23 @@ public class Shooter implements RobotMap {
     shooterMaster.configPeakOutputVoltage(0.0, -12.0);
     shooterMaster.setIZone(0);
     shooterMaster.enableBrakeMode(false); //motor can move
-    
+
     //if on the real robot uncomment this
     shooterMaster.reverseOutput(true);
-    shooterMaster.reverseSensor(true); 
+    shooterMaster.reverseSensor(true);
 
-    
+
     //slave shooter motor
     shooterSlave = new CANTalon(SHOOTERSLAVEID);
     shooterSlave.changeControlMode(TalonControlMode.Follower);
     shooterSlave.set(shooterMaster.getDeviceID());
     shooterSlave.enableBrakeMode(false);
-    shooterSlave.clearStickyFaults(); 
+    shooterSlave.clearStickyFaults();
     shooterMaster.clearStickyFaults();
-    
+
+
   }
-  
+
   private Loop loop_ = new Loop() {
 
     @Override
@@ -74,37 +78,56 @@ public class Shooter implements RobotMap {
         case STOP :
           shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
           shooterMaster.set(0);
+          lockingShot = false;
           break;
-          
-        //only runs shooter motor
+
+          //only runs shooter motor
         case ACCELERATING :
           shooterMaster.changeControlMode(TalonControlMode.Speed);
-          shooterMaster.set(setpoint); 
+          shooterMaster.set(setpoint);
           break;
-    
-        default :          
+          
+        case SHOOT_READY :
+          shooterMaster.changeControlMode(TalonControlMode.Speed);
+          shooterMaster.set(setpoint);
+          if(getAboveTarget()) {
+            Robot.feeder.feedIntoShooter();
+          }
+          break;
+          
+        case LOCKED_SHOT :
+          shooterMaster.changeControlMode(TalonControlMode.Speed);
+          shooterMaster.set(setpoint);
+          if(getAboveTarget()) 
+            lockingShot = true;
+          if(lockingShot) {
+            Robot.feeder.feedIntoShooter();
+          }
+          break;
+
+        default :
           DriverStation.reportWarning("Hit default case in shooter", false);
-          break;      
+          break;
       }
-      SmartDashboard.putNumber("enc ", shooterMaster.getSpeed());
+      SmartDashboard.putNumber("Shooter encoder", shooterMaster.getSpeed());
     }
 
     @Override
     public void onEnd() {
     }
-    
+
   };
-  
+
   public Loop getShootLoop() {
     return loop_;
   }
-  
- 
-  
+
+
+
   public void setSetpoint(double setpoint) {
     this.setpoint = setpoint;
   }
-  
+
   public void stopShooter() {
     shooter = shooterStates.STOP;
   }
@@ -112,20 +135,34 @@ public class Shooter implements RobotMap {
   public void revShooter() {
     shooter = shooterStates.ACCELERATING;
   }
+
+  public void shootWhenReady() {
+    shooter = shooterStates.SHOOT_READY;
+  }
+
+  public void lockingShot() {
+    shooter = shooterStates.LOCKED_SHOT;
+  }
   
   public double getSetpoint() {
     return setpoint;
   }
-  
+
   public boolean getOnTarget() {
-    return Math.abs(setpoint - shooterMaster.getSpeed()) < 100;
+    return Math.abs(setpoint - this.getSpeed()) < 100;
   }
-  
+
   public boolean getAboveTarget() {
-    return shooterMaster.getSpeed() > setpoint-50;
+    return this.getSpeed() > setpoint-50;
   }
-  
+
   public double getSpeed() {
-    return shooterMaster.getSpeed();
+    try {
+      return shooterMaster.getSpeed();
+    } catch(Exception e) {
+      shooter = shooterStates.STOP;
+      DriverStation.reportWarning("Shooter encoder shit itself, shutting down shooter", true);
+      return 0.0;
+    }
   }
- }
+}

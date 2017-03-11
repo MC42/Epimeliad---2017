@@ -26,7 +26,7 @@ public class NemesisDrive {
   public void velocityDrive(double move , double turn) {
     //john, code here please
   }
-  
+
   public void openLoopDrive(double move , double turn) {
     robotDrive.arcadeDrive(move, turn);
   }

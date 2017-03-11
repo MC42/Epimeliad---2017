@@ -12,36 +12,31 @@ import edu.wpi.first.wpilibj.Timer;
 public class Looper {
 
   private double delayT = 0;
+  private Notifier notfifier;
   private double lastTime = 0;
   private double currentTime = 0;
   private boolean running_ = false;
-  private Object loopLock = new Object();
   private ArrayList<Loop> loopArray;
-  private Notifier notfifier;
-  
+  private Object loopLock = new Object();
 
-  private Runnable looper_ = new Runnable() {
-    @Override
-    public void run() {
-      if(running_) {
-        synchronized (loopLock) {
-            //periodically update the loops
-            currentTime = Timer.getFPGATimestamp();
-            for(Loop loop : loopArray) {
-              loop.loop(currentTime - lastTime);
-            }
-            lastTime = currentTime;
-          }
+
+  private Runnable looper_ = () -> {
+    if(running_) {
+      synchronized (loopLock) {
+        //periodically update the loops
+        currentTime = Timer.getFPGATimestamp();
+        for(Loop loop : loopArray) {
+          loop.loop(currentTime - lastTime);
         }
+        lastTime = currentTime;
+      }
     }
   };
- 
+
   public Looper(double delayTime) {
     loopArray = new ArrayList<Loop>();
     delayT = delayTime;
     notfifier = new Notifier(looper_);
-    
-
   }
 
   /**
@@ -57,10 +52,8 @@ public class Looper {
    */
   public void startLoops() {
     if(!running_) {
-      System.out.println("starting");
       for(Loop loop : loopArray) {
         loop.onStart();
-        
       }
       running_ = true;
       notfifier.startPeriodic(delayT);
@@ -76,8 +69,8 @@ public class Looper {
       for(Loop loop : loopArray) {
         loop.onEnd();
       }
-    }   
+    }
   }
 }
-  
+
 

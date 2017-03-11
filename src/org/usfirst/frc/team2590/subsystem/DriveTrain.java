@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.DualSignal;
 import util.NemesisDrive;
 import util.NemesisSolenoid;
-import util.SmartJoystick;
 
 public class DriveTrain implements RobotMap {
 
@@ -29,7 +28,7 @@ public class DriveTrain implements RobotMap {
     }
     return drive;
   }
-  
+
   private enum driveStates {
     STOP , VELOCITY_CONTROL , OPEN_LOOP , ANGLED_DRIVE , PATH_FOLLOWING , TURN
   };
@@ -39,7 +38,7 @@ public class DriveTrain implements RobotMap {
     MANUAL_HIGH , MANUAL_LOW , AUTOMATIC
   };
   private shiftState shift = shiftState.MANUAL_HIGH;
-  
+
   //joysticks
   private boolean done;
   private Joystick left;
@@ -60,11 +59,11 @@ public class DriveTrain implements RobotMap {
   private Encoder rightEncoder;
   private NemesisSolenoid shifters;
   //ball shifters on 0
-  
+
   //control systems
   private NavigationalSystem NASA;
   private NemesisDrive straightDrive;
-  private PurePursuitController purell;  
+  private PurePursuitController purell;
   private ConstantVelocityController leftVelCont;
   private ConstantVelocityController rightVelCont;
   private DriveAtAngleController angledDriveCont;
@@ -88,8 +87,8 @@ public class DriveTrain implements RobotMap {
     shifters = new NemesisSolenoid(SHIFTER_SOLENOID);
     leftEncoder = new Encoder(LEFTENCODERA , LEFTENCODERB);
     rightEncoder = new Encoder(RIGHTENCODERA , RIGHTENCODERB);
-    
-    //feet 
+
+    //feet
     leftEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
     rightEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
 
@@ -118,92 +117,88 @@ public class DriveTrain implements RobotMap {
         switch (drives) {
           case STOP:
             break;
-          
+
           case VELOCITY_CONTROL:
             //teleop drive
-            constantCommand.calculate((leftEncoder.getDistance()+rightEncoder.getDistance())/2, 
+            constantCommand.calculate((leftEncoder.getDistance()+rightEncoder.getDistance())/2,
                 (leftEncoder.getRate()+rightEncoder.getRate())/2, delta);
-            
-            //left drive signal calculations
-            double leftSignal = leftVelCont.calculate(constantCommand.getCurrentPosition(), 
-                                                      constantCommand.getCurrentVelocity(), 
-                                                      leftEncoder.getDistance());
-            
-            //right side signal calculations
-            double rightSignal = rightVelCont.calculate(constantCommand.getCurrentPosition(), 
-                                                       constantCommand.getCurrentVelocity(), 
-                                                       rightEncoder.getDistance());
 
-            
+            //left drive signal calculations
+            double leftSignal = leftVelCont.calculate(constantCommand.getCurrentPosition(),
+                constantCommand.getCurrentVelocity(),
+                leftEncoder.getDistance());
+
+            //right side signal calculations
+            double rightSignal = rightVelCont.calculate(constantCommand.getCurrentPosition(),
+                constantCommand.getCurrentVelocity(),
+                rightEncoder.getDistance());
+
             driveSignal.updateSignal(leftSignal, rightSignal);
-       
-          
             break;
-          
+
           case OPEN_LOOP :
-            
+
             //pure driver control
             straightDrive.openLoopDrive(-left.getY(), right.getX());
             break;
-          
+
           case PATH_FOLLOWING :
             //update signals for path following
             driveSignal.updateSignal(purell.Calculate(NASA.getCurrentPoint(), true , delta) ,
-                                   purell.Calculate(NASA.getCurrentPoint(), false , delta)); 
+                purell.Calculate(NASA.getCurrentPoint(), false , delta));
             break;
-          
+
           case ANGLED_DRIVE :
             //update signals for drive at an angle
             driveSignal.updateSignal(angledDriveCont.calculate(leftEncoder.getDistance() , gyro.getAngle() , false , delta) ,
-                                      angledDriveCont.calculate(rightEncoder.getDistance() , gyro.getAngle() , true , delta));
+                angledDriveCont.calculate(rightEncoder.getDistance() , gyro.getAngle() , true , delta));
             break;
-          
+
           case TURN :
-            System.out.println("turning to " + turnStp);
+            //System.out.println("turning to " + turnStp);
             double error = turnStp - gyro.getAngle();
-            double kP = 0.09;
+            double kP = 0.07; //0.09 real
             if(Math.abs(error) > .5) {
               done = false;
-              driveSignal.updateSignal(-error*kP, error*kP);  
+              driveSignal.updateSignal(-error*kP, error*kP);
             } else {
               System.out.println("done " + error);
             }
             straightDrive.tankDrive( driveSignal.getSignals()[0],
-                                     driveSignal.getSignals()[1] );  
+                driveSignal.getSignals()[1] );
             break;
-          
+
           default :
             driveSignal.updateSignal(0,0);
             DriverStation.reportWarning("Hit default case in drive train", false);
             break;
-      }
-      
+        }
+
         switch(shift) {
           case MANUAL_HIGH :
             shifters.set(false);
             break;
-        case MANUAL_LOW :
-          shifters.set(true);
-          break;
-        case AUTOMATIC :
-          double robotSpeed = ((leftEncoder.getRate()*60) + (rightEncoder.getRate()*60))/2;
-          shifters.set(robotSpeed < LOW_THRESHOLD);
-          break;
-        default :
-          break;
-      }
-       
-     
-      System.out.println("enc l "+ leftEncoder.getDistance() + " " + rightEncoder.getDistance() + " " + gyro.getAngle());
-      
+          case MANUAL_LOW :
+            shifters.set(true);
+            break;
+          case AUTOMATIC :
+            double robotSpeed = ((leftEncoder.getRate()*60) + (rightEncoder.getRate()*60))/2;
+            shifters.set(robotSpeed < LOW_THRESHOLD);
+            break;
+          default :
+            break;
+        }
+        //System.out.println("left " + leftEncoder.getDistance() + " " + rightEncoder.getDistance());
         if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE || drives == driveStates.TURN || drives == driveStates.VELOCITY_CONTROL) {
-        SmartDashboard.putNumber("left motor out", driveSignal.getSignals()[0]);
-        SmartDashboard.putNumber("right motor out", driveSignal.getSignals()[1]);
-        //send signals 
-        straightDrive.tankDrive( driveSignal.getSignals()[0],
-                                  driveSignal.getSignals()[1] );  
+          SmartDashboard.putNumber("Gyro", gyro.getAngle());
+          SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getDistance());
+          SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());
+          //send signals
+          straightDrive.tankDrive( driveSignal.getSignals()[0],
+              driveSignal.getSignals()[1] );
         }
       }
+
     }
 
     @Override
@@ -223,20 +218,20 @@ public class DriveTrain implements RobotMap {
   public void setStop() {
     drives = driveStates.STOP;
   }
-  
+
   public void resetDrive() {
     angledDriveCont.reset();
   }
-  
+
   //teleop control
-  
+
   /**
    * Starts teleop in velocity control mode
    */
   public void setVelControl() {
     drives = driveStates.VELOCITY_CONTROL;
   }
-  
+
   /**
    * Sets open loop control
    */
@@ -268,24 +263,19 @@ public class DriveTrain implements RobotMap {
   public boolean pathIsDone() {
     return purell.isDone();
   }
-  
-  public void switchDriver(SmartJoystick left, SmartJoystick right) {
-    this.left = left;
-    this.right = right;
-  }
-  //angled drive 
-  
+
+
   public void setVelSetpoint(double position , double velocity) {
     constantCommand.setSetpoint(position, velocity);
     leftVelCont.setSetpoint(position , false);
     rightVelCont.setSetpoint(position , false);
   }
-  
+
   public void commandModelReset() {
     constantCommand.reset();
   }
-  
- 
+
+
   /**
    * Makes the drive controller drive at an angle
    * @param driveSet : setpoint to drive to
@@ -300,12 +290,12 @@ public class DriveTrain implements RobotMap {
     }
     angledDriveCont.setSetpoint(driveSet , angleSet);
   }
-  
+
   public void unInvert() {
     leftEncoder.setReverseDirection(false);
     rightEncoder.setReverseDirection(false);
   }
-  
+
   public void flipPath() {
     purell.flip();
     leftEncoder.setReverseDirection(true);
@@ -317,22 +307,22 @@ public class DriveTrain implements RobotMap {
    * @return if the angle drive is done
    */
   public boolean angleDriveDone() {
-    return angledDriveCont.isDone(); 
+    return angledDriveCont.isDone();
   }
-  
+
   public void reset() {
     NASA.reset();
   }
-  
+
   public void resetSensors() {
     gyro.reset();
     leftEncoder.reset();
     rightEncoder.reset();
   }
-  
-  //turning 
+
+  //turning
   public void turnToAngle(double angle) {
-    System.out.println("starting turn" + angle);
+    //System.out.println("starting turn" + angle);
     if(Math.abs(angle) > 1) {
       turnStp = angle;
       drives = driveStates.TURN;
@@ -340,31 +330,31 @@ public class DriveTrain implements RobotMap {
       done = true;
     }
   }
-  
+
   public boolean getTurnDone() {
     return done;
   }
-  
+
   public double getGyroHeading() {
     return gyro.getAngle();
   }
-  
+
   //shifters
-  
+
   public void shiftHigh() {
     shift = shiftState.MANUAL_HIGH;
   }
-  
+
   public void shiftLow() {
     shift = shiftState.MANUAL_LOW;
   }
-  
+
   public void autoShifting() {
     shift = shiftState.AUTOMATIC;
   }
-  
+
   public boolean getShifterState() {
     return shifters.get();
   }
-  
+
 }

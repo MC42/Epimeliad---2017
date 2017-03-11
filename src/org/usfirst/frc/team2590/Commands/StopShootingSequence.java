@@ -15,5 +15,5 @@ public class StopShootingSequence extends NemesisCommand{
     return false;
   }
 
-  
+
 }

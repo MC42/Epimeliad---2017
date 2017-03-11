@@ -17,17 +17,16 @@ public class NavigationalSystem extends Thread {
   private boolean inverted;
   private double lastReadingleft;
   private double lastReadingright;
-  
+
 
   //position based stuff
   ADXRS450_Gyro gyro;
   private Point pose;
   private Encoder leftEncoder;
   private Encoder rightEncoder;
-  
-  //thread sleep rate
-  private static final long SLEEPRATE = 10; 
 
+  //thread sleep rate
+  private static final long SLEEPRATE = 10;
 
   public NavigationalSystem(Encoder left , Encoder right , ADXRS450_Gyro gyro) {
 
@@ -80,14 +79,18 @@ public class NavigationalSystem extends Thread {
     }
   }
 
+  /**
+   * Inverts the angle
+   * @param inverted : should the angle be inverted?
+   */
   public void setInverted(boolean inverted) {
     this.inverted = inverted;
   }
-  
+
   public Point getCurrentPoint() {
     return pose;
   }
-  
+
   public void reset() {
     leftEncoder.reset();
     rightEncoder.reset();
@@ -99,4 +102,5 @@ public class NavigationalSystem extends Thread {
     lastReadingright = 0;
     pose = new Point(0, 0, 0);
   }
+
 }

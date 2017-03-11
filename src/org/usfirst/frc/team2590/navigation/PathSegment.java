@@ -39,16 +39,16 @@ public class PathSegment {
    * @return the closest point on the line segment
    */
   public Point getClosestOnPath( Point current ) {
-/*
+    /*
     double xPoint = (startPoint._x * (slope*slope) - (startPoint._y - current._y)*slope + current._x) / ((slope*slope)+1);
     double yPoint = slope * (xPoint - startPoint._x) + startPoint._y;*/
 
-    double distance = unitVector.getX()*(current._y - startPoint._y) - 
-                      unitVector.getY()*(current._x - startPoint._x);
-    
+    double distance = unitVector.getX()*(current._y - startPoint._y) -
+        unitVector.getY()*(current._x - startPoint._x);
+
     double xPoint = current._x + distance*unitVector.getY();
     double yPoint = current._y - distance*unitVector.getX();
-    
+
     return new Point(xPoint , yPoint , endPoint._theta);
   }
 
@@ -82,7 +82,7 @@ public class PathSegment {
     double r = Math.sqrt(1 + (slope*slope));
     double x = start._x + (distance/r);
     double y = start._y + ((distance*slope)/r);
-    
+
     return new Point(x , y , 0);
   }
 

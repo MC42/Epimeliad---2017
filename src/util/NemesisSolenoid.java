@@ -3,7 +3,7 @@ package util;
 import edu.wpi.first.wpilibj.Solenoid;
 
 public class NemesisSolenoid extends Solenoid{
-  
+
   public NemesisSolenoid(int channel) {
     super(channel);
   }
@@ -14,7 +14,7 @@ public class NemesisSolenoid extends Solenoid{
       super.set(on);
     }
   }
-  
- 
+
+
 
 }

@@ -16,23 +16,23 @@ public class GearHolder implements RobotMap {
     }
     return gearH;
   }
-  
+
   private enum GearStates {
     OPEN , CLOSED
   };
   private GearStates gear = GearStates.CLOSED;
-  
+
   NemesisSolenoid gearSolenoid;
-  
+
   public GearHolder() {
     gearSolenoid = new NemesisSolenoid(GEAR_HOLDER_SOLENOID);
   }
-  
+
   private Loop loop = new Loop() {
 
     @Override
     public void onStart() {
-      
+
     }
 
     @Override
@@ -53,22 +53,22 @@ public class GearHolder implements RobotMap {
 
     @Override
     public void onEnd() {
-      
+
     }
-    
+
   };
-  
+
   public Loop getGearLoop() {
     return loop;
   }
-  
+
   public void toggleWings() {
     gear = (gear == GearStates.OPEN) ? GearStates.CLOSED : GearStates.OPEN;
   }
   public void openWings() {
     gear = GearStates.OPEN;
   }
-  
+
   public void closeWings() {
     gear = GearStates.CLOSED;
   }

@@ -15,23 +15,23 @@ public class DriveAtAngle extends NemesisCommand {
    * @param distance : DISTANCE MAY NOT BE NEGITIVE
    */
   public DriveAtAngle(double distance , double angle) {
+    started = false;
     this.angle = angle;
     this.distance = distance;
-    started = false;
   }
 
   @Override
   public void run() {
+    //delay to reset sensors
     Timer.delay(.01);
     Robot.driveT.resetDrive();
     Robot.driveT.resetSensors();
     Robot.driveT.driveAtAngle(distance , angle);
-    System.out.println("running");
     started = true;
   }
 
+  @Override
   public boolean done() {
-    System.out.println("running " );
     return started && Robot.driveT.angleDriveDone();
   }
 }

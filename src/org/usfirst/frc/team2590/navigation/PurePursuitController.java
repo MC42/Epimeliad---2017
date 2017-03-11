@@ -7,7 +7,7 @@ import org.usfirst.frc.team2590.robot.RobotMap;
  * point relative to the current point and commands
  * the robot to the position
  * @author Connor_Hofenbitzer
- * Thanks for help from Harsha Pavuluri throughout the project 
+ * Thanks for help from Harsha Pavuluri throughout the project
  */
 public class PurePursuitController implements RobotMap{
 
@@ -28,7 +28,7 @@ public class PurePursuitController implements RobotMap{
   }
 
   public double Calculate(Point currPoint , boolean isRight ,double dt) {
-    
+
     //gets the lookahead point
     try {
       lookAheadPoint = path.findPoint(currPoint, lookAhead);
@@ -36,17 +36,17 @@ public class PurePursuitController implements RobotMap{
       done = true;
       return 0.0;
     }
-    
+
     double currTheta = Math.toDegrees(currPoint._theta);
 
     double theta = new PathSegment(currPoint , lookAheadPoint).theta_;
 
     //calculates travel from start of path to lookahead
     double travel = (new PathSegment(new Point(0,0,0), lookAheadPoint).length)*(flip?-1:1);
-    
+
     //current distance from the start of the path to current point
     double currDist = (new PathSegment(new Point(0,0,0) , currPoint).length)*(flip?-1:1);
-    
+
     velCont.setSetpoint(travel , theta );
     //calculates output to drive motor
     //System.out.println("curr " + currPoint._x + " " + currPoint._y);
@@ -56,14 +56,15 @@ public class PurePursuitController implements RobotMap{
   public boolean isDone() {
     return done || path.isDone();
   }
-  
+
   public void setPath(Path newPath) {
     this.path = newPath;
+    lookAheadPoint = new Point(0,0,0);
   }
-  
+
   public void flip() {
     flip = true;
   }
- 
+
 
 }

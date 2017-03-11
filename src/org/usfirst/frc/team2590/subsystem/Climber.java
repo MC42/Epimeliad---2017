@@ -15,17 +15,17 @@ public class Climber implements RobotMap {
     }
     return climb;
   }
-  
+
   private enum climbStates {
     CLIMBING , NOT_CLIMBING
   }
   private climbStates climber = climbStates.NOT_CLIMBING;
 
   private Victor climbVictor;
-  
+
   //0 = stop, 1 = full speed
   private static double CLIMBSPEED = 1;
-  private static double STALLSPEED = 0; 
+  private static double STALLSPEED = 0;
 
   public Climber() {
     climbVictor = new Victor(CLIMBMOTORPWM);
@@ -49,7 +49,7 @@ public class Climber implements RobotMap {
         case NOT_CLIMBING :
           climbVictor.set(STALLSPEED);
           break;
-          
+
           //default don't climb
         default :
           DriverStation.reportWarning("Hit default case in climber", false);
@@ -61,7 +61,7 @@ public class Climber implements RobotMap {
     public void onEnd() {
     }
 
-    
+
 
   };
   public Loop getClimbLoop() {

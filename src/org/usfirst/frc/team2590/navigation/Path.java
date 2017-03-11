@@ -30,7 +30,7 @@ public class Path {
 
     //get the path segment the robot is currently on
     PathSegment pathSeg = segments.get(currentIndex);
-    
+
     //find the closest point on the path
     Point closestPoint = pathSeg.getClosestOnPath(myPos);
 
@@ -39,30 +39,30 @@ public class Path {
 
     //get the percent across the path
     double closestPointPercent = pathSeg.getPercentAcross(new PathSegment(pathSeg.startPoint , pointAfterLook).length );
-    
+
     //prevents index out of bounds
     if(currentIndex >= segments.size()) {
       done = true;
       return myPos;
     }
-    
+
     //if the CPI is less than one then return the point
     if(closestPointPercent < 1) {
       return pointAfterLook;
     }  else {
       //other wise increment the index
       pathSeg.endPoint.runInsideCommand();
-      
+
       currentIndex+=1;
-      
+
       if(currentIndex >= segments.size()-1) {
         segments.get(currentIndex).startPoint.runInsideCommand();
       }
-      
+
       System.out.println("current index " + currentIndex);
       return findPoint(pointAfterLook , lookAhead);
     }
-    
+
   }
 
   public boolean isDone() {

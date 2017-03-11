@@ -16,9 +16,9 @@ public class Intake implements RobotMap {
     }
     return intak;
   }
-  
+
   private enum intakeStates {
-    STOP , INTAKE , EXAUST , AGIGTATE
+    STOP , INTAKE , EXAUST , AGIGTATE , JUST_DROP
   };
   private intakeStates intake = intakeStates.STOP;
 
@@ -47,35 +47,38 @@ public class Intake implements RobotMap {
     @Override
     public void loop(double delta) {
       switch (intake) {
-        
-        //stop the intake 
+
+        //stop the intake
         case STOP :
           intakeMotor.set(0);
           intakeSolenoid.set(false);
           break;
-          
-        //spit out balls
+
+          //spit out balls
         case EXAUST :
           intakeMotor.set(1);
           intakeSolenoid.set(true);
           break;
-          
-        //intake balls
+
+          //intake balls
         case INTAKE :
           intakeMotor.set(-1);
           intakeSolenoid.set(true);
           break;
-          
-        //run the intake to agitate balls
+
+          //run the intake to agitate balls
         case AGIGTATE :
-          intakeMotor.set(0.8);
-          intakeSolenoid.set(false);
+          intakeMotor.set(-0.8);
           break;
-          
+
+        case JUST_DROP :
+          intakeSolenoid.set(true);
+          break;
+
         default :
           DriverStation.reportWarning("Hit default case in intake", false);
           break;
-       
+
       }
     }
 
@@ -104,6 +107,10 @@ public class Intake implements RobotMap {
     intake = intakeStates.INTAKE;
   }
 
+  public void dropIntake() {
+    intake = intakeStates.JUST_DROP;
+  }
+
   /**
    * Spit out balls auto intake sol
    */
@@ -114,5 +121,5 @@ public class Intake implements RobotMap {
   public void agitate() {
     intake = intakeStates.AGIGTATE;
   }
- 
+
 }

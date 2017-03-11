@@ -5,9 +5,13 @@ import org.usfirst.frc.team2590.robot.Robot;
 public class TurnToAngle extends NemesisCommand{
 
   double setpoint;
-  
+
   public TurnToAngle(double stp) {
     this.setpoint = stp;
+  }
+
+  public void changeAngle(double angle) {
+    this.setpoint = angle;
   }
   
   @Override
