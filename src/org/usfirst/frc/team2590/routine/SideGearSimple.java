@@ -1,5 +1,6 @@
 package org.usfirst.frc.team2590.routine;
 
+import org.usfirst.frc.team2590.Commands.CheckDrive;
 import org.usfirst.frc.team2590.Commands.DriveAtAngle;
 import org.usfirst.frc.team2590.Commands.TurnToAngle;
 import org.usfirst.frc.team2590.robot.Robot;
@@ -13,20 +14,25 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
   private TurnToAngle turnInPlace;
 
   //drive straights
+  private CheckDrive driveInOne;
+  private CheckDrive driveInTwo;
   private DriveAtAngle driveToGear;
   private DriveAtAngle driveAwayGear;
   private DriveAtAngle driveBeforeTurn;
-
+  
   //constants
   private final static double AngleToGear = 60; //60
-  private final static double DistanceToPeg = ((40+ROBOTLENGTH)/12);
-  private final static double distanceToFirst = ((66+ROBOTLENGTH)/12); //86
+  private final static double DistanceToPeg = (3);
+  private final static double distanceToFirst = ((70+ROBOTLENGTH)/12); //86
 
   public SideGearSimple(boolean left) {
-    driveAwayGear = new DriveAtAngle(30/12, 0);
+    
+    driveInOne = new CheckDrive(true);
+    driveInTwo = new CheckDrive(false);
+    driveAwayGear = new DriveAtAngle(4, 0);
     driveToGear = new DriveAtAngle(-DistanceToPeg, 0);
-    driveBeforeTurn = new DriveAtAngle(-distanceToFirst, 0);
     turnInPlace = new TurnToAngle(AngleToGear*(left?1:-1));
+    driveBeforeTurn = new DriveAtAngle(-distanceToFirst, 0);
   }
 
   @Override
@@ -43,11 +49,20 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
     
     //drive into the peg
     driveToGear.run();
-    Robot.gearHold.openWings();
     waitUntilDone(.75, driveToGear::done);
+    Robot.gearHold.outTakeGear();
+    Timer.delay(1);
     
     //drive away
     driveAwayGear.run();
+    Timer.delay(.75);
+    Robot.gearHold.stopGearIntake();
+    
+    //do the checks
+    driveInOne.run();
+    waitUntilDone(2, driveInOne::done);
+    driveInTwo.run();
+    waitUntilDone(2, driveInTwo::done);
     
   }
 

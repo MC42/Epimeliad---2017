@@ -5,6 +5,11 @@ import org.usfirst.frc.team2590.navigation.PathSegment;
 import org.usfirst.frc.team2590.navigation.Point;
 import org.usfirst.frc.team2590.robot.Robot;
 
+/**
+ * its 5 whole points 
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class FivePointBoi extends AutoRoutine {
 
   private RunPath testPath;

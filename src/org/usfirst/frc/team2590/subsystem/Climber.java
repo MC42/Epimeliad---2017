@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj.Victor;
 
 public class Climber implements RobotMap {
 
-  private static Climber climb = null;
+  private static Climber climberInstance = null;
   public static Climber getClimber() {
-    if(climb == null) {
-      climb = new Climber();
+    if(climberInstance == null) {
+      climberInstance = new Climber();
     }
-    return climb;
+    return climberInstance;
   }
 
   private enum climbStates {

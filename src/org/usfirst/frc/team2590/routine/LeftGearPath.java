@@ -4,6 +4,11 @@ import org.usfirst.frc.team2590.Commands.RunPath;
 import org.usfirst.frc.team2590.navigation.PathSegment;
 import org.usfirst.frc.team2590.navigation.Point;
 
+/**
+ * 
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class LeftGearPath extends AutoRoutine{
 
   /**

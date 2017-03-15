@@ -7,12 +7,12 @@ import edu.wpi.first.wpilibj.Victor;
 
 public class Feeder implements RobotMap {
 
-  private static Feeder feeder = null;
+  private static Feeder feederInstance = null;
   public static Feeder getFeeder() {
-    if(feeder == null) {
-      feeder = new Feeder();
+    if(feederInstance == null) {
+      feederInstance = new Feeder();
     }
-    return feeder;
+    return feederInstance;
   }
 
   private enum FeederStates {
@@ -39,7 +39,7 @@ public class Feeder implements RobotMap {
           feederMotor.set(0);
           break;
         case FEED_TO_SHOOTER :
-          feederMotor.set(1);
+          feederMotor.set(0.5);
           break;
         case EXPELL :
           feederMotor.set(-1);
@@ -57,14 +57,23 @@ public class Feeder implements RobotMap {
     return loop;
   }
 
+  /**
+   * Stops the feeder
+   */
   public void stopFeeder() {
     feed = FeederStates.STOP;
   }
 
+  /**
+   * Feeds balls into the shooter
+   */
   public void feedIntoShooter() {
     feed = FeederStates.FEED_TO_SHOOTER;
   }
 
+  /**
+   * Un-Feeds balls into the shooter
+   */
   public void expellBalls() {
     feed = FeederStates.EXPELL;
   }

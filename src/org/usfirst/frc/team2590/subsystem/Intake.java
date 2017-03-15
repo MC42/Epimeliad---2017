@@ -9,12 +9,12 @@ import util.NemesisSolenoid;
 
 public class Intake implements RobotMap {
 
-  private static Intake intak = null;
+  private static Intake intakeInstance = null;
   public static Intake getIntake() {
-    if(intak == null) {
-      intak = new Intake();
+    if(intakeInstance == null) {
+      intakeInstance = new Intake();
     }
-    return intak;
+    return intakeInstance;
   }
 
   private enum intakeStates {
@@ -22,17 +22,12 @@ public class Intake implements RobotMap {
   };
   private intakeStates intake = intakeStates.STOP;
 
-  /**
-   * Solenoid key :
-   * true = intake down
-   * false = intake up
-   * 1 = start pulling in balls
-   * -1 = start exausting balls
-   */
+  //manipulators
   private Victor intakeMotor;
   private NemesisSolenoid intakeSolenoid;
 
   public Intake() {
+    //manipulators
     intakeMotor = new Victor(INTAKEMOTORPWM);
     intakeSolenoid = new NemesisSolenoid(INTAKE_SOLENOID);
   }
@@ -41,7 +36,6 @@ public class Intake implements RobotMap {
 
     @Override
     public void onStart() {
-
     }
 
     @Override
@@ -94,30 +88,36 @@ public class Intake implements RobotMap {
   }
 
   /**
-   * Stop the intake auto intake sol
+   * Stop the intake, auto intake solenoid 
    */
   public void stopIntake() {
     intake = intakeStates.STOP;
   }
 
   /**
-   * Intake balls auto intake sol
+   * Intake balls, auto intake solenoid
    */
   public void intakeBalls() {
     intake = intakeStates.INTAKE;
   }
 
+  /**
+   * Just put the intake down
+   */
   public void dropIntake() {
     intake = intakeStates.JUST_DROP;
   }
 
   /**
-   * Spit out balls auto intake sol
+   * Spit out balls, auto intake solenoid
    */
   public void outtakeBalls() {
     intake = intakeStates.EXAUST;
   }
 
+  /**
+   * Agitates balls
+   */
   public void agitate() {
     intake = intakeStates.AGIGTATE;
   }

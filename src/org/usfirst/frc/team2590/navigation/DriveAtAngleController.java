@@ -58,7 +58,7 @@ public class DriveAtAngleController {
 
     //calculate error
     error = distanceStp-processVar;
-
+    System.out.printf("Distance Step: %.3f, Process Variable: %.3f \n", distanceStp, processVar);
     //velocity calculations
     velocity = Math.sqrt(Math.abs(2*maxAcc*error));
     flipped = error < 0;

@@ -45,7 +45,6 @@ public class Path {
       done = true;
       return myPos;
     }
-
     //if the CPI is less than one then return the point
     if(closestPointPercent < 1) {
       return pointAfterLook;
@@ -53,11 +52,17 @@ public class Path {
       //other wise increment the index
       pathSeg.endPoint.runInsideCommand();
 
+      if(currentIndex == segments.size()-1) {
+         done = true;
+         return segments.get(segments.size()-1).endPoint;
+      }
+        
       currentIndex+=1;
 
-      if(currentIndex >= segments.size()-1) {
+      if(currentIndex <= segments.size()-1) {
         segments.get(currentIndex).startPoint.runInsideCommand();
       }
+      
 
       System.out.println("current index " + currentIndex);
       return findPoint(pointAfterLook , lookAhead);
@@ -68,8 +73,13 @@ public class Path {
   public boolean isDone() {
     return done;
   }
+  
   public double getRemaningPathLength(Point curr) {
-    return new PathSegment(curr , segments.get(segments.size()-1).endPoint).length;
+    double dist = new PathSegment(segments.get(currentIndex).startPoint , curr).length;
+    for(int i = currentIndex; i < segments.size()-1; i++) {
+      dist+=segments.get(i).length;
+    }
+    return dist;
   }
 
 

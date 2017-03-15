@@ -52,8 +52,8 @@ public class NavigationalSystem extends Thread {
     while(true) {
 
       //get all encoders and gyro positions
-      double currEncoderleft = leftEncoder.getDistance();
-      double currEncoderright = rightEncoder.getDistance();
+      double currEncoderleft = leftEncoder.getDistance()*1.054;
+      double currEncoderright = rightEncoder.getDistance()*1.054;
       double currGyro = Math.toRadians(gyro.getAngle() * (inverted?1:-1));
 
       //get the delta between the last reading and now
@@ -64,7 +64,7 @@ public class NavigationalSystem extends Thread {
       //translate the point to calculate it on an x y field
       Point arcPoint = Point.fromVelocity((dEncoderleft + dEncoderright)/2, dTheta);
       pose = pose.translateBy(arcPoint);
-
+      
       //save all values
       lastGyro = currGyro;
       lastReadingleft = currEncoderleft;
@@ -78,15 +78,7 @@ public class NavigationalSystem extends Thread {
       }
     }
   }
-
-  /**
-   * Inverts the angle
-   * @param inverted : should the angle be inverted?
-   */
-  public void setInverted(boolean inverted) {
-    this.inverted = inverted;
-  }
-
+  
   public Point getCurrentPoint() {
     return pose;
   }

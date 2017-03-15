@@ -8,10 +8,12 @@ import org.usfirst.frc.team2590.routine.FivePointBoi;
 import org.usfirst.frc.team2590.routine.FrontGearDrop;
 import org.usfirst.frc.team2590.routine.HopperShootLeft;
 import org.usfirst.frc.team2590.routine.SideGearSimple;
+import org.usfirst.frc.team2590.routine.SideGearWithShooting;
+import org.usfirst.frc.team2590.routine.TwoGear;
 import org.usfirst.frc.team2590.subsystem.Climber;
 import org.usfirst.frc.team2590.subsystem.DriveTrain;
 import org.usfirst.frc.team2590.subsystem.Feeder;
-import org.usfirst.frc.team2590.subsystem.GearHolder;
+import org.usfirst.frc.team2590.subsystem.GearIntake;
 import org.usfirst.frc.team2590.subsystem.Intake;
 import org.usfirst.frc.team2590.subsystem.Shooter;
 
@@ -37,7 +39,7 @@ public class Robot extends IterativeRobot implements RobotMap{
   public static Feeder feeder;
   public static Shooter shooter;
   public static DriveTrain driveT;
-  public static GearHolder gearHold;
+  public static GearIntake gearHold;
 
 
   //autonomous uses polymorpism
@@ -74,7 +76,7 @@ public class Robot extends IterativeRobot implements RobotMap{
     intake  = Intake.getIntake();
     climb   = Climber.getClimber();
     shooter = Shooter.getShooter();
-    gearHold = GearHolder.getGearHolder();
+    gearHold = GearIntake.getGearHolder();
     driveT  = DriveTrain.getDriveTrain(leftJoy, rightJoy);
 
     //looper
@@ -96,10 +98,14 @@ public class Robot extends IterativeRobot implements RobotMap{
     autoMap.put("Turn Left Gear",  new SideGearSimple(true));
     autoMap.put("Front Gear Right", new FrontGearDrop(false));
     autoMap.put("Turn Right Gear",  new SideGearSimple(false));
+    autoMap.put("Two Gear",  new TwoGear());
+    autoMap.put("Turn Left Gear Shoot",  new SideGearWithShooting(true));    
+    autoMap.put("Turn Right Gear Shoot",  new SideGearWithShooting(false));
+    
 
     //solenoids
     plug3 = new Solenoid(3);
-    plug4 = new Solenoid(4);
+    plug4 = new Solenoid(2);
 
     //compressor
     compressor = new Compressor();
@@ -123,8 +129,8 @@ public class Robot extends IterativeRobot implements RobotMap{
   public void disabledPeriodic() {
     //makes sure the pcm works by keeping it active
     compressor.setClosedLoopControl(true);
-    driveT.reset();
-    driveT.resetDrive();
+    driveT.resetPath();
+    driveT.resetDriveController();
     driveT.resetSensors();
   }
 
@@ -141,7 +147,7 @@ public class Robot extends IterativeRobot implements RobotMap{
     //reset the robot
     driveT.resetSensors();
     driveT.shiftHigh();
-    gearHold.closeWings();
+    gearHold.stopGearIntake();
 
     //run auton
     auto.run();
@@ -165,11 +171,13 @@ public class Robot extends IterativeRobot implements RobotMap{
     //reset the robot
     driveT.resetSensors();
     driveT.shiftHigh();
-    gearHold.closeWings();
+    gearHold.stopGearIntake();
 
     //close all excess vents
     plug3.set(false);
     plug4.set(false);
+    
+    Robot.gearHold.turnOnGrip(true);
   }
 
   @Override
@@ -177,12 +185,20 @@ public class Robot extends IterativeRobot implements RobotMap{
 
     //intake balls
     if(leftJoy.getRawButton(1)) {
-      intake.intakeBalls();
-      feeder.expellBalls();
+      if(!rightJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
+        intake.intakeBalls();
+        feeder.expellBalls();
+      } else {
+        intake.stopIntake();
+      }
     } else if(leftJoy.getRawButton(3)) {
-      intake.outtakeBalls();
+      if(!rightJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
+        intake.outtakeBalls();
+      } else {
+        intake.stopIntake();
+      }
     } else {
-      if(!operatorJoy.getRawButton(3) && !rightJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
+      if(!operatorJoy.getRawButton(3) && !rightJoy.getRawButton(6)) {
         intake.stopIntake();
       }
     }
@@ -196,33 +212,30 @@ public class Robot extends IterativeRobot implements RobotMap{
 
 
     //handle shooting
+    if(rightJoy.getRawButton(4)) {
+      shooter.revShooter();
+      //intake.dropIntake();
+    }
+    
     if(rightJoy.getRawButton(1)) {
-      shooter.revShooter();
-      intake.dropIntake();
-      if(shooter.getAboveTarget()) {
-        intake.agitate();
-        feeder.feedIntoShooter();
-      } else {
-        feeder.stopFeeder();
-      }
-
-    }
-    //handle shooter part 2
-    if(rightJoy.getRawButton(2)) {
-      shooter.revShooter();
-      if(shooter.getAboveTarget()) {
-        intake.agitate();
-        feeder.feedIntoShooter();
-      } else {
-        feeder.stopFeeder();
-      }
+      if(!leftJoy.getRawButton(1) && !leftJoy.getRawButton(2))
+        gearHold.intakeGear();
+      else
+        gearHold.stopGearIntake();
+    } else if(rightJoy.getRawButton(2)) {
+      if(!leftJoy.getRawButton(1) && !leftJoy.getRawButton(2))
+        gearHold.outTakeGear();
+      else
+        gearHold.stopGearIntake();    
+    } else {
+      gearHold.stopGearIntake();
     }
 
-    if(!rightJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
+    if(!rightJoy.getRawButton(4)) {
       shooter.stopShooter();
     }
 
-    if(!rightJoy.getRawButton(1) && !leftJoy.getRawButton(1) && !rightJoy.getRawButton(2)
+    if(!leftJoy.getRawButton(1) && !rightJoy.getRawButton(4)
         && !operatorJoy.getRawButton(1) && !operatorJoy.getRawButton(2)) {
       feeder.stopFeeder();
     }
@@ -234,11 +247,7 @@ public class Robot extends IterativeRobot implements RobotMap{
       climb.startClimb();
     } else {
       climb.stopClimb();
-      //compressor.start();
-    }
-
-    if(rightJoy.getFallingEdge(4)) {
-      gearHold.toggleWings();
+      compressor.start();
     }
 
     shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0" , 0));

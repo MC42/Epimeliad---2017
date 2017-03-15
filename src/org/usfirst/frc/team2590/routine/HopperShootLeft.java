@@ -8,6 +8,12 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
 
+
+/**
+ * 40 ball
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class HopperShootLeft extends AutoRoutine {
 
   /**
@@ -23,8 +29,6 @@ public class HopperShootLeft extends AutoRoutine {
   //segments
   private PathSegment hitTheHopper;
   private PathSegment driveBeforeTurn;
-
-  private TurnToAngle faceTheBoiler;
 
   /**
    * back out  
@@ -56,9 +60,9 @@ public class HopperShootLeft extends AutoRoutine {
      */
 
     //points
-    hopperPlate = new Point(5.2, 2.5 , 0); //5 2.5 0
-    parallelToHopper = new Point(2.8 , 0 , 0);
-
+    hopperPlate = new Point(6.25, 3 , 0); //5.3 2.5 0
+    parallelToHopper = new Point(3.3 , 0 , 0); //2.8
+ 
     //path segments
     hitTheHopper = new PathSegment(parallelToHopper, hopperPlate);
     driveBeforeTurn = new PathSegment(new Point(0,0,0), parallelToHopper);
@@ -66,60 +70,53 @@ public class HopperShootLeft extends AutoRoutine {
     //path to hit down the hopper
     getToHopper = new RunPath(driveBeforeTurn , hitTheHopper);
 
-    //turns the robot to look at the boiler
-    faceTheBoiler = new TurnToAngle(-90);
-
-    
-    finalP = new Point(2 , 2 , 0 );
+    finalP = new Point(2.35 , 2.35 , 0 );
     curveOutToFace = new PathSegment(new Point(0,0,0), finalP);
     curveOutP = new RunPath(curveOutToFace);
     
     /**
      * Responsible for getting to the boiler
      */
-    curveOut = new Point(4.25 , 1 , 0);
-    boilerFace = new Point(5 , 0 , 0 , Robot.feeder::feedIntoShooter);
-    driveStraight = new Point(2 , 0 , 0 , Robot.shooter::revShooter);
+    curveOut = new Point(7.65 , -1.35 , 0);
+    driveStraight = new Point(3.4 , 0 , 0 , Robot.shooter::revShooter);
     
-    driveIntoBoiler = new PathSegment(curveOut, boilerFace);
     curveToFaceBoiler = new PathSegment(driveStraight, curveOut);
     getPastHopper = new PathSegment(new Point(0,0,0), driveStraight);
 
-    getToBoiler = new RunPath(getPastHopper , curveToFaceBoiler , driveIntoBoiler);
+    getToBoiler = new RunPath(getPastHopper, curveToFaceBoiler);//, driveIntoBoiler);
+    
+   
+   
   }
 
   @Override
-  public void run() {
+  public void run() {    
 
+   
     //drive to the hopper and collect balls
     getToHopper.run();
     waitUntilDone(3, getToHopper::done);
     Timer.delay(2);
-    Robot.driveT.shiftLow();
     Robot.driveT.resetSensors();
-    Robot.driveT.reset();
-    getToBoiler.flip();
-    //curveOutP.run();
+    Robot.driveT.resetPath();
     
+    curveOutP.flip();
+    curveOutP.run();
+    waitUntilDone(1, curveOutP::done);
+    
+    Robot.driveT.shiftLow();
+    Timer.delay(.25);
+    Robot.driveT.unFlipPath();
     //turn to face the boiler
-    /*Robot.driveT.setStop();
-    Robot.driveT.resetSensors();
-    Robot.driveT.reset();
-    faceTheBoiler.run();
-    waitUntilDone(2, faceTheBoiler::done);
-    Timer.delay(.5);
-    //reset all the sensors and get ready to shoot
-    Robot.driveT.shiftHigh();
     Robot.driveT.setStop();
     Robot.driveT.resetSensors();
-    Robot.driveT.reset();
+    Robot.driveT.resetPath();
     Robot.shooter.setSetpoint(6400);
-    Timer.delay(.1);
     
     //go to the boiler
     getToBoiler.run();
-    Timer.delay(2);
-    Robot.driveT.setStop();*/
+    Robot.driveT.shiftHigh();
+    waitUntilDone(3, getToBoiler::done); 
 
   }
 

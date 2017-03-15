@@ -22,6 +22,10 @@ public class RunPath extends NemesisCommand {
     Robot.driveT.flipPath();
   }
 
+  public void unFlip() {
+    Robot.driveT.unFlipPath();
+  }
+  
   @Override
   public void run() {
     Robot.driveT.changePath(paths);

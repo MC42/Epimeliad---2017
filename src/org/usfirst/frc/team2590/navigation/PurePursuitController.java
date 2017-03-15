@@ -13,6 +13,7 @@ public class PurePursuitController implements RobotMap{
 
   private Path path;
   private boolean flip;
+  private boolean unFlip;
   private boolean done;
   private double lookAhead;
   private Point lookAheadPoint;
@@ -21,6 +22,7 @@ public class PurePursuitController implements RobotMap{
   public PurePursuitController(double kF , double maxAcc , double lookAhead) {
     done = false;
     flip = false;
+    unFlip = false;
     this.path = new Path(null);
     this.lookAhead = lookAhead;
     lookAheadPoint = new Point(0, 0, 0);
@@ -39,6 +41,7 @@ public class PurePursuitController implements RobotMap{
 
     double currTheta = Math.toDegrees(currPoint._theta);
 
+   
     double theta = new PathSegment(currPoint , lookAheadPoint).theta_;
 
     //calculates travel from start of path to lookahead
@@ -47,9 +50,10 @@ public class PurePursuitController implements RobotMap{
     //current distance from the start of the path to current point
     double currDist = (new PathSegment(new Point(0,0,0) , currPoint).length)*(flip?-1:1);
 
+    //System.out.println("travel " + travel + " " + currDist + " " + theta);
     velCont.setSetpoint(travel , theta );
     //calculates output to drive motor
-    //System.out.println("curr " + currPoint._x + " " + currPoint._y);
+   // System.out.println("curr " + currPoint._x + " " + currPoint._y);
     return velCont.calculate(currDist , currTheta , isRight , dt);
   }
 
@@ -58,12 +62,20 @@ public class PurePursuitController implements RobotMap{
   }
 
   public void setPath(Path newPath) {
+    done = false;
     this.path = newPath;
     lookAheadPoint = new Point(0,0,0);
   }
 
+  public void unFlip() {
+    flip = false;
+    unFlip = true;
+    System.out.println("path has been unflipped");
+  }
+  
   public void flip() {
     flip = true;
+    unFlip = false;
   }
 
 

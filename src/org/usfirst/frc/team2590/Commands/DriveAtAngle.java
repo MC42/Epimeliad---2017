@@ -6,9 +6,9 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class DriveAtAngle extends NemesisCommand {
 
-  double angle;
-  double distance;
-  boolean started;
+  private double angle;
+  private boolean started;
+  private double distance;
 
   /**
    *
@@ -20,11 +20,15 @@ public class DriveAtAngle extends NemesisCommand {
     this.distance = distance;
   }
 
+  public void changeConstants(double newDistance, double newAngle) {
+    this.angle = newAngle;
+    this.distance = newDistance;
+  }
   @Override
   public void run() {
     //delay to reset sensors
     Timer.delay(.01);
-    Robot.driveT.resetDrive();
+    Robot.driveT.resetDriveController();
     Robot.driveT.resetSensors();
     Robot.driveT.driveAtAngle(distance , angle);
     started = true;
