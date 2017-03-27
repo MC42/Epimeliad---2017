@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.looper.Loop;
+import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -43,11 +44,13 @@ public class Climber implements RobotMap {
         //start climbing
         case CLIMBING :
           climbVictor.set(CLIMBSPEED);
+          Robot.ledController.updateClimbingState(true);
           break;
 
           //stop climbing
         case NOT_CLIMBING :
           climbVictor.set(STALLSPEED);
+          Robot.ledController.updateClimbingState(false);
           break;
 
           //default don't climb
@@ -70,6 +73,10 @@ public class Climber implements RobotMap {
 
   public void startClimb() {
     climber = climbStates.CLIMBING;
+  }
+  
+  public void flipClimber() {
+    CLIMBSPEED *= -1;
   }
 
   public void stopClimb() {

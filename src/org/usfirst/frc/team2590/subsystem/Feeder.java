@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.looper.Loop;
+import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.Victor;
@@ -39,7 +40,8 @@ public class Feeder implements RobotMap {
           feederMotor.set(0);
           break;
         case FEED_TO_SHOOTER :
-          feederMotor.set(0.5);
+          feederMotor.set(0.75);
+          Robot.intake.agitate();
           break;
         case EXPELL :
           feederMotor.set(-1);

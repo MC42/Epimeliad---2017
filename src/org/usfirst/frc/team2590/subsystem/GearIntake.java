@@ -5,6 +5,7 @@ import java.util.Queue;
 
 import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.navigation.VoltageController;
+import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,7 +24,7 @@ public class GearIntake implements RobotMap {
   }
 
   private enum GearStates {
-    INTAKING , OUTTAKING , STOPPED
+    INTAKING , OUTTAKING , STOPPED , EXPELL
   };
   private GearStates gear = GearStates.STOPPED;
   
@@ -48,7 +49,7 @@ public class GearIntake implements RobotMap {
     
     //constants
     average = 0;
-    gripping = false;
+    gripping = true;
     averageTotal = 0;
     runningAverage = new LinkedList<Double>();
     
@@ -70,14 +71,12 @@ public class GearIntake implements RobotMap {
     @Override
     public void loop(double delta) {
       runCurrentCalc();
-      
       switch(gear) {
         case STOPPED :
           //stops everything
           gearSolenoid.set(false);
-          
           if(gripping) {
-            controller.setMax(4, 6);
+            controller.setMax(4, 2);
             controller.setOn(true);
             controller.calculate();
           } else {
@@ -87,10 +86,13 @@ public class GearIntake implements RobotMap {
           
           break;
         case INTAKING : 
+           /* gearSolenoid.set(true);
+            intakeVictor.set(1); */
             gearSolenoid.set(true);
+            controller.setMax(10, 6);
             controller.setOn(true);
-            controller.setMax(4, 12);
-          break;
+            controller.calculate();         
+            break;
         case OUTTAKING :
           
           //stops the motor and drops the geartake
@@ -100,12 +102,24 @@ public class GearIntake implements RobotMap {
           //stops the controller
           controller.setOn(false);
           break;
-       
+        case EXPELL :
+          //stops the motor and drops the geartake
+          intakeVictor.set(-1);
+          controller.setOn(false);
+          break;
         default :
           
           DriverStation.reportWarning("Hit default case in gear holder", false);
           break;
       }
+      
+      if(hasGear()) {
+          Robot.ledController.updateGearState(true);
+      
+      } else {
+        Robot.ledController.updateGearState(false);
+      }
+      
     }
 
     @Override
@@ -157,6 +171,13 @@ public class GearIntake implements RobotMap {
     
     average = averageTotal / runningAverage.size();
   }
+  
+  public void averageReset() {
+    average = 10;
+    intakeVictor.set(0);
+    averageTotal = 10;
+    runningAverage = new LinkedList<Double>();
+  }
   /**
    * Gets the average current of the system
    * @return : average current
@@ -165,18 +186,37 @@ public class GearIntake implements RobotMap {
     return average;
   }
   
+  public boolean isDown() {
+    return (gear == GearStates.INTAKING) || (gear == GearStates.OUTTAKING);
+  }
+  
+  public void expellGear() {
+    if(checkIsLegal(false))
+      gear = GearStates.EXPELL;
+  }
+  
+  
   /**
    * Drops the geartake and starts 
    * the roller
    */
   public void intakeGear() {
-    gear = GearStates.INTAKING;   
+    if(checkIsLegal(true)) {
+      System.out.println("legal");
+      gear = GearStates.INTAKING;   
+    }
   }
   
   /**
    * Just Drops the gearTake
    */
   public void outTakeGear() {
-    gear = GearStates.OUTTAKING;
+    if(checkIsLegal(true)) {
+      gear = GearStates.OUTTAKING;
+    }
+  }
+  
+  private boolean checkIsLegal(boolean isDesiredDown) {
+    return (isDesiredDown && !Robot.intake.isDown()) || !isDesiredDown;
   }
 }

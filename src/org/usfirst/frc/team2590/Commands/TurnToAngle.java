@@ -4,7 +4,7 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 public class TurnToAngle extends NemesisCommand{
 
-  double setpoint;
+  private double setpoint;
 
   public TurnToAngle(double stp) {
     this.setpoint = stp;
@@ -22,7 +22,7 @@ public class TurnToAngle extends NemesisCommand{
 
   @Override
   public boolean done() {
-    return false;
+    return Robot.driveT.getTurnDone();
   }
 
 }

@@ -11,6 +11,7 @@ public class VoltageController {
   private double out;
   private boolean on;
   private double step;
+  private double cycles = 0; 
   private boolean stalling;
   private int channelOnPDP;
   private SpeedController motor;
@@ -51,7 +52,13 @@ public class VoltageController {
         out -= step;
       }
       
-      stalling = Robot.gearHold.getAverage() > (maxCurrent-2);
+      if(Robot.gearHold.getAverage() > (maxCurrent-2)) {
+        cycles +=1;
+      } else {
+        cycles = 0;
+      }
+      stalling = cycles >= 2;
+      System.out.println("average " + Robot.gearHold.getAverage());
       motor.set(out);
     } else {
       motor.set(0);

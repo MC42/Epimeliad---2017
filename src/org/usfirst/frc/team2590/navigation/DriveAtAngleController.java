@@ -8,8 +8,8 @@ public class DriveAtAngleController {
   private double kT;
   private double kI;
 
+  private boolean done;
   private double error;
-  private double maxAcc;
   private double lastOut;
   private double lastError;
 
@@ -18,11 +18,11 @@ public class DriveAtAngleController {
   private double angleStp;
   private double distanceStp;
 
-  public DriveAtAngleController(double maxAcc , double kF , double kT , double kI) {
-
+  public DriveAtAngleController(double kF , double kT , double kI) {
 
     error = 0;
     lastOut = 0;
+    done = false;
     lastError = 0;
     velocity = 0;
     angleStp = 0;
@@ -32,10 +32,10 @@ public class DriveAtAngleController {
 
     distanceStp = 0;
     flipped = false;
-    this.maxAcc = maxAcc;
   }
 
   public void setSetpoint(double setPoint , double angle ) {
+    done = false;
     error = setPoint;
     angleStp = angle;
     distanceStp = setPoint;
@@ -58,9 +58,10 @@ public class DriveAtAngleController {
 
     //calculate error
     error = distanceStp-processVar;
-    System.out.printf("Distance Step: %.3f, Process Variable: %.3f \n", distanceStp, processVar);
+    //System.out.printf("Distance Step: %.3f, Process Variable: %.3f \n", distanceStp, processVar);
     //velocity calculations
-    velocity = Math.sqrt(Math.abs(2*maxAcc*error));
+    //velocity = Math.sqrt(Math.abs(2*maxAcc*error)); //this is ugly and bad , doesnt work, changing to motion profiled soon
+    velocity = Math.abs(error);
     flipped = error < 0;
 
     //checkk if its inverted
@@ -76,17 +77,18 @@ public class DriveAtAngleController {
     lastError = (angleStp-gyroA);
 
 
-    //do this other wise it will continue driving once youve hit drive setpoint because
-    //it wants to get to the angle setpoint
+   //tolerance of 1.2 inches
     if(Math.abs(error) > 0.1) {
       lastOut = turnOutPut;
       return out;
     }
-
+    
+    //the drive is done
+    done = true;
     return 0.0;
   }
 
   public boolean isDone() {
-    return Math.abs(error) < 0.1;
+    return done;
   }
 }

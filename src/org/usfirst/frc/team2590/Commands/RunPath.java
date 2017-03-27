@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class RunPath extends NemesisCommand {
 
-  Path paths;
+  private Path paths;
 
   //... means array
   public RunPath(PathSegment... path) {

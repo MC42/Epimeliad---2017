@@ -1,11 +1,11 @@
 package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.looper.Loop;
-import org.usfirst.frc.team2590.navigation.ConstantVelocityCommandModel;
 import org.usfirst.frc.team2590.navigation.DriveAtAngleController;
 import org.usfirst.frc.team2590.navigation.NavigationalSystem;
 import org.usfirst.frc.team2590.navigation.Path;
 import org.usfirst.frc.team2590.navigation.PurePursuitController;
+import org.usfirst.frc.team2590.navigation.TurningController;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -41,8 +41,6 @@ public class DriveTrain implements RobotMap {
   //joysticks
   private Joystick left;
   private Joystick right;
-  private double turnSetP;
-  private boolean turnDone;
 
   private static final double WHEEL_DIAM = 4;
   private static final double LOW_THRESHOLD = 6; //the point at which the robot shifts
@@ -59,17 +57,15 @@ public class DriveTrain implements RobotMap {
   private NemesisSolenoid shifters;
 
   //control systems
+  private TurningController turn;
   private NemesisDrive straightDrive;
   private PurePursuitController pureP;
   private NavigationalSystem navigationSys;
   private DriveAtAngleController angledDriveCont;
-  private ConstantVelocityCommandModel constantCommand;
 
   public DriveTrain(Joystick leftJ , Joystick rightJ) {
 
     //joysticks
-    turnDone = false;
-    turnSetP = 0;
     left = leftJ;
     right = rightJ;
     
@@ -89,11 +85,11 @@ public class DriveTrain implements RobotMap {
     rightEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
 
     //control systems
-    constantCommand = new ConstantVelocityCommandModel(0.8, 0.4);
-    straightDrive = new NemesisDrive(gyro,  leftVictor, rightVictor);
-    angledDriveCont = new DriveAtAngleController(3, VELFF, 0.09 , 0.000); //0.075 //3 //0.09
-    navigationSys = new NavigationalSystem(leftEncoder, rightEncoder , gyro);
+    turn = new TurningController(TURNKP);
     pureP = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD );
+    straightDrive = new NemesisDrive(gyro,  leftVictor, rightVictor);
+    angledDriveCont = new DriveAtAngleController(VELFF, 0.09 , 0.000); //0.075 //3 //0.09
+    navigationSys = new NavigationalSystem(leftEncoder, rightEncoder , gyro);
   }
 
   private Loop loop_ = new Loop() {
@@ -112,23 +108,7 @@ public class DriveTrain implements RobotMap {
             break;
 
           case VELOCITY_CONTROL:
-           
-            /*//teleop drive
-            constantCommand.calculate((leftEncoder.getDistance()+rightEncoder.getDistance())/2,
-                (leftEncoder.getRate()+rightEncoder.getRate())/2, delta);
-
-            //left drive signal calculations
-            double leftSignal = leftVelCont.calculate(constantCommand.getCurrentPosition(),
-                constantCommand.getCurrentVelocity(),
-                leftEncoder.getDistance());
-
-            //right side signal calculations
-            double rightSignal = rightVelCont.calculate(constantCommand.getCurrentPosition(),
-                constantCommand.getCurrentVelocity(),
-                rightEncoder.getDistance());
-
-            driveSignal.updateSignal(leftSignal, rightSignal);
-            break;*/
+          
             break;
             
           case OPEN_LOOP :
@@ -141,36 +121,28 @@ public class DriveTrain implements RobotMap {
             driveSignal.updateSignal(pureP.Calculate(navigationSys.getCurrentPoint(), true , delta) ,
                 pureP.Calculate(navigationSys.getCurrentPoint() , false , delta));
             break;
-
+            
+            //this method of driving is shit, just noticed , this needs to be changed 
           case ANGLED_DRIVE :
-            //update signals for drive at an angle
             driveSignal.updateSignal(angledDriveCont.calculate(leftEncoder.getDistance() , gyro.getAngle() , false , delta) ,
                 angledDriveCont.calculate(rightEncoder.getDistance() , gyro.getAngle() , true , delta));
             break;
-
-          case TURN :
-            double error = turnSetP - gyro.getAngle();
-            double kP = 0.09; 
-            if(Math.abs(error) > .5) {
-              turnDone = false;
-              driveSignal.updateSignal(-error*kP, error*kP);
-            } else {
-              turnDone = true;
-              System.out.println("done " + error);
-            }
             
+          case TURN :
+            driveSignal.updateSignal(-turn.calculate(gyro.getAngle()), turn.calculate(gyro.getAngle()));
             straightDrive.tankDrive(driveSignal.getSignals()[0], driveSignal.getSignals()[1] );
             break;
+            
           case DEAD_RECKON :
             straightDrive.tankDrive(driveSignal.getSignals()[0], driveSignal.getSignals()[1] );
             break;
+            
           default :
             driveSignal.updateSignal(0,0);
             DriverStation.reportWarning("Hit default case in drive train", false);
             break;
         }
 
-        //System.out.printf("current x: %.3f currrent y: %.3f current theta: %.3f raw: %.3f\n" , NASA.getCurrentPoint()._x , NASA.getCurrentPoint()._y , NASA.getCurrentPoint()._theta , leftEncoder.getDistance()*1.054);
         switch(shift) {
           case MANUAL_HIGH :
             shifters.set(false);
@@ -191,6 +163,7 @@ public class DriveTrain implements RobotMap {
           SmartDashboard.putNumber("Gyro", gyro.getAngle());
           SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getDistance());
           SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());
+          
           //send signals
           straightDrive.tankDrive( driveSignal.getSignals()[0],
               driveSignal.getSignals()[1] );
@@ -290,25 +263,6 @@ public class DriveTrain implements RobotMap {
   }
 
   /**
-   * @deprecated : do not use, in development
-   * @param position
-   * @param velocity
-   */
-  public void setVelSetpoint(double position , double velocity) {
-    constantCommand.setSetpoint(position, velocity);
-    /*leftVelCont.setSetpoint(position , false);
-      rightVelCont.setSetpoint(position , false);*/
-  }
-
-  /**
-   * @deprecated do not use, in development
-   */
-  public void commandModelReset() {
-    constantCommand.reset();
-  }
-
-
-  /**
    * Makes the drive controller drive at an angle
    * @param driveSet : setpoint to drive to
    * @param angleSet : angle to turn to
@@ -356,12 +310,9 @@ public class DriveTrain implements RobotMap {
    * @param angle : angle to turn to
    */
   public void turnToAngle(double angle) {
-    if(Math.abs(angle) > 1) {
-      turnSetP = angle;
-      drives = driveStates.TURN;
-    } else {
-      turnDone = true;
-    }
+    gyro.reset();
+    turn.setSetpoint(angle);
+    drives = driveStates.TURN;
   }
 
   /**
@@ -369,7 +320,7 @@ public class DriveTrain implements RobotMap {
    * @return if the turn is done
    */
   public boolean getTurnDone() {
-    return turnDone;
+    return turn.done();
   }
 
   /**

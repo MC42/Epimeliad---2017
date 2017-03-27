@@ -22,14 +22,14 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
   
   //constants
   private final static double AngleToGear = 60; //60
-  private final static double DistanceToPeg = (3);
-  private final static double distanceToFirst = ((70+ROBOTLENGTH)/12); //86
+  private final static double DistanceToPeg = (5);
+  private final static double distanceToFirst = ((85+ROBOTLENGTH)/12); //86
 
   public SideGearSimple(boolean left) {
     
     driveInOne = new CheckDrive(true);
     driveInTwo = new CheckDrive(false);
-    driveAwayGear = new DriveAtAngle(4, 0);
+    driveAwayGear = new DriveAtAngle(5, 0);
     driveToGear = new DriveAtAngle(-DistanceToPeg, 0);
     turnInPlace = new TurnToAngle(AngleToGear*(left?1:-1));
     driveBeforeTurn = new DriveAtAngle(-distanceToFirst, 0);
@@ -44,23 +44,25 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
     
     //turn to face the peg
     turnInPlace.run();
-    Timer.delay(1.5);
+    waitUntilDone(1, turnInPlace::done); //1.5
     Robot.driveT.shiftHigh();
-    
+
     //drive into the peg
     driveToGear.run();
     waitUntilDone(.75, driveToGear::done);
     Robot.gearHold.outTakeGear();
-    Timer.delay(1);
+    Timer.delay(1); //allow the gear to fall off
     
     //drive away
-    driveAwayGear.run();
-    Timer.delay(.75);
+    driveAwayGear.run(); //drives away
+    waitUntilDone(.75, driveAwayGear::done);
     Robot.gearHold.stopGearIntake();
-    
+    Timer.delay(1); //updates the current average
+
     //do the checks
     driveInOne.run();
     waitUntilDone(2, driveInOne::done);
+    Timer.delay(1); //updates current average
     driveInTwo.run();
     waitUntilDone(2, driveInTwo::done);
     

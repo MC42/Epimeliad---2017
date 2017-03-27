@@ -92,8 +92,11 @@ public class Vision {
   public static double angleToTarget(){
     try {
       update();
+      /*
       return Math.toDegrees(Math.atan((yDistanceToTarget()+camOffset)
           /xDistanceToTarget()));
+      */
+      return hAngleToTarget();
     }  catch(Exception e)  {
       DriverStation.reportError("VISION BROKEN ANGLE TO TARGET", false);
       return 0.0;

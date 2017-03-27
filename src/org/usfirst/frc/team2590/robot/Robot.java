@@ -8,6 +8,7 @@ import org.usfirst.frc.team2590.routine.FivePointBoi;
 import org.usfirst.frc.team2590.routine.FrontGearDrop;
 import org.usfirst.frc.team2590.routine.HopperShootLeft;
 import org.usfirst.frc.team2590.routine.SideGearSimple;
+import org.usfirst.frc.team2590.routine.SideGearWithHopper;
 import org.usfirst.frc.team2590.routine.SideGearWithShooting;
 import org.usfirst.frc.team2590.routine.TwoGear;
 import org.usfirst.frc.team2590.subsystem.Climber;
@@ -21,6 +22,8 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import util.LEDController;
+import util.NemesisCamera;
 import util.SmartJoystick;
 import util.Vision;
 
@@ -31,7 +34,7 @@ import util.Vision;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Robot extends IterativeRobot implements RobotMap{
+public class Robot extends IterativeRobot implements RobotMap , Controls {
 
   //subsystems
   public static Climber climb;
@@ -40,31 +43,37 @@ public class Robot extends IterativeRobot implements RobotMap{
   public static Shooter shooter;
   public static DriveTrain driveT;
   public static GearIntake gearHold;
-
-
+  
   //autonomous uses polymorpism
-  private static AutoRoutine auto;
-  private static HashMap<String, AutoRoutine> autoMap;
+  public static AutoRoutine auto;
+  public static HashMap<String, AutoRoutine> autoMap;
 
   //joysticks
-  private SmartJoystick leftJoy;
-  private SmartJoystick rightJoy;
-  private SmartJoystick operatorJoy;
+  public static SmartJoystick leftJoy;
+  public static SmartJoystick rightJoy;
+  public static SmartJoystick operatorJoy;
 
   //Vision
   public static Vision vision;
+  public static LEDController ledController;
 
   //Looper
-  private static Looper enabledLooper;
+  public static Looper LEDLooper;
+  public static Looper enabledLooper;
 
   //compressor
-  private static Compressor compressor;
-  private static Solenoid plug3 , plug4;
+  public static Compressor compressor;
+  public static Solenoid plug3 , plug4;
+
+  //camera
+  public static NemesisCamera rearViewCamera;
 
   @Override
   public void robotInit() {
 
+    //misc, but probably needs to be init first
     vision = Vision.getVisionInstance();
+    ledController = LEDController.getLED();
 
     //joysticks
     leftJoy = new SmartJoystick(0 , 0.1 , 0.1);
@@ -85,12 +94,18 @@ public class Robot extends IterativeRobot implements RobotMap{
     enabledLooper.register(driveT.getDriveLoop());
     enabledLooper.register(feeder.getFeederLoop());
     enabledLooper.register(intake.getIntakeLoop());
-    enabledLooper.register(shooter.getShootLoop());
     enabledLooper.register(gearHold.getGearLoop());
+    enabledLooper.register(shooter.getShootLoop());
+
+    
+    LEDLooper = new Looper(0.03);
+    LEDLooper.register(ledController.getLEDLoop());
+    LEDLooper.startLoops();
 
     //autonomous modes
     autoMap = new HashMap<String , AutoRoutine>();
-    // autoMap.put("Hopper", new FourtyBall());
+
+    autoMap.put("Two Gear",  new TwoGear());
     autoMap.put("Nothing",    new DoNothing());
     autoMap.put("Five Drive", new FivePointBoi());
     autoMap.put("Hopper Left", new HopperShootLeft());
@@ -98,8 +113,9 @@ public class Robot extends IterativeRobot implements RobotMap{
     autoMap.put("Turn Left Gear",  new SideGearSimple(true));
     autoMap.put("Front Gear Right", new FrontGearDrop(false));
     autoMap.put("Turn Right Gear",  new SideGearSimple(false));
-    autoMap.put("Two Gear",  new TwoGear());
-    autoMap.put("Turn Left Gear Shoot",  new SideGearWithShooting(true));    
+    autoMap.put("Turn Left Gear Hopper",  new SideGearWithHopper(true));    
+    autoMap.put("Turn Left Gear Shoot",  new SideGearWithShooting(true));  
+    autoMap.put("Turn Right Gear Hopper",  new SideGearWithHopper(false));
     autoMap.put("Turn Right Gear Shoot",  new SideGearWithShooting(false));
     
 
@@ -109,8 +125,12 @@ public class Robot extends IterativeRobot implements RobotMap{
 
     //compressor
     compressor = new Compressor();
-    compressor.start();
+    compressor.stop();
     compressor.clearAllPCMStickyFaults();
+    
+    //camera
+    rearViewCamera = new NemesisCamera(false);
+    rearViewCamera.setCameraIP("10.25.90.11");
   }
 
   /**
@@ -123,12 +143,19 @@ public class Robot extends IterativeRobot implements RobotMap{
   public void disabledInit() {
     System.out.println("Stopping loops");
     enabledLooper.onEnd();
+    LEDLooper.startLoops();
+    ledController.updateGearState(false);
+    ledController.updateDisabledState(true);
+    ledController.updateShooterState("OFF");
+    ledController.updateClimbingState(false);
   }
 
   @Override
   public void disabledPeriodic() {
     //makes sure the pcm works by keeping it active
     compressor.setClosedLoopControl(true);
+    
+    //reset everything
     driveT.resetPath();
     driveT.resetDriveController();
     driveT.resetSensors();
@@ -136,6 +163,7 @@ public class Robot extends IterativeRobot implements RobotMap{
 
   @Override
   public void autonomousInit() {
+    ledController.updateDisabledState(false);
 
     //get the auton to run
     auto = autoMap.get(SmartDashboard.getString("DB/String 0" , "Left Gear Left"));
@@ -151,7 +179,6 @@ public class Robot extends IterativeRobot implements RobotMap{
 
     //run auton
     auto.run();
-
   }
 
   @Override
@@ -162,86 +189,89 @@ public class Robot extends IterativeRobot implements RobotMap{
 
   @Override
   public void teleopInit() {
-    System.out.println("Starting loops");
+    ledController.updateDisabledState(false);
 
+    //ends auto
+    if(auto != null) {
+      auto.end();
+    }
+    
     //start the loops
     enabledLooper.startLoops();
+    LEDLooper.startLoops();
     driveT.setOpenLoop();
 
     //reset the robot
     driveT.resetSensors();
     driveT.shiftHigh();
+    
+    intake.stopIntake();
     gearHold.stopGearIntake();
 
     //close all excess vents
     plug3.set(false);
     plug4.set(false);
     
-    Robot.gearHold.turnOnGrip(true);
+    //starts the grip
+    gearHold.turnOnGrip(true);
   }
 
   @Override
   public void teleopPeriodic() {
+    driveT.setOpenLoop();
+    gearHold.turnOnGrip(true);
 
     //intake balls
-    if(leftJoy.getRawButton(1)) {
-      if(!rightJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
+    if(leftJoy.getRawButton(FRONT_INTAKE_IN)) {
         intake.intakeBalls();
         feeder.expellBalls();
-      } else {
-        intake.stopIntake();
-      }
-    } else if(leftJoy.getRawButton(3)) {
-      if(!rightJoy.getRawButton(1) && !rightJoy.getRawButton(2)) {
+    } else if(leftJoy.getRawButton(FRONT_INTAKE_OUT)) {
         intake.outtakeBalls();
-      } else {
-        intake.stopIntake();
-      }
     } else {
-      if(!operatorJoy.getRawButton(3) && !rightJoy.getRawButton(6)) {
+      if(!operatorJoy.getRawButton(INTAKE_AGITATE)) {
         intake.stopIntake();
       }
     }
+    
+    //handle feeder
+    if(!leftJoy.getRawButton(FRONT_INTAKE_IN) && !operatorJoy.getRawButton(FEEDER_OUT) && !operatorJoy.getRawButton(FEEDER_IN)) {
+      feeder.stopFeeder();
+    }
 
     //handle shifting
-    if(rightJoy.getFallingEdge(5)) {
+    if(rightJoy.getFallingEdge(DRIVE_SHIFT_HIGH)) {
       driveT.shiftHigh();
-    } else if(rightJoy.getFallingEdge(3)) {
+    } else if(rightJoy.getFallingEdge(DRIVE_SHIFT_LOW)) {
       driveT.shiftLow();
     }
 
 
     //handle shooting
-    if(rightJoy.getRawButton(4)) {
-      shooter.revShooter();
-      //intake.dropIntake();
+    if(rightJoy.getRawButton(DRIVER_REV_SHOOTER)) {
+      feeder.feedIntoShooter();
+    } else {
+      if(!operatorJoy.getRawButton(OPERATOR_REV_SHOOTER)) {
+        shooter.stopShooter();
+      }
     }
     
-    if(rightJoy.getRawButton(1)) {
-      if(!leftJoy.getRawButton(1) && !leftJoy.getRawButton(2))
+    if(rightJoy.getFallingEdge(GEAR_INTAKE_IN) || rightJoy.getFallingEdge(GEAR_INTAKE_OUT)) {
+      gearHold.averageReset();
+    }
+    
+    if(rightJoy.getRawButton(GEAR_INTAKE_IN)) {
         gearHold.intakeGear();
-      else
-        gearHold.stopGearIntake();
-    } else if(rightJoy.getRawButton(2)) {
-      if(!leftJoy.getRawButton(1) && !leftJoy.getRawButton(2))
-        gearHold.outTakeGear();
-      else
-        gearHold.stopGearIntake();    
+    } else if(rightJoy.getRawButton(GEAR_INTAKE_OUT)) {
+       gearHold.outTakeGear();
     } else {
-      gearHold.stopGearIntake();
+      if(!operatorJoy.getRawButton(OPERATOR_OUT_GEAR)) {
+        gearHold.stopGearIntake();
+      }
     }
 
-    if(!rightJoy.getRawButton(4)) {
-      shooter.stopShooter();
-    }
-
-    if(!leftJoy.getRawButton(1) && !rightJoy.getRawButton(4)
-        && !operatorJoy.getRawButton(1) && !operatorJoy.getRawButton(2)) {
-      feeder.stopFeeder();
-    }
 
     //handle climber
-    if(rightJoy.getRawButton(6)) {
+    if(rightJoy.getRawButton(CLIMB)) {
       compressor.stop();
       driveT.shiftLow();
       climb.startClimb();
@@ -254,16 +284,23 @@ public class Robot extends IterativeRobot implements RobotMap{
 
 
     //OPERATOR CONTROLLS
-    if(operatorJoy.getRawButton(1)) {
+    if(operatorJoy.getRawButton(FEEDER_OUT)) {
       feeder.expellBalls();
-    } else if (operatorJoy.getRawButton(2)) {
+    } else if (operatorJoy.getRawButton(FEEDER_IN)) {
       feeder.feedIntoShooter();
     }
 
-    if(operatorJoy.getRawButton(3)) {
+    if(operatorJoy.getRawButton(INTAKE_AGITATE)) {
       intake.agitate();
     }
+    
+    if(operatorJoy.getRawButton(OPERATOR_REV_SHOOTER)) {
+      shooter.revShooter();
+    }
 
+    if(operatorJoy.getRawButton(OPERATOR_OUT_GEAR)) {
+      gearHold.expellGear();
+    }
 
   }
 }

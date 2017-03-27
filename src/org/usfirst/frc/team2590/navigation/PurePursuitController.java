@@ -13,7 +13,6 @@ public class PurePursuitController implements RobotMap{
 
   private Path path;
   private boolean flip;
-  private boolean unFlip;
   private boolean done;
   private double lookAhead;
   private Point lookAheadPoint;
@@ -22,11 +21,10 @@ public class PurePursuitController implements RobotMap{
   public PurePursuitController(double kF , double maxAcc , double lookAhead) {
     done = false;
     flip = false;
-    unFlip = false;
     this.path = new Path(null);
     this.lookAhead = lookAhead;
     lookAheadPoint = new Point(0, 0, 0);
-    velCont = new DriveAtAngleController(maxAcc , kF , DRIVETURNCOMP , 0);
+    velCont = new DriveAtAngleController(kF , DRIVETURNCOMP , 0);
   }
 
   public double Calculate(Point currPoint , boolean isRight ,double dt) {
@@ -69,13 +67,11 @@ public class PurePursuitController implements RobotMap{
 
   public void unFlip() {
     flip = false;
-    unFlip = true;
     System.out.println("path has been unflipped");
   }
   
   public void flip() {
     flip = true;
-    unFlip = false;
   }
 
 

@@ -1,8 +1,6 @@
 package org.usfirst.frc.team2590.routine;
 
-import org.usfirst.frc.team2590.Commands.RunPath;
-import org.usfirst.frc.team2590.navigation.PathSegment;
-import org.usfirst.frc.team2590.navigation.Point;
+import org.usfirst.frc.team2590.Commands.DriveAtAngle;
 import org.usfirst.frc.team2590.robot.Robot;
 
 /**
@@ -11,20 +9,17 @@ import org.usfirst.frc.team2590.robot.Robot;
  *
  */
 public class FivePointBoi extends AutoRoutine {
-
-  private RunPath testPath;
-  private Point pastLinePoint;
+  private DriveAtAngle driveForPoints;
 
   public FivePointBoi() {
-    pastLinePoint = new Point(10, 0,0);
-    testPath = new RunPath(new PathSegment(new Point(0,0,0) , pastLinePoint));
+    driveForPoints = new DriveAtAngle(10, 0);
+    
   }
 
   @Override
   public void run() {
-
     //go forward far enough to get 5 points
-    testPath.run();
+    driveForPoints.run();
   }
 
   @Override

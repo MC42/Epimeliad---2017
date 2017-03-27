@@ -4,7 +4,7 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class CheckDrive extends NemesisCommand{
+public class CheckDrive extends NemesisCommand {
 
   private boolean done;
   private DriveAtAngle driveIn;
@@ -12,28 +12,28 @@ public class CheckDrive extends NemesisCommand{
   
   public CheckDrive(boolean first) {
     done = false;
-    driveBack = new DriveAtAngle(4.5, 0);
-    driveIn = new DriveAtAngle(-4.5, (first?4:-4));
+    driveBack = new DriveAtAngle(6, 0);
+    driveIn = new DriveAtAngle(-6, (first?4:-4));
   }
 
   @Override
   public void run() {
     if(Robot.gearHold.hasGear()) {
       
-      //reset and drive into the peg
+      //drive into the gear
       Robot.driveT.resetSensors();
       driveIn.run();
-      Timer.delay(2);
+      waitUntilDone(2, driveIn::done);
       
       //drop the gear
       Robot.gearHold.outTakeGear();
-      Timer.delay(.5);
-      
-      //drive away
+      Timer.delay(0.75);
+
+      //drive back out
       driveBack.run();
-      Timer.delay(.5);
+      waitUntilDone(1, driveBack::done);
       
-      //lift the gearTake
+      //raise the dustpan
       Robot.gearHold.stopGearIntake();
       done = true;
     } else {

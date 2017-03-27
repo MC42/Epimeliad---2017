@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.looper.Loop;
+import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -64,11 +65,10 @@ public class Intake implements RobotMap {
         case AGIGTATE :
           intakeMotor.set(-0.8);
           break;
-
+          
         case JUST_DROP :
           intakeSolenoid.set(true);
           break;
-
         default :
           DriverStation.reportWarning("Hit default case in intake", false);
           break;
@@ -98,21 +98,23 @@ public class Intake implements RobotMap {
    * Intake balls, auto intake solenoid
    */
   public void intakeBalls() {
-    intake = intakeStates.INTAKE;
+    if(isLegal(true))
+      intake = intakeStates.INTAKE;
   }
 
-  /**
-   * Just put the intake down
-   */
-  public void dropIntake() {
-    intake = intakeStates.JUST_DROP;
-  }
 
   /**
    * Spit out balls, auto intake solenoid
    */
   public void outtakeBalls() {
-    intake = intakeStates.EXAUST;
+    if(isLegal(true))
+      intake = intakeStates.EXAUST;
+  }
+  
+  public void dropIntake() {
+    if(isLegal(true)) {
+      intake = intakeStates.JUST_DROP;
+    }
   }
 
   /**
@@ -120,6 +122,13 @@ public class Intake implements RobotMap {
    */
   public void agitate() {
     intake = intakeStates.AGIGTATE;
+  }
+  
+  private boolean isLegal(boolean isDesiredDown) {
+    return !isDesiredDown || (!Robot.gearHold.isDown());
+  }
+  public boolean isDown() {
+    return (intake == intakeStates.EXAUST) || (intake == intakeStates.INTAKE);
   }
 
 }
