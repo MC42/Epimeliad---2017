@@ -37,23 +37,22 @@ public class Shooter implements RobotMap {
   public Shooter() {
 
     //desired speed of the shooter (RPM)
-    setpoint = 3130;
+    setpoint = 0;
     lockingShot = false;
     
     //master shooter motor
     shooterMaster = new CANTalon(SHOOTERMASTERID);
     shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
     shooterMaster.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    //shooterMaster.setStatusFrameRateMs(StatusFrameRate.QuadEncoder, 20);
     
     //settings
     shooterMaster.setIZone(0);
     shooterMaster.enableBrakeMode(false); //motor can move
     shooterMaster.setCloseLoopRampRate(0.0);
-    //shooterMaster.configPeakOutputVoltage(12.0, 0.0);
     shooterMaster.setPID(SHOOTERKP, SHOOTERKI, SHOOTERKD , SHOOTERKF, 0, 0, 0);
     shooterMaster.configEncoderCodesPerRev(360);
-    //if on the real robot uncomment this
+    
+    //shooterMaster.configPeakOutputVoltage(12.0, 0.0);
     shooterMaster.configPeakOutputVoltage(0.0, -12.0);
     shooterMaster.reverseOutput(true);
     shooterMaster.reverseSensor(true);
@@ -201,7 +200,7 @@ public class Shooter implements RobotMap {
    * @return : is the shooter above target
    */
   public boolean getAboveTarget() {
-    return this.getSpeed() > (setpoint-50)-500; //-500 because control stabalizes 500 below
+    return this.getSpeed() > (setpoint-50)-500; //-500 because control stabilizes 500 below
   }
 
   /**

@@ -2,24 +2,28 @@ package org.usfirst.frc.team2590.routine;
 
 import org.usfirst.frc.team2590.Commands.DriveAtAngle;
 import org.usfirst.frc.team2590.Commands.TurnToAngle;
+import org.usfirst.frc.team2590.Commands.TurnToTarget;
 import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 public class SideGearWithShooting extends AutoRoutine implements RobotMap  {
  
+  /**
+   * Drop off the gear
+   */
   private SideGearSimple getGear;
 
   /**
    * Shooting path
    */
-  private TurnToAngle turnToBoiler;
+  private TurnToTarget turnToBoiler;
   private DriveAtAngle driveToBoiler;
  
   
   public SideGearWithShooting(boolean left) {
+    turnToBoiler = new TurnToTarget();
     getGear = new SideGearSimple(left);
-    turnToBoiler = new TurnToAngle(-20 * (left?1:-1));
-    driveToBoiler = new DriveAtAngle(10, 0);
+    driveToBoiler = new DriveAtAngle(5, 0);
   }
 
   @Override
@@ -31,19 +35,19 @@ public class SideGearWithShooting extends AutoRoutine implements RobotMap  {
     //revv the shooter
     Robot.shooter.setSetpoint(3300);
     Robot.shooter.revShooter();
-    
-    //turn towards the boiler
-    turnToBoiler.run();
-    waitUntilDone(1, turnToBoiler::done);
-        
+   
     //ram into the boiler
     Robot.driveT.resetSensors();
     Robot.driveT.shiftHigh();
     driveToBoiler.run();
-    waitUntilDone(2.5, driveToBoiler::done);
+    waitUntilDone(2, driveToBoiler::done);
     
+    //turn towards the boiler
+    turnToBoiler.run();
+    waitUntilDone(1.5 , turnToBoiler::done);
+        
     Robot.driveT.setStop();
-    Robot.shooter.shootWhenReady();
+    Robot.feeder.feedIntoShooter();
   }
 
   @Override

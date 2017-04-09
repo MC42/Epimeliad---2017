@@ -5,7 +5,16 @@ import org.usfirst.frc.team2590.routine.Checkable;
 import edu.wpi.first.wpilibj.Timer;
 
 public abstract class NemesisCommand {
+  
+  /**
+   * run method, main operational stuff should go here
+   */
   public abstract void run();
+  
+  /**
+   * checks if the command is finished
+   * @return 
+   */
   public abstract boolean done();
   
 
@@ -20,4 +29,5 @@ public abstract class NemesisCommand {
       } catch (Exception e) {}
     }
   }
+  
 }

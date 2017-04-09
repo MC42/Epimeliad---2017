@@ -69,6 +69,7 @@ public class Intake implements RobotMap {
         case JUST_DROP :
           intakeSolenoid.set(true);
           break;
+          
         default :
           DriverStation.reportWarning("Hit default case in intake", false);
           break;
@@ -127,6 +128,7 @@ public class Intake implements RobotMap {
   private boolean isLegal(boolean isDesiredDown) {
     return !isDesiredDown || (!Robot.gearHold.isDown());
   }
+  
   public boolean isDown() {
     return (intake == intakeStates.EXAUST) || (intake == intakeStates.INTAKE);
   }

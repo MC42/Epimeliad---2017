@@ -5,19 +5,20 @@ import org.usfirst.frc.team2590.looper.Looper;
 import org.usfirst.frc.team2590.routine.AutoRoutine;
 import org.usfirst.frc.team2590.routine.DoNothing;
 import org.usfirst.frc.team2590.routine.FivePointBoi;
+import org.usfirst.frc.team2590.routine.FourtyBall;
 import org.usfirst.frc.team2590.routine.FrontGearDrop;
-import org.usfirst.frc.team2590.routine.HopperShootLeft;
 import org.usfirst.frc.team2590.routine.SideGearSimple;
-import org.usfirst.frc.team2590.routine.SideGearWithHopper;
 import org.usfirst.frc.team2590.routine.SideGearWithShooting;
 import org.usfirst.frc.team2590.routine.TwoGear;
 import org.usfirst.frc.team2590.subsystem.Climber;
 import org.usfirst.frc.team2590.subsystem.DriveTrain;
+import org.usfirst.frc.team2590.subsystem.ExpandingBox;
 import org.usfirst.frc.team2590.subsystem.Feeder;
 import org.usfirst.frc.team2590.subsystem.GearIntake;
 import org.usfirst.frc.team2590.subsystem.Intake;
 import org.usfirst.frc.team2590.subsystem.Shooter;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -43,6 +44,7 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
   public static Shooter shooter;
   public static DriveTrain driveT;
   public static GearIntake gearHold;
+  public static ExpandingBox expandBox;
   
   //autonomous uses polymorpism
   public static AutoRoutine auto;
@@ -62,8 +64,8 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
   public static Looper enabledLooper;
 
   //compressor
+  public static Solenoid plug4;
   public static Compressor compressor;
-  public static Solenoid plug3 , plug4;
 
   //camera
   public static NemesisCamera rearViewCamera;
@@ -86,12 +88,14 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     climb   = Climber.getClimber();
     shooter = Shooter.getShooter();
     gearHold = GearIntake.getGearHolder();
+    expandBox = ExpandingBox.getExpandingBox();
     driveT  = DriveTrain.getDriveTrain(leftJoy, rightJoy);
 
     //looper
     enabledLooper = new Looper(0.02);
     enabledLooper.register(climb.getClimbLoop());
     enabledLooper.register(driveT.getDriveLoop());
+    enabledLooper.register(expandBox.getBoxLoop());
     enabledLooper.register(feeder.getFeederLoop());
     enabledLooper.register(intake.getIntakeLoop());
     enabledLooper.register(gearHold.getGearLoop());
@@ -105,23 +109,20 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     //autonomous modes
     autoMap = new HashMap<String , AutoRoutine>();
 
+    autoMap.put("Five", new FivePointBoi());
     autoMap.put("Two Gear",  new TwoGear());
     autoMap.put("Nothing",    new DoNothing());
-    autoMap.put("Five Drive", new FivePointBoi());
-    autoMap.put("Hopper Left", new HopperShootLeft());
+    autoMap.put("Hopper Left", new FourtyBall(true));
+    autoMap.put("Hopper Right", new FourtyBall(false));
     autoMap.put("Front Gear Left", new FrontGearDrop(true));
     autoMap.put("Turn Left Gear",  new SideGearSimple(true));
     autoMap.put("Front Gear Right", new FrontGearDrop(false));
     autoMap.put("Turn Right Gear",  new SideGearSimple(false));
-    autoMap.put("Turn Left Gear Hopper",  new SideGearWithHopper(true));    
     autoMap.put("Turn Left Gear Shoot",  new SideGearWithShooting(true));  
-    autoMap.put("Turn Right Gear Hopper",  new SideGearWithHopper(false));
     autoMap.put("Turn Right Gear Shoot",  new SideGearWithShooting(false));
     
-
     //solenoids
-    plug3 = new Solenoid(3);
-    plug4 = new Solenoid(2);
+    plug4 = new Solenoid(3);
 
     //compressor
     compressor = new Compressor();
@@ -129,7 +130,8 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     compressor.clearAllPCMStickyFaults();
     
     //camera
-    rearViewCamera = new NemesisCamera(false);
+    rearViewCamera = new NemesisCamera();
+    rearViewCamera.addUsbCamera();
     rearViewCamera.setCameraIP("10.25.90.11");
   }
 
@@ -209,7 +211,6 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     gearHold.stopGearIntake();
 
     //close all excess vents
-    plug3.set(false);
     plug4.set(false);
     
     //starts the grip
@@ -218,19 +219,25 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
 
   @Override
   public void teleopPeriodic() {
-    driveT.setOpenLoop();
+    
     gearHold.turnOnGrip(true);
 
+    if(leftJoy.getFallingEdge(TOGGLE_BOX)) {
+      expandBox.toggleBox();
+    }
+    
     //intake balls
     if(leftJoy.getRawButton(FRONT_INTAKE_IN)) {
         intake.intakeBalls();
         feeder.expellBalls();
-    } else if(leftJoy.getRawButton(FRONT_INTAKE_OUT)) {
-        intake.outtakeBalls();
     } else {
       if(!operatorJoy.getRawButton(INTAKE_AGITATE)) {
         intake.stopIntake();
       }
+    }
+    
+    if(leftJoy.getRawButton(2)) {
+      gearHold.expellGear();
     }
     
     //handle feeder
@@ -247,12 +254,17 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
 
 
     //handle shooting
-    if(rightJoy.getRawButton(DRIVER_REV_SHOOTER)) {
-      feeder.feedIntoShooter();
-    } else {
-      if(!operatorJoy.getRawButton(OPERATOR_REV_SHOOTER)) {
-        shooter.stopShooter();
-      }
+    
+    if(rightJoy.getFallingEdge(DRIVER_REV_SHOOTER)) {
+      rearViewCamera.changeToNightMode();
+      Robot.driveT.shiftLow();
+      driveT.resetSensors();
+      driveT.turnToAngle((vision.angleToTarget()));
+    }
+    
+    //System.out.println("dist " + vision.xDistanceToTarget());
+    if(driveT.getTurnDone() || operatorJoy.getRawButton(6) || Math.abs(leftJoy.getY()) > 0.1 || Math.abs(rightJoy.getX()) > 0.1) {
+      driveT.setOpenLoop();
     }
     
     if(rightJoy.getFallingEdge(GEAR_INTAKE_IN) || rightJoy.getFallingEdge(GEAR_INTAKE_OUT)) {
@@ -262,8 +274,10 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     if(rightJoy.getRawButton(GEAR_INTAKE_IN)) {
         gearHold.intakeGear();
     } else if(rightJoy.getRawButton(GEAR_INTAKE_OUT)) {
-       gearHold.outTakeGear();
-    } else {
+      gearHold.expellGear();
+    } else if(leftJoy.getRawButton(2)) { 
+      gearHold.outTakeGear();
+    }else {
       if(!operatorJoy.getRawButton(OPERATOR_OUT_GEAR)) {
         gearHold.stopGearIntake();
       }
@@ -275,12 +289,13 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
       compressor.stop();
       driveT.shiftLow();
       climb.startClimb();
-    } else {
+    } else if(!rightJoy.getRawButton(CLIMB) && !operatorJoy.getRawButton(OPERATOR_REV_CLIMBER)) {
       climb.stopClimb();
       compressor.start();
     }
 
     shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0" , 0));
+    //shooter.setSetpoint(vision.interpolateSpeed(vision.xDistanceToTarget()));
 
 
     //OPERATOR CONTROLLS
@@ -296,12 +311,32 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     
     if(operatorJoy.getRawButton(OPERATOR_REV_SHOOTER)) {
       shooter.revShooter();
+    } else {
+      shooter.stopShooter();
     }
 
     if(operatorJoy.getRawButton(OPERATOR_OUT_GEAR)) {
       gearHold.expellGear();
     }
 
+    if(operatorJoy.getRawButton(OPERATOR_REV_CLIMBER)) {
+      compressor.stop();
+      driveT.shiftLow();
+      climb.inverseClimb();
+    }
+    
+    if(operatorJoy.getFallingEdge(TOGGLE_NIGHT_MODE)) {
+      //expandBox.toggleBox();
+
+      if(rearViewCamera.isNightMode()) {
+        rearViewCamera.changeToDayMode();
+      } else {
+        rearViewCamera.changeToNightMode();
+      }
+    }
+    
+    
+    
   }
 }
 

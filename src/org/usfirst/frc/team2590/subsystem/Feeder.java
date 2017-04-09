@@ -1,9 +1,13 @@
 package org.usfirst.frc.team2590.subsystem;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
+import org.usfirst.frc.team2590.Controllers.VoltageController;
 import org.usfirst.frc.team2590.looper.Loop;
-import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Victor;
 
 public class Feeder implements RobotMap {
@@ -17,14 +21,17 @@ public class Feeder implements RobotMap {
   }
 
   private enum FeederStates {
-    STOP , FEED_TO_SHOOTER , EXPELL
+    STOP , FEED_TO_SHOOTER , EXPELL , AGITATE
   };
   private FeederStates feed = FeederStates.STOP;
 
+  
   private Victor feederMotor;
-
+  private Victor agitatorMotor;
   public Feeder() {
-    feederMotor = new Victor(FEEDERMOTORPWM);
+
+    feederMotor = new Victor(FEEDERMOTORPWM);    
+    agitatorMotor = new Victor(AGITATORMOTORPWM);
   }
 
   private Loop loop = new Loop() {
@@ -38,13 +45,19 @@ public class Feeder implements RobotMap {
       switch(feed) {
         case STOP :
           feederMotor.set(0);
+          agitatorMotor.set(0);
+
           break;
         case FEED_TO_SHOOTER :
-          feederMotor.set(0.75);
-          Robot.intake.agitate();
+          feederMotor.set(1); //0.75
+          agitatorMotor.set(1);
           break;
         case EXPELL :
           feederMotor.set(-1);
+          agitatorMotor.set(-1);
+          break;
+        case AGITATE : 
+          agitatorMotor.set(1);
           break;
       }
     }
@@ -58,7 +71,7 @@ public class Feeder implements RobotMap {
   public Loop getFeederLoop() {
     return loop;
   }
-
+  
   /**
    * Stops the feeder
    */
@@ -78,6 +91,10 @@ public class Feeder implements RobotMap {
    */
   public void expellBalls() {
     feed = FeederStates.EXPELL;
+  }
+  
+  public void agitateBalls() {
+    feed = FeederStates.AGITATE;
   }
 
 

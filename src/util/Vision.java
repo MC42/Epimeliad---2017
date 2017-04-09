@@ -15,87 +15,90 @@ public class Vision {
   }
 
   static NetworkTable contours = NetworkTable.getTable("GRIP/myContoursReport");
-
-  static double imageHeight = 240.0;
-  static double imageWidth = 320.0;
-  static double fov = 47.0; //field of view
-  static double yfov = fov*0.78;
-  static double focalLength = imageWidth/(2*Math.tan(fov/2));
-  static double camHeight = 19.5;
-
-  static double[] defaultVal = new double[0];
-
-  static Target target1 = new Target();
-  static Target target2 = new Target();
-  public static Target BoundBox = new Target();
-
-  public static void update(){
-    try{
-      double[] xVals = contours.getNumberArray("centerX",defaultVal);
-      double[] yVals = contours.getNumberArray("centerY",defaultVal);
-
-      int targetsSeen = contours.getNumberArray("centerX", defaultVal).length;
-
-      if(targetsSeen>=2) { // if sees more than two contours
-
-        target1.setCoord(xVals[0], yVals[0]);
-        target2.setCoord(xVals[1], yVals[1]);
-
-        BoundBox.setCoord((target1.getX()+target2.getX())/2, (target1.getY()+target2.getY())/2);
-        System.out.println("Seeing two contours");
-      }
+  
+  //field of view
+  private static final double cameraAngle = 23; // center y pixel 
+  private static final double fov = 47.0; 
+  private static final double yfov = fov*0.78;
+  private static final double camHeight = 19.5;
+  private static final double imageWidth = 320.0;
+  private static final double imageHeight = 240.0;
+  private static final double targetHeight = 88;
+  private static final double cx = imageWidth/2.0; // center x pixel
+  private static final double cy = imageHeight/2.0; // center y pixel 
+  private static final double xdpp = fov/imageWidth; // degrees per pixel in the x direction
+  private static final double ydpp = yfov/imageHeight; // degrees per pixel in the y direction\
+ 
+  
+  private static Target target1 = new Target();
+  private static Target target2 = new Target();
+  private static Target BoundBox = new Target();
+  private static double[] defaultVal = new double[0];
+  private static double targetsSeen = 0;
+  public Vision() {
+    
+  }
+  
+  private void update() {
+    try {
+      double[] xVals = contours.getNumberArray("centerX" ,defaultVal);
+      double[] yVals = contours.getNumberArray("centerY" ,defaultVal);
+      targetsSeen = contours.getNumberArray("centerX" , defaultVal).length;
+      target1.setCoord(xVals[0], yVals[0]);
+      BoundBox.setCoord(target1.getX(), target1.getY());
+     
+      
     } catch(Exception e) {
 
     }
   }
 
-  static double cx = imageWidth/2.0;// center x pixel
-  static double cy = imageHeight/2.0;// center y pixel
-  static double xdpp = fov/imageWidth;// degrees per pixel in the x direction
-  static double ydpp = yfov/imageHeight;// degrees per pixel in the y direction
+ 
 
-  public static double hAngleToTarget(){
+  public double hAngleToTarget() {
     try {
       update();
       return((BoundBox.getX()-cx)*xdpp);
-      //return Math.atan((targetX-cx)/focalLength);
     }	catch(Exception e) {
       DriverStation.reportError("Target Not Found!", false);
       return 0;
     }
   }
 
-  public static double vAngleToTarget(){
+  public double vAngleToTarget() {
     try{
       update();
-      return((BoundBox.getY()-cy)*ydpp);
-      //return Math.atan((BoundBox.getY()-cy)/focalLength);
+      //System.out.println("bound b " + BoundBox.getY());
+      return(((BoundBox.getY()-cy)*ydpp)+cameraAngle);
     } catch(Exception e) {
       DriverStation.reportError("Target Not Found", false);
       return 2;
     }
   }
-
-  static double targetHeight = 13.5;
-  static double camOffset = 11;
-
-  public static double xDistanceToTarget(){
+  
+  public double targetFound() {
     update();
+    return targetsSeen;
+  }
+
+  public double xDistanceToTarget() {
+    update();
+    System.out.println("vangle " + vAngleToTarget());
     return (targetHeight-camHeight)/Math.tan(Math.toRadians(vAngleToTarget()));
   }
 
-  public static double yDistanceToTarget(){
+  public double yDistanceToTarget() {
     update();
     return xDistanceToTarget()*Math.tan(Math.toRadians(hAngleToTarget()));
   }
+  
+  public double interpolateSpeed(double x) {
+    return (0.22*(x*x)) - (36.666*x) + 4800; // equation goes here
+  }
 
-  public static double angleToTarget(){
+  public double angleToTarget() {
     try {
       update();
-      /*
-      return Math.toDegrees(Math.atan((yDistanceToTarget()+camOffset)
-          /xDistanceToTarget()));
-      */
       return hAngleToTarget();
     }  catch(Exception e)  {
       DriverStation.reportError("VISION BROKEN ANGLE TO TARGET", false);

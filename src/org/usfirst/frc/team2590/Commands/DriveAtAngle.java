@@ -20,10 +20,16 @@ public class DriveAtAngle extends NemesisCommand {
     this.distance = distance;
   }
 
+  /**
+   * Changes the distance and angle
+   * @param newDistance : new distance to drive to
+   * @param newAngle : new angle to drive to
+   */
   public void changeConstants(double newDistance, double newAngle) {
     this.angle = newAngle;
     this.distance = newDistance;
   }
+  
   @Override
   public void run() {
     //delay to reset sensors

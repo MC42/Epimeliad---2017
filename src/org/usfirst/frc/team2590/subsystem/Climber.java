@@ -17,8 +17,9 @@ public class Climber implements RobotMap {
     return climberInstance;
   }
 
+  //it is simple, we are either climbing, or we are not
   private enum climbStates {
-    CLIMBING , NOT_CLIMBING
+    CLIMBING , INVERSE_CLIMB , NOT_CLIMBING
   }
   private climbStates climber = climbStates.NOT_CLIMBING;
 
@@ -46,7 +47,13 @@ public class Climber implements RobotMap {
           climbVictor.set(CLIMBSPEED);
           Robot.ledController.updateClimbingState(true);
           break;
-
+          
+          //if the rachet wasnt flipped
+        case INVERSE_CLIMB :
+          climbVictor.set(-CLIMBSPEED);
+          Robot.ledController.updateClimbingState(true);
+          break;
+          
           //stop climbing
         case NOT_CLIMBING :
           climbVictor.set(STALLSPEED);
@@ -75,10 +82,10 @@ public class Climber implements RobotMap {
     climber = climbStates.CLIMBING;
   }
   
-  public void flipClimber() {
-    CLIMBSPEED *= -1;
+  public void inverseClimb() {
+    climber = climbStates.INVERSE_CLIMB;
   }
-
+ 
   public void stopClimb() {
     climber = climbStates.NOT_CLIMBING;
   }

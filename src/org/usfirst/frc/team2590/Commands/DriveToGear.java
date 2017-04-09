@@ -25,6 +25,7 @@ public class DriveToGear extends NemesisCommand {
     
     Robot.gearHold.intakeGear();
     double start = Timer.getFPGATimestamp();
+    
     while(Timer.getFPGATimestamp()-start < timeOut) {
       Robot.gearHold.intakeGear();
       Robot.driveT.force(speed, speed);

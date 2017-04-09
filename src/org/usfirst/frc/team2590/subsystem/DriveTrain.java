@@ -1,11 +1,11 @@
 package org.usfirst.frc.team2590.subsystem;
 
+import org.usfirst.frc.team2590.Controllers.DriveAtAngleController;
+import org.usfirst.frc.team2590.Controllers.NavigationalSystem;
+import org.usfirst.frc.team2590.Controllers.Path;
+import org.usfirst.frc.team2590.Controllers.PurePursuitController;
+import org.usfirst.frc.team2590.Controllers.TurningController;
 import org.usfirst.frc.team2590.looper.Loop;
-import org.usfirst.frc.team2590.navigation.DriveAtAngleController;
-import org.usfirst.frc.team2590.navigation.NavigationalSystem;
-import org.usfirst.frc.team2590.navigation.Path;
-import org.usfirst.frc.team2590.navigation.PurePursuitController;
-import org.usfirst.frc.team2590.navigation.TurningController;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -28,8 +28,9 @@ public class DriveTrain implements RobotMap {
     return driveTrainInstance;
   }
 
+  //quite a few states this drive train could be in
   private enum driveStates {
-    STOP , VELOCITY_CONTROL , OPEN_LOOP , ANGLED_DRIVE , PATH_FOLLOWING , TURN , DEAD_RECKON
+    STOP , OPEN_LOOP , ANGLED_DRIVE , PATH_FOLLOWING , TURN , DEAD_RECKON
   };
   private driveStates drives = driveStates.STOP;
 
@@ -51,7 +52,7 @@ public class DriveTrain implements RobotMap {
   private DualSignal driveSignal;
 
   //sensors
-  private ADXRS450_Gyro gyro;
+  private ADXRS450_Gyro gyro; // - = left, + = right
   private Encoder leftEncoder;
   private Encoder rightEncoder;
   private NemesisSolenoid shifters;
@@ -83,12 +84,14 @@ public class DriveTrain implements RobotMap {
     //units are in feet
     leftEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
     rightEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
+    //leftEncoder.setDistancePerPulse(1.0625/360.0);
+    //rightEncoder.setDistancePerPulse(1.0625/360.0);
 
     //control systems
     turn = new TurningController(TURNKP);
     pureP = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD );
     straightDrive = new NemesisDrive(gyro,  leftVictor, rightVictor);
-    angledDriveCont = new DriveAtAngleController(VELFF, 0.09 , 0.000); //0.075 //3 //0.09
+    angledDriveCont = new DriveAtAngleController(VELFF, 0.09 , 0.000); 
     navigationSys = new NavigationalSystem(leftEncoder, rightEncoder , gyro);
   }
 
@@ -106,11 +109,6 @@ public class DriveTrain implements RobotMap {
         switch (drives) {
           case STOP:
             break;
-
-          case VELOCITY_CONTROL:
-          
-            break;
-            
           case OPEN_LOOP :
             //pure driver control
             straightDrive.openLoopDrive(-left.getY(), right.getX());
@@ -131,6 +129,7 @@ public class DriveTrain implements RobotMap {
           case TURN :
             driveSignal.updateSignal(-turn.calculate(gyro.getAngle()), turn.calculate(gyro.getAngle()));
             straightDrive.tankDrive(driveSignal.getSignals()[0], driveSignal.getSignals()[1] );
+
             break;
             
           case DEAD_RECKON :
@@ -157,14 +156,20 @@ public class DriveTrain implements RobotMap {
           default :
             break;
         }
-
-        if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE || drives == driveStates.TURN || drives == driveStates.VELOCITY_CONTROL) {
-          
+       
+        /*SmartDashboard.putNumber("Gyro", gyro.getAngle());
+        SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getDistance());
+        SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());*/
+        
+        //System.out.println("left " + leftEncoder.getDistance() + " right " + rightEncoder.getDistance());
+        if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE || drives == driveStates.TURN) {
+          //System.out.println("im here");
           SmartDashboard.putNumber("Gyro", gyro.getAngle());
           SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getDistance());
           SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());
           
           //send signals
+          //sSystem.out.println("signals " + driveSignal.getSignals()[0] + " " + driveSignal.getSignals()[1]);
           straightDrive.tankDrive( driveSignal.getSignals()[0],
               driveSignal.getSignals()[1] );
         }
@@ -194,6 +199,7 @@ public class DriveTrain implements RobotMap {
     drives = driveStates.DEAD_RECKON;
     driveSignal.updateSignal(left, right);  
   }
+  
   /**
    * Resets the angled drive controller
    */
@@ -203,12 +209,6 @@ public class DriveTrain implements RobotMap {
 
   //teleop control
 
-  /**
-   * Starts teleop in velocity control mode
-   */
-  public void setVelControl() {
-    drives = driveStates.VELOCITY_CONTROL;
-  }
 
   /**
    * Sets open loop control
@@ -311,7 +311,13 @@ public class DriveTrain implements RobotMap {
    */
   public void turnToAngle(double angle) {
     gyro.reset();
-    turn.setSetpoint(angle);
+    if(Math.abs(angle) < 10) {
+      turn.changeKp(0.09);
+    } else {
+      turn.changeKp(TURNKP);
+    }
+      turn.setSetpoint(angle);
+    System.out.println("setpoint " + angle);
     drives = driveStates.TURN;
   }
 
