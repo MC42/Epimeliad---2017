@@ -17,7 +17,7 @@ public class Vision {
   static NetworkTable contours = NetworkTable.getTable("GRIP/myContoursReport");
   
   //field of view
-  private static final double cameraAngle = 23; // center y pixel 
+  private static final double cameraAngle = 23;  
   private static final double fov = 47.0; 
   private static final double yfov = fov*0.78;
   private static final double camHeight = 19.5;
@@ -32,7 +32,7 @@ public class Vision {
   
   private static Target target1 = new Target();
   private static Target target2 = new Target();
-  private static Target BoundBox = new Target();
+  private static Target targetStrip = new Target();
   private static double[] defaultVal = new double[0];
   private static double targetsSeen = 0;
   public Vision() {
@@ -43,9 +43,19 @@ public class Vision {
     try {
       double[] xVals = contours.getNumberArray("centerX" ,defaultVal);
       double[] yVals = contours.getNumberArray("centerY" ,defaultVal);
+      double[] areas = contours.getNumberArray("area" ,defaultVal);
       targetsSeen = contours.getNumberArray("centerX" , defaultVal).length;
-      target1.setCoord(xVals[0], yVals[0]);
-      BoundBox.setCoord(target1.getX(), target1.getY());
+      
+      /*
+       * Locates largest contour
+       */
+      if(targetsSeen>=2){
+    	  if(areas[0]>areas[1]){
+    		  targetStrip.setCoord(xVals[0], yVals[0]);
+    	  } else{
+    		  targetStrip.setCoord(xVals[1], yVals[1]);
+    	  }
+      }
      
       
     } catch(Exception e) {
@@ -58,7 +68,7 @@ public class Vision {
   public double hAngleToTarget() {
     try {
       update();
-      return((BoundBox.getX()-cx)*xdpp);
+      return((targetStrip.getX()-cx)*xdpp);
     }	catch(Exception e) {
       DriverStation.reportError("Target Not Found!", false);
       return 0;
@@ -68,8 +78,8 @@ public class Vision {
   public double vAngleToTarget() {
     try{
       update();
-      //System.out.println("bound b " + BoundBox.getY());
-      return(((BoundBox.getY()-cy)*ydpp)+cameraAngle);
+      //System.out.println("bound b " + targetStrip.getY());
+      return(((targetStrip.getY()-cy)*ydpp)+cameraAngle);
     } catch(Exception e) {
       DriverStation.reportError("Target Not Found", false);
       return 2;
