@@ -94,6 +94,23 @@ public class NemesisMatrix {
     return returner;
   }
   
+  public NemesisMatrix multiplyByScalar(double scalar) {
+    //creates a new matrix instance
+    NemesisMatrix returner = new NemesisMatrix(rows, columns);
+    double updatedArray[][] = new double[rows][columns];
+    
+    //performs the operation
+    for(int i = 0; i < rows; i++) {
+      for(int f = 0; f < columns; f++) {
+        updatedArray[i][f] = matrix[i][f]*scalar;
+      }
+    }
+    
+    //updates the matrix and returns
+    returner.update(updatedArray);
+    return returner;
+  }
+  
   /**
    * Checks if two matrixes are equal
    * @param matrixTwo : the matrix to check it against
@@ -119,6 +136,9 @@ public class NemesisMatrix {
     return true;
   }
   
+  /**
+   * Flips the matrix over a diagonal
+   */
   public void transpose() {
     
     //create an array to store swapped values

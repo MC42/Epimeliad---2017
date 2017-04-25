@@ -18,12 +18,14 @@ public class PurePursuitController implements RobotMap{
   private DriveAtAngleController velCont;
 
   public PurePursuitController(double kF , double maxAcc , double lookAhead) {
+    
     done = false;
     flip = false;
     this.path = new Path(null);
     this.lookAhead = lookAhead;
     lookAheadPoint = new Point(0, 0, 0);
     velCont = new DriveAtAngleController(kF , DRIVETURNCOMP , 0);
+    
   }
 
   public double Calculate(Point currPoint , boolean isRight ,double dt) {
@@ -36,16 +38,16 @@ public class PurePursuitController implements RobotMap{
       return 0.0;
     }
 
-    double currTheta = Math.toDegrees(currPoint._theta);
+    double currTheta = Math.toDegrees(currPoint.getTheta());
 
    
-    double theta = new PathSegment(currPoint , lookAheadPoint).theta_;
+    double theta = new PathSegment(currPoint , lookAheadPoint).getTheta();
 
     //calculates travel from start of path to lookahead
-    double travel = (new PathSegment(new Point(0,0,0), lookAheadPoint).length)*(flip?-1:1);
+    double travel = (new PathSegment(new Point(0,0,0), lookAheadPoint).getLength())*(flip?-1:1);
 
     //current distance from the start of the path to current point
-    double currDist = (new PathSegment(new Point(0,0,0) , currPoint).length)*(flip?-1:1);
+    double currDist = (new PathSegment(new Point(0,0,0) , currPoint).getLength())*(flip?-1:1);
 
     velCont.setSetpoint(travel , theta );
     

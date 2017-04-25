@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.Controllers.DriveAtAngleController;
+import org.usfirst.frc.team2590.Controllers.EnhancedTurnController;
 import org.usfirst.frc.team2590.Controllers.NavigationalSystem;
 import org.usfirst.frc.team2590.Controllers.Path;
 import org.usfirst.frc.team2590.Controllers.PurePursuitController;
@@ -62,6 +63,7 @@ public class DriveTrain implements RobotMap {
   private NemesisDrive straightDrive;
   private PurePursuitController pureP;
   private NavigationalSystem navigationSys;
+  // private EnhancedTurnController newTurn;
   private DriveAtAngleController angledDriveCont;
 
   public DriveTrain(Joystick leftJ , Joystick rightJ) {
@@ -89,6 +91,7 @@ public class DriveTrain implements RobotMap {
 
     //control systems
     turn = new TurningController(TURNKP);
+    //newTurn = new EnhancedTurnController(TURNKP, 0.0, 0.0, 1.0);
     pureP = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD );
     straightDrive = new NemesisDrive(gyro,  leftVictor, rightVictor);
     angledDriveCont = new DriveAtAngleController(VELFF, 0.09 , 0.000); 
@@ -128,8 +131,8 @@ public class DriveTrain implements RobotMap {
             
           case TURN :
             driveSignal.updateSignal(-turn.calculate(gyro.getAngle()), turn.calculate(gyro.getAngle()));
+            //driveSignal.updateSignal(-newTurn.calculate(gyro.getAngle()), newTurn.calculate(gyro.getAngle()));
             straightDrive.tankDrive(driveSignal.getSignals()[0], driveSignal.getSignals()[1] );
-
             break;
             
           case DEAD_RECKON :
@@ -157,21 +160,15 @@ public class DriveTrain implements RobotMap {
             break;
         }
        
-        /*SmartDashboard.putNumber("Gyro", gyro.getAngle());
-        SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getDistance());
-        SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());*/
-        
-        //System.out.println("left " + leftEncoder.getDistance() + " right " + rightEncoder.getDistance());
+      
         if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE || drives == driveStates.TURN) {
-          //System.out.println("im here");
           SmartDashboard.putNumber("Gyro", gyro.getAngle());
           SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getDistance());
           SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());
           
           //send signals
           //sSystem.out.println("signals " + driveSignal.getSignals()[0] + " " + driveSignal.getSignals()[1]);
-          straightDrive.tankDrive( driveSignal.getSignals()[0],
-              driveSignal.getSignals()[1] );
+          straightDrive.tankDrive( driveSignal.getSignals()[0], driveSignal.getSignals()[1] );
         }
       }
 
@@ -312,11 +309,17 @@ public class DriveTrain implements RobotMap {
   public void turnToAngle(double angle) {
     gyro.reset();
     if(Math.abs(angle) < 10) {
-      turn.changeKp(0.09);
+      turn.changeKp(SmartDashboard.getNumber("DB/Slider 1", 0.09));
+      turn.changeKi(SmartDashboard.getNumber("DB/Slider 2", 0));
+     /* newTurn.changeGains(SmartDashboard.getNumber("DB/Slider 1",0), 
+                          SmartDashboard.getNumber("DB/Slider 2",0), 0);   */  
     } else {
-      turn.changeKp(TURNKP);
+      turn.changeKi(0.0);
+      turn.changeKp(TURNKP); 
+     // newTurn.changeGains(TURNKP, 0, 0);     
     }
-      turn.setSetpoint(angle);
+    turn.setSetpoint(angle);
+    //newTurn.set(angle);
     System.out.println("setpoint " + angle);
     drives = driveStates.TURN;
   }
@@ -327,6 +330,7 @@ public class DriveTrain implements RobotMap {
    */
   public boolean getTurnDone() {
     return turn.done();
+    //return newTurn.getDone();
   }
 
   /**

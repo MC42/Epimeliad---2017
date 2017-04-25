@@ -6,7 +6,9 @@ import org.usfirst.frc.team2590.routine.AutoRoutine;
 import org.usfirst.frc.team2590.routine.DoNothing;
 import org.usfirst.frc.team2590.routine.FivePointBoi;
 import org.usfirst.frc.team2590.routine.FourtyBall;
+import org.usfirst.frc.team2590.routine.FourtyBallRefined;
 import org.usfirst.frc.team2590.routine.FrontGearDrop;
+import org.usfirst.frc.team2590.routine.FrontGearShoot;
 import org.usfirst.frc.team2590.routine.SideGearSimple;
 import org.usfirst.frc.team2590.routine.SideGearWithShooting;
 import org.usfirst.frc.team2590.routine.TwoGear;
@@ -18,14 +20,15 @@ import org.usfirst.frc.team2590.subsystem.GearIntake;
 import org.usfirst.frc.team2590.subsystem.Intake;
 import org.usfirst.frc.team2590.subsystem.Shooter;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.LEDController;
 import util.NemesisCamera;
-import util.SmartJoystick;
+import util.NemesisDash;
+import util.NemesisJoystick;
 import util.Vision;
 
 /**
@@ -45,15 +48,16 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
   public static DriveTrain driveT;
   public static GearIntake gearHold;
   public static ExpandingBox expandBox;
+  public static PowerDistributionPanel pdp;
   
   //autonomous uses polymorpism
   public static AutoRoutine auto;
   public static HashMap<String, AutoRoutine> autoMap;
 
   //joysticks
-  public static SmartJoystick leftJoy;
-  public static SmartJoystick rightJoy;
-  public static SmartJoystick operatorJoy;
+  public static NemesisJoystick leftJoy;
+  public static NemesisJoystick rightJoy;
+  public static NemesisJoystick operatorJoy;
 
   //Vision
   public static Vision vision;
@@ -70,6 +74,12 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
   //camera
   public static NemesisCamera rearViewCamera;
 
+  public static int PDPCLIMBERONE = 0;
+  public static int PDPCLIMBERTWO = 0;
+
+  //dashboard
+  private static NemesisDash shooterSetpoint;
+  
   @Override
   public void robotInit() {
 
@@ -78,9 +88,9 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     ledController = LEDController.getLED();
 
     //joysticks
-    leftJoy = new SmartJoystick(0 , 0.1 , 0.1);
-    rightJoy = new SmartJoystick(1 , 0.1 , 0.1);
-    operatorJoy = new SmartJoystick(2, 0.0, 0.0);
+    leftJoy = new NemesisJoystick(0 , 0.1 , 0.1);
+    rightJoy = new NemesisJoystick(1 , 0.1 , 0.1);
+    operatorJoy = new NemesisJoystick(2, 0.0, 0.0);
 
     //subsystems
     feeder = Feeder.getFeeder();
@@ -109,17 +119,19 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     //autonomous modes
     autoMap = new HashMap<String , AutoRoutine>();
 
-    autoMap.put("Five", new FivePointBoi());
-    autoMap.put("Two Gear",  new TwoGear());
-    autoMap.put("Nothing",    new DoNothing());
-    autoMap.put("Hopper Left", new FourtyBall(true));
-    autoMap.put("Hopper Right", new FourtyBall(false));
-    autoMap.put("Front Gear Left", new FrontGearDrop(true));
-    autoMap.put("Turn Left Gear",  new SideGearSimple(true));
-    autoMap.put("Front Gear Right", new FrontGearDrop(false));
-    autoMap.put("Turn Right Gear",  new SideGearSimple(false));
-    autoMap.put("Turn Left Gear Shoot",  new SideGearWithShooting(true));  
-    autoMap.put("Turn Right Gear Shoot",  new SideGearWithShooting(false));
+    autoMap.put("Five", new FivePointBoi());    //drives to the five point line
+    autoMap.put("Two Gear",  new TwoGear());    // (DO NOT USE) drops a gear on the front peg, gets an alliance partners gear and puts that on the peg
+    autoMap.put("Nothing",    new DoNothing()); //does absolutely nothing
+    autoMap.put("Front Gear", new FrontGearDrop()); //drops a gear on the middle peg $$
+    autoMap.put("Hopper Left", new FourtyBall(true)); //40 ball on the left hopper relative to boiler position from driver as looking at field $$
+    autoMap.put("Hopper Right", new FourtyBall(false)); //40 ball on the left hopper relative to boiler position from driver as looking at field $$
+    autoMap.put("Turn Left Gear",  new SideGearSimple(true)); //Turns to the left peg relative to driver (really turns right, its just onto the left peg) $$
+    autoMap.put("Front Gear Shoot",  new FrontGearShoot()); //(UNTESTED on a field) puts a gear on the middle peg and curves to the boiler
+    autoMap.put("Turn Right Gear",  new SideGearSimple(false)); //same as left gear see above, but for the right peg
+    autoMap.put("Hopper Left New", new FourtyBallRefined(true)); //UNTESTED , theoretical path, slightly faster path than above hopper autos
+    autoMap.put("Hopper Right New", new FourtyBallRefined(false)); //UNTESTED , theoretical path, slightly faster path than above hopper autos
+    autoMap.put("Turn Left Gear Shoot",  new SideGearWithShooting(true));  //DOES NOT WORK , Drops a gear on the left peg and shoots 10 balls
+    autoMap.put("Turn Right Gear Shoot",  new SideGearWithShooting(false)); //DOES NOT WORK , Drops a gear on the right peg and shoots 10 balls
     
     //solenoids
     plug4 = new Solenoid(3);
@@ -131,8 +143,13 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     
     //camera
     rearViewCamera = new NemesisCamera();
-    rearViewCamera.addUsbCamera();
+    //rearViewCamera.addUsbCamera();
     rearViewCamera.setCameraIP("10.25.90.11");
+    
+    //dash
+    shooterSetpoint = new NemesisDash("DB/Slider 0");
+    
+    pdp = new PowerDistributionPanel();
   }
 
   /**
@@ -192,7 +209,7 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
   @Override
   public void teleopInit() {
     ledController.updateDisabledState(false);
-
+    
     //ends auto
     if(auto != null) {
       auto.end();
@@ -215,11 +232,14 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     
     //starts the grip
     gearHold.turnOnGrip(true);
+    //compressor.stop();
+
   }
 
   @Override
   public void teleopPeriodic() {
-    
+    //compressor.stop();
+
     gearHold.turnOnGrip(true);
 
     if(leftJoy.getFallingEdge(TOGGLE_BOX)) {
@@ -259,7 +279,7 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
       rearViewCamera.changeToNightMode();
       Robot.driveT.shiftLow();
       driveT.resetSensors();
-      driveT.turnToAngle((vision.angleToTarget()));
+      driveT.turnToAngle(vision.angleToTarget());
     }
     
     //System.out.println("dist " + vision.xDistanceToTarget());
@@ -291,10 +311,10 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
       climb.startClimb();
     } else if(!rightJoy.getRawButton(CLIMB) && !operatorJoy.getRawButton(OPERATOR_REV_CLIMBER)) {
       climb.stopClimb();
-      compressor.start();
+      //compressor.start();
     }
 
-    shooter.setSetpoint(SmartDashboard.getNumber("DB/Slider 0" , 0));
+    shooter.setSetpoint(shooterSetpoint.getNumber());
     //shooter.setSetpoint(vision.interpolateSpeed(vision.xDistanceToTarget()));
 
 
@@ -325,18 +345,17 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
       climb.inverseClimb();
     }
     
-    if(operatorJoy.getFallingEdge(TOGGLE_NIGHT_MODE)) {
-      //expandBox.toggleBox();
-
-      if(rearViewCamera.isNightMode()) {
-        rearViewCamera.changeToDayMode();
-      } else {
-        rearViewCamera.changeToNightMode();
-      }
+    if(operatorJoy.getPOV() == 0) {
+      shooterSetpoint.updateAdd(50);
+    } else if(operatorJoy.getPOV() == 180) {
+      shooterSetpoint.updateSubtract(50);
     }
     
-    
-    
+  }
+  
+  public void testPeriodic() {
+    System.out.println("Climber 1 " + pdp.getCurrent(PDPCLIMBERONE));
+    System.out.println("Climber 2 " + pdp.getCurrent(PDPCLIMBERTWO));
   }
 }
 

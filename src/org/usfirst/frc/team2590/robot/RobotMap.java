@@ -11,11 +11,12 @@ public interface RobotMap {
   public static final int CLIMBMOTORPWM = 4;
   public static final int FEEDERMOTORPWM = 2;
   public static final int INTAKEMOTORPWM = 3;
-  public static final int AGITATORMOTORPWM = 6;
   public static final int GEARINTAKEMOTORPWM = 5;
+  public static final int LEFTAGITATORMOTORPWM = 6;
+  public static final int RIGHTAGITATORMOTORPWM = 7;
 
-  public static final int SHOOTERSLAVEID = 1; //1 for real
-  public static final int SHOOTERMASTERID = 0; //0 for real
+  public static final int SHOOTERSLAVEID = 0; //1 for real
+  public static final int SHOOTERMASTERID = 1; //0 for real
 
   //sol
   public static final int INTAKE_SOLENOID = 1;
@@ -31,7 +32,7 @@ public interface RobotMap {
   public static final int RIGHTENCODERB = 1;
 
   //real shooter
-  public static final double SHOOTERKP = 0.63; //0.599
+  public static final double SHOOTERKP = 0.8; //0.599
   public static final double SHOOTERKI = 0.0;
   public static final double SHOOTERKD = 0.0;
   public static final double SHOOTERKF = 0.0; //0.054 0.08

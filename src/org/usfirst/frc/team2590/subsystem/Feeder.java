@@ -1,13 +1,8 @@
 package org.usfirst.frc.team2590.subsystem;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
-import org.usfirst.frc.team2590.Controllers.VoltageController;
 import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Victor;
 
 public class Feeder implements RobotMap {
@@ -27,11 +22,14 @@ public class Feeder implements RobotMap {
 
   
   private Victor feederMotor;
-  private Victor agitatorMotor;
+  private Victor leftAgitatorMotor;
+  private Victor rightAgitatorMotor;
+
   public Feeder() {
 
     feederMotor = new Victor(FEEDERMOTORPWM);    
-    agitatorMotor = new Victor(AGITATORMOTORPWM);
+    leftAgitatorMotor = new Victor(LEFTAGITATORMOTORPWM);
+    rightAgitatorMotor = new Victor(RIGHTAGITATORMOTORPWM);
   }
 
   private Loop loop = new Loop() {
@@ -45,19 +43,22 @@ public class Feeder implements RobotMap {
       switch(feed) {
         case STOP :
           feederMotor.set(0);
-          agitatorMotor.set(0);
-
+          leftAgitatorMotor.set(0);
+          rightAgitatorMotor.set(0);
           break;
         case FEED_TO_SHOOTER :
-          feederMotor.set(1); //0.75
-          agitatorMotor.set(1);
+          feederMotor.set(0.8); //0.75
+          leftAgitatorMotor.set(-1);
+          rightAgitatorMotor.set(-1);         
           break;
         case EXPELL :
           feederMotor.set(-1);
-          agitatorMotor.set(-1);
+          leftAgitatorMotor.set(1);
+          rightAgitatorMotor.set(1);          
           break;
         case AGITATE : 
-          agitatorMotor.set(1);
+          leftAgitatorMotor.set(1);
+          rightAgitatorMotor.set(-1);
           break;
       }
     }

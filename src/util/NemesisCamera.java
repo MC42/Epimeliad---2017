@@ -23,15 +23,15 @@ public class NemesisCamera {
   public void changeToDayMode() {
     isNight = false;
     System.out.println("day mode");
-    axis.setBrightness(50);
-    axis.setExposureManual(50);
+    //axis.setBrightness(50);
+    //axis.setExposureManual(50);
   }
   
   public void changeToNightMode() {
     isNight = true;
     System.out.println("night mode");
-    axis.setBrightness(25);
-    axis.setExposureManual(0);
+    //axis.setBrightness(25);
+    //axis.setExposureManual(0);
   }
   
   public boolean isNightMode() {

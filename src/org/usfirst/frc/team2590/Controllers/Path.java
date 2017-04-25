@@ -8,14 +8,15 @@ import java.util.ArrayList;
  *
  */
 public class Path {
+  
+  private boolean done;
+  private int currentIndex;
   private ArrayList<PathSegment> segments;
-  private int currentIndex = 0;
-  private boolean done = false;
 
   public Path(ArrayList<PathSegment> segments) {
-    System.out.println("started");
+    done = false;
+    currentIndex = 0;
     this.segments = segments;
-
   }
 
   /**
@@ -38,7 +39,7 @@ public class Path {
     Point pointAfterLook = pathSeg.pointTransform(closestPoint,lookAhead);
 
     //get the percent across the path
-    double closestPointPercent = pathSeg.getPercentAcross(new PathSegment(pathSeg.startPoint , pointAfterLook).length );
+    double closestPointPercent = pathSeg.getPercentAcross(new PathSegment(pathSeg.getStart() , pointAfterLook).getLength() );
 
     //prevents index out of bounds
     if(currentIndex >= segments.size()) {
@@ -50,16 +51,16 @@ public class Path {
       return pointAfterLook;
     } else {
       //other wise increment the index
-      pathSeg.endPoint.runInsideCommand();
+      pathSeg.getEnd().runInsideCommand();
 
       if(currentIndex == segments.size()-1) {
          done = true;
-         return segments.get(segments.size()-1).endPoint;
+         return segments.get(segments.size()-1).getEnd();
       }
       currentIndex+=1;
 
       if(currentIndex <= segments.size()-1) {
-        segments.get(currentIndex).startPoint.runInsideCommand();
+        segments.get(currentIndex).getStart().runInsideCommand();
       }
       
       return findPoint(pointAfterLook , lookAhead);
@@ -72,10 +73,10 @@ public class Path {
   }
   
   public double getRemaningPathLength(Point curr) {
-    double dist = new PathSegment(curr , segments.get(currentIndex).endPoint).length;
+    double dist = new PathSegment(curr , segments.get(currentIndex).getEnd()).getLength();
     
     for(int i = currentIndex; i < segments.size()-1; i++) {
-      dist += segments.get(i).length;
+      dist += segments.get(i).getLength();
     }
     return dist;
   }

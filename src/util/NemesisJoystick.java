@@ -6,14 +6,14 @@ import edu.wpi.first.wpilibj.Joystick;
  * Smart joystick for smart people
  * @author Connor_Hofenbitzer
  */
-public class SmartJoystick extends Joystick {
+public class NemesisJoystick extends Joystick {
 
   double xdeadband;
   double ydeadband;
   boolean[] lastRisingVal = new boolean[10];
   boolean[] lastFallingVal = new boolean[10];
 
-  public SmartJoystick(int port , double xdeadband , double ydeadband) {
+  public NemesisJoystick(int port , double xdeadband , double ydeadband) {
     super(port);
     this.xdeadband = xdeadband;
     this.ydeadband = ydeadband;

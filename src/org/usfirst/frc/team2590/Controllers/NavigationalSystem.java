@@ -20,8 +20,8 @@ public class NavigationalSystem extends Thread {
 
 
   //position based stuff
-  ADXRS450_Gyro gyro;
   private Point pose;
+  private ADXRS450_Gyro gyro;
   private Encoder leftEncoder;
   private Encoder rightEncoder;
 

@@ -10,11 +10,11 @@ import util.NemesisVector;
  */
 public class PathSegment {
 
-  double slope;
-  double length;
-  Point endPoint;
-  Point startPoint;
-  public double theta_;
+  private double slope;
+  private double theta;
+  private double length;
+  private Point endPoint;
+  private Point startPoint;
   private NemesisVector unitVector;
 
   public PathSegment(Point start , Point end) {
@@ -22,12 +22,13 @@ public class PathSegment {
     endPoint = end;
     startPoint = start;
 
-    //arch length calculations
+    //arc length calculations
     //field coordinates
-    double dX = end._x - start._x;
-    double dY = end._y - start._y;
+    double dX = end.getX() - start.getX();
+    double dY = end.getY() - start.getY();
+    
     length = Math.hypot(dX, dY);
-    theta_ = Math.toDegrees(Math.atan2(dY, dX));
+    theta = Math.toDegrees(Math.atan2(dY, dX));
     unitVector = new NemesisVector(dX/length, dY/length, 1);
     slope = dY/dX;
   }
@@ -39,13 +40,13 @@ public class PathSegment {
    */
   public Point getClosestOnPath( Point current ) {
    
-    double distance = unitVector.getX()*(current._y - startPoint._y) -
-        unitVector.getY()*(current._x - startPoint._x);
+    double distance = unitVector.getX()*(current.getY() - startPoint.getY()) -
+        unitVector.getY()*(current.getX() - startPoint.getX());
 
-    double xPoint = current._x + distance*unitVector.getY();
-    double yPoint = current._y - distance*unitVector.getX();
+    double xPoint = current.getX() + distance*unitVector.getY();
+    double yPoint = current.getY() - distance*unitVector.getX();
 
-    return new Point(xPoint , yPoint , endPoint._theta);
+    return new Point(xPoint , yPoint , endPoint.getTheta());
   }
 
   /**
@@ -75,13 +76,25 @@ public class PathSegment {
    */
   public Point pointTransform(Point start , double distance) {
     double r = Math.sqrt(1 + (slope*slope));
-    double x = start._x + (distance/r);
-    double y = start._y + ((distance*slope)/r);
+    double x = start.getX() + (distance/r);
+    double y = start.getY() + ((distance*slope)/r);
 
     return new Point(x , y , 0);
   }
-
-
+  
+  public Point getEnd() {
+    return endPoint;
+  }
+  
+  public Point getStart() {
+    return startPoint;
+  }
+  
+ 
+  
+  public double getTheta() {
+    return theta;
+  }
 
   public double getLength() {
     return length;

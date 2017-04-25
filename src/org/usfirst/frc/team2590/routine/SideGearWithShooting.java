@@ -1,7 +1,6 @@
 package org.usfirst.frc.team2590.routine;
 
 import org.usfirst.frc.team2590.Commands.DriveAtAngle;
-import org.usfirst.frc.team2590.Commands.TurnToAngle;
 import org.usfirst.frc.team2590.Commands.TurnToTarget;
 import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
@@ -23,7 +22,7 @@ public class SideGearWithShooting extends AutoRoutine implements RobotMap  {
   public SideGearWithShooting(boolean left) {
     turnToBoiler = new TurnToTarget();
     getGear = new SideGearSimple(left);
-    driveToBoiler = new DriveAtAngle(5, 0);
+    driveToBoiler = new DriveAtAngle(8, 0);
   }
 
   @Override
@@ -37,8 +36,8 @@ public class SideGearWithShooting extends AutoRoutine implements RobotMap  {
     Robot.shooter.revShooter();
    
     //ram into the boiler
-    Robot.driveT.resetSensors();
     Robot.driveT.shiftHigh();
+    Robot.driveT.resetSensors();
     driveToBoiler.run();
     waitUntilDone(2, driveToBoiler::done);
     

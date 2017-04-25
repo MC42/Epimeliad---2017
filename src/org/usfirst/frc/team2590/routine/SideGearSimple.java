@@ -24,8 +24,9 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
   private final static double AngleToGear = 60; //60
   private final static double DistanceToPeg = (5);
   private final static double distanceToFirst = ((85+ROBOTLENGTH)/12); //86
- // private final static double distanceToFirst = ((85)/12);
+  
   public SideGearSimple(boolean left) {
+    
     driveInOne = new CheckDrive(true);
     driveInTwo = new CheckDrive(false);
     driveAwayGear = new DriveAtAngle(5, 0);
@@ -40,13 +41,11 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
     //drive to the point before the turn
     driveBeforeTurn.run();
     waitUntilDone(2.0, driveBeforeTurn::done);
-    Robot.driveT.shiftLow();
-    System.out.println("done ");
-    
+    Robot.driveT.shiftLow();    
     
     //turn to face the peg
     turnInPlace.run();
-    waitUntilDone(1, turnInPlace::done); //1.5
+    waitUntilDone(1, turnInPlace::done);
     Robot.driveT.shiftHigh();
 
     
@@ -66,6 +65,7 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
     driveInOne.run();
     waitUntilDone(2, driveInOne::done);
     Timer.delay(1); //updates current average
+    
     driveInTwo.run();
     waitUntilDone(2, driveInTwo::done);
     

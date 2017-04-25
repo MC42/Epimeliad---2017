@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class TwoGear extends AutoRoutine{
 
+  //drop off the first gear
   FrontGearDrop front;
   
   //drop off first gear
@@ -24,7 +25,9 @@ public class TwoGear extends AutoRoutine{
   
 
   public TwoGear() {
-    front = new FrontGearDrop(true);
+    
+    //drop off the first gear
+    front = new FrontGearDrop();
     
     //aquiring second gear
     turnToRobot = new TurnToAngle(125); //turn towards the gear

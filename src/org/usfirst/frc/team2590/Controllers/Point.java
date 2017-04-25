@@ -10,13 +10,14 @@ import java.util.Optional;
  */
 
 public class Point {
+  
   private static final double kEp = 1E-9;
 
-  public double _x;
-  public double _y;
-  public double _theta;
+  private double _x;
+  private double _y;
+  private double _theta;
   private boolean firstRun;
-  Optional<Runnable> runner;
+  private Optional<Runnable> runner;
 
   public Point(double x , double y) {
     _x = x;
@@ -98,7 +99,7 @@ public class Point {
    * @param dTheta Central angle of the arc (radians)
    * @return End point of the arc (start at origin)
    */
-  public static Point fromVelocity(double arcLength, double dTheta){
+  public static Point fromVelocity(double arcLength, double dTheta) {
     if ((Math.abs(dTheta) % (2*Math.PI)) < kEp){
       return new Point(arcLength, 0, 0);
     } else {
@@ -114,7 +115,7 @@ public class Point {
    * @param tPoint The point to translate by
    * @return Translated point
    */
-  public Point translateBy(Point tPoint){
+  public Point translateBy(Point tPoint) {
     Point preRotate = tPoint.rotateAboutOrigin(_theta);
     return new Point(_x+preRotate._x, _y+preRotate._y, preRotate._theta);
   }

@@ -28,7 +28,6 @@ public class RunPath extends NemesisCommand {
   
   @Override
   public void run() {
-    System.out.println("running");
     Robot.driveT.changePath(paths);
     Timer.delay(.1);
     Robot.driveT.followPath();

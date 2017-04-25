@@ -18,7 +18,7 @@ public class Vision {
   
   //field of view
   private static final double cameraAngle = 23; // center y pixel 
-  private static final double fov = 47.0; 
+  private static final double fov = 67.0;  //47
   private static final double yfov = fov*0.78;
   private static final double camHeight = 19.5;
   private static final double imageWidth = 320.0;

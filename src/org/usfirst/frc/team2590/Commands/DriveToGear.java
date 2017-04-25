@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj.Timer;
 public class DriveToGear extends NemesisCommand {
 
   private double speed;
+  private boolean done;
   private double cycles;
   private double timeOut;
-  private boolean done;
   private double currentCycles;
   
   public DriveToGear(double speed , double timeOut , double cycles) {

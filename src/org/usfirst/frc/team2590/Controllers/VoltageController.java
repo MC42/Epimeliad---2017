@@ -12,13 +12,12 @@ public class VoltageController {
   private double cycles; 
   private boolean stalling;
   private int channelOnPDP;
+  private double maxCurrent;
+  private double maxVoltage;
   private SpeedController motor;
   private PowerDistributionPanel pdp;
   
-  //maximums
-  private double maxCurrent;
-  private double maxVoltage;
-  
+   
   public VoltageController(SpeedController motor, int channel , double stepVoltage) {
     
     out = 0;

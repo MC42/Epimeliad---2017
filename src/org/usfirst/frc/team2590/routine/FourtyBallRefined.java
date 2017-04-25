@@ -9,20 +9,15 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
 
-/**
- * Hits a hopper, turns to the boiler, and shoots
- * @author Connor_Hofenbitzer
- *
- */
-public class FourtyBall extends AutoRoutine {
+public class FourtyBallRefined extends AutoRoutine{
 
   /*
    * Points
    */
-  private Point hopperFace; //the point at which the hopper face lies on an x , y , theta plane
-  private Point middlePoint; //where does the robot start on the field, should be 0,0,0
-  private Point startPoint; //where does the robot start on the field, should be 0,0,0
   private Point curveOut;
+  private Point hopperFace; //the point at which the hopper face lies on an x , y , theta plane
+  private Point startPoint; //where does the robot start on the field, should be 0,0,0
+  private Point middlePoint; //where does the robot start on the field, should be 0,0,0
   
   /**
    * Segments
@@ -34,30 +29,24 @@ public class FourtyBall extends AutoRoutine {
   /**
    * Paths
    */
+  private RunPath curveOutPath; //face the boiler
   private RunPath getAllTheBalls; //all of them , and I mean all of them
-  private RunPath curveOutPath; //all of them , and I mean all of them
   
   /**
    * Basic movement
    */
   private DriveAtAngle driveToBoiler;
-  private TurnToTarget turnTowardsBoilerFirst;
-  private TurnToTarget turnTowardsBoilerSecond;
-
+  private TurnToTarget turnTowardsBoilerVision;
   
-  /**
-   * it be a 40 ball autonomous
-   * @param turnRight : direction the robot should turn to
-   */
-  public FourtyBall(boolean turnRight) {
+public FourtyBallRefined(boolean turnRight) {
     
     /**
      * Points
      */
     startPoint = new Point(0, 0, 0);
-    middlePoint = new Point(3.75 , .5*(turnRight?1:-1)  , 0); //this x number should be changed porportionatly with the below x value, this makes sure that the path ends at a perfect 90 degrees 
-    hopperFace = new Point(5.75 ,2.5*(turnRight?1:-1),0); //if the auto is too short , then increase the x on this point
-    curveOut = new  Point(2 , 2*(turnRight?1:-1));
+    hopperFace = new Point(5.75,2.5*(turnRight?1:-1),0); //6 3.5
+    middlePoint = new Point(3.75, .5*(turnRight?1:-1)  , 0); //4 .5
+    curveOut = new  Point(1 , 1*(turnRight?1:-1));
     
     /**
      * Path segments
@@ -75,9 +64,8 @@ public class FourtyBall extends AutoRoutine {
     /**
      * Turns
      */
-    driveToBoiler = new DriveAtAngle(4.5, 0);
-    turnTowardsBoilerFirst = new TurnToTarget();
-    turnTowardsBoilerSecond = new TurnToTarget();
+    driveToBoiler = new DriveAtAngle(4, 0);
+    turnTowardsBoilerVision = new TurnToTarget();
 
   }
   
@@ -93,49 +81,44 @@ public class FourtyBall extends AutoRoutine {
     Robot.intake.stopIntake();
     Robot.gearHold.averageReset();
     Robot.gearHold.stopGearIntake();
-    Robot.shooter.setSetpoint(3100);
+    Robot.shooter.setSetpoint(3400);
     
     //run the path
     getAllTheBalls.run();
     waitUntilDone(3, getAllTheBalls::done); //3 second timeout or path is done
     Robot.driveT.setStop();
-    Robot.feeder.agitateBalls(); //should clear balls away from camera
     Robot.intake.agitate(); 
+    Robot.feeder.agitateBalls(); //should clear balls away from camera
     Timer.delay(.5);
     
-    //open the box for MORE BALLS
     Robot.expandBox.openBox();
     curveOutPath.flip();
-    
     Timer.delay(2); //collect the balls
+    
+    //reset
+    Robot.driveT.resetPath();
+    Robot.shooter.revShooter();
+    Robot.driveT.resetSensors();
+
+    curveOutPath.run(); //face the boiler
+    waitUntilDone(2, curveOutPath::done); //2 second timeout or turn is done
+    Timer.delay(.2);
     
     //reset all the things
     Robot.driveT.resetPath();
     Robot.driveT.resetSensors();
+    
+    driveToBoiler.run();
+    waitUntilDone(2, driveToBoiler::done); //2 second timeout or turn is done
 
-    
-    curveOutPath.run(); //face the boiler
-    Robot.shooter.revShooter();
-    waitUntilDone(2, curveOutPath::done); //2 second timeout or turn is done
-    Timer.delay(.2);
-    
-    //run the path which gets to the boiler
-    Robot.driveT.resetPath();
-    Robot.driveT.resetSensors();
-    driveToBoiler.run(); 
-    waitUntilDone(1.05, driveToBoiler::done); //1.05 second timeout or turn is done
-    
+ 
     Robot.driveT.shiftLow(); //stops the robot on a dime
     Robot.driveT.setStop();
    
     Timer.delay(.2);
-    turnTowardsBoilerFirst.run();
-    waitUntilDone(2, turnTowardsBoilerFirst::done); //2 second timeout or turn is done
-
-    Timer.delay(.2);
-    Robot.shooter.setSetpoint(3100);
-    turnTowardsBoilerSecond.run();
-    waitUntilDone(2, turnTowardsBoilerSecond::done); //2 second timeout or turn is done
+    Robot.shooter.setSetpoint(3400);
+    turnTowardsBoilerVision.run();
+    waitUntilDone(2, turnTowardsBoilerVision::done); //2 second timeout or turn is done
 
     Robot.feeder.feedIntoShooter(); //"they call us baller" - RS
     
@@ -146,4 +129,5 @@ public class FourtyBall extends AutoRoutine {
     
   }
 
+  
 }

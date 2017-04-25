@@ -20,7 +20,7 @@ public class FrontGearDrop extends AutoRoutine implements RobotMap{
   private DriveAtAngle driveBackOut;
   private DriveAtAngle driveToDropGear;
 
-  public FrontGearDrop(boolean side) {
+  public FrontGearDrop() {
 
     //drive straight
     driveOut = new DriveAtAngle(4, 0);
@@ -45,7 +45,7 @@ public class FrontGearDrop extends AutoRoutine implements RobotMap{
     driveOut.run();
     
     Timer.delay(.5);
-    Robot.gearHold.stopGearIntake(); //raise the dustpan
+    //Robot.gearHold.stopGearIntake(); //raise the dustpan
     waitUntilDone(1, driveOut::done);
     
     //if we still have a gear
