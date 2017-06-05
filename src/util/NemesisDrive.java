@@ -5,6 +5,11 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Victor;
 
+/**
+ * I was honestly expecting to do a lot more with drivetrain control this year
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class NemesisDrive {
 
   Victor left;
@@ -21,10 +26,6 @@ public class NemesisDrive {
     this.left = left;
     this.right = right;
     robotDrive = new RobotDrive(left , right);
-  }
-
-  public void velocityDrive(double move , double turn) {
-    //john, code here please
   }
 
   public void openLoopDrive(double move , double turn) {

@@ -15,14 +15,12 @@ public class Looper {
   private Notifier notfifier;
   private double lastTime = 0;
   private double currentTime = 0;
-  private boolean running_ = false;
+  private boolean running = false;
   private ArrayList<Loop> loopArray;
-  private Object loopLock = new Object();
 
 
   private Runnable looper_ = () -> {
-    if(running_) {
-      synchronized (loopLock) {
+    if(running) {
         //periodically update the loops
         currentTime = Timer.getFPGATimestamp();
         for(Loop loop : loopArray) {
@@ -30,12 +28,11 @@ public class Looper {
         }
         lastTime = currentTime;
       }
-    }
   };
 
   public Looper(double delayTime) {
-    loopArray = new ArrayList<Loop>();
     delayT = delayTime;
+    loopArray = new ArrayList<Loop>();
     notfifier = new Notifier(looper_);
   }
 
@@ -51,11 +48,11 @@ public class Looper {
    * Starts all the loops
    */
   public void startLoops() {
-    if(!running_) {
+    if(!running) {
       for(Loop loop : loopArray) {
         loop.onStart();
       }
-      running_ = true;
+      running = true;
       notfifier.startPeriodic(delayT);
     }
   }
@@ -64,8 +61,8 @@ public class Looper {
    * Ends the loops
    */
   public void onEnd() {
-    if(running_) {
-      running_ = false;
+    if(running) {
+      running = false;
       for(Loop loop : loopArray) {
         loop.onEnd();
       }

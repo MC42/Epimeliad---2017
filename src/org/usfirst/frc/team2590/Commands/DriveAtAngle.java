@@ -4,6 +4,11 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
 
+/**
+ * Drives at an angle
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class DriveAtAngle extends NemesisCommand {
 
   private double angle;
@@ -33,9 +38,9 @@ public class DriveAtAngle extends NemesisCommand {
   @Override
   public void run() {
     //delay to reset sensors
-    Timer.delay(.01);
     Robot.driveT.resetDriveController();
     Robot.driveT.resetSensors();
+    Timer.delay(.01);
     Robot.driveT.driveAtAngle(distance , angle);
     started = true;
   }

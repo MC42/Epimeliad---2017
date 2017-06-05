@@ -7,8 +7,14 @@ import org.usfirst.frc.team2590.robot.RobotMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Victor;
 
+/**
+ * The Climbing Subsystem for Eris
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class Climber implements RobotMap {
 
+  //singleton
   private static Climber climberInstance = null;
   public static Climber getClimber() {
     if(climberInstance == null) {
@@ -78,14 +84,24 @@ public class Climber implements RobotMap {
     return loop_;
   }
 
+  /**
+   * Starts the climbing motor using positive motor
+   * power
+   */
   public void startClimb() {
     climber = climbStates.CLIMBING;
   }
   
+  /**
+   * Starts the climbing motor using negitive motor power
+   */
   public void inverseClimb() {
     climber = climbStates.INVERSE_CLIMB;
   }
  
+  /**
+   * Stops the climbing motor
+   */
   public void stopClimb() {
     climber = climbStates.NOT_CLIMBING;
   }

@@ -6,6 +6,11 @@ import org.usfirst.frc.team2590.robot.RobotMap;
 import edu.wpi.first.wpilibj.AnalogOutput;
 import edu.wpi.first.wpilibj.Timer;
 
+/**
+ * Controlls the robots LEDs
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class LEDController implements RobotMap{
 
   private static LEDController ledInstance = null;

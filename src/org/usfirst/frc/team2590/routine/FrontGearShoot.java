@@ -8,6 +8,12 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
 
+/**
+ * Places the gear on the center peg
+ * and shoots
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class FrontGearShoot extends AutoRoutine {
 
   /**
@@ -42,10 +48,10 @@ public class FrontGearShoot extends AutoRoutine {
     start = new Point(0,0,0);
     middle = new Point(2.5,-4,0); //2.5 -4 3600rpm
     shootingPoint = new Point(3.5, -5.5);
+    
     /**
      * Segments
      */
-    
     middleSegment = new PathSegment(middle, shootingPoint);
     getToShootingPoint = new PathSegment(start, middle);
     
@@ -71,11 +77,10 @@ public class FrontGearShoot extends AutoRoutine {
     Robot.driveT.resetSensors();
     Robot.gearHold.stopGearIntake();
     Robot.driveT.resetDriveController();
+    Robot.shooter.setInterpolation(true);
     
     //drop the gear on the peg
     getTheGearOn.run();
-    
-   
    
     //reset all
     Robot.driveT.resetPath();
@@ -84,17 +89,13 @@ public class FrontGearShoot extends AutoRoutine {
     
     //drive to the boiler
     getToShootingPath.run();
-   // Robot.expandBox.openBox();
+    Robot.expandBox.openBox();
     waitUntilDone(3, getToShootingPath::done);
-    
 
     //reset all
     Robot.driveT.setStop();
     Robot.driveT.shiftLow();
     Timer.delay(.25);
-    Robot.driveT.resetPath();
-    Robot.driveT.resetSensors();
-    Robot.shooter.setSetpoint(3400);
     
     //revv the shooter
     Robot.shooter.revShooter();
@@ -103,17 +104,17 @@ public class FrontGearShoot extends AutoRoutine {
     turnToBoiler.run();
     waitUntilDone(3, turnToBoiler::done);
     Robot.driveT.setStop();
-    Robot.driveT.resetPath();
     Robot.driveT.shiftHigh();
-    Robot.driveT.resetSensors();
     Timer.delay(.25);
     
-
     turnToBoiler.run();
+    Robot.shooter.setSetpoint(3400);
     waitUntilDone(3, turnToBoiler::done);
     Robot.driveT.setStop();
+    
     if(!Robot.shooter.getAboveTarget())
       Timer.delay(1);
+    
     //shots fired
     Robot.feeder.feedIntoShooter();
   }

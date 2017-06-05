@@ -11,63 +11,71 @@ import com.ctre.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+/**
+ * The ball shooter subsystem for Eris
+ * This uses two Talon SRX control loops to get the
+ * shooter wheels to a desired RPM
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class Shooter implements RobotMap {
 
+  //singleton
   private static Shooter shooterInstance = null;
   public static Shooter getShooter() {
-    if(shooterInstance == null) {
+    if (shooterInstance == null) {
       shooterInstance = new Shooter();
     }
     return shooterInstance;
   }
 
-  private enum shooterStates {
-    STOP , ACCELERATING , SHOOT_READY , LOCKED_SHOT
-  };
+  //shooter states
   private shooterStates shooter = shooterStates.STOP;
+  private enum shooterStates {
+    STOP, ACCELERATING, SHOOT_READY, LOCKED_SHOT
+  };
 
-  //setpoints
+  // setpoints
   private double setpoint;
+  private boolean interpolate;
   private boolean lockingShot;
 
-  //motors
+  // motors
   private CANTalon shooterSlave;
   private CANTalon shooterMaster;
 
   public Shooter() {
 
-    //desired speed of the shooter (RPM)
+    // desired speed of the shooter (RPM)
     setpoint = 0;
+    interpolate = true;
     lockingShot = false;
-    
-    //master shooter motor
+
+    // master shooter motor
     shooterMaster = new CANTalon(SHOOTERMASTERID);
     shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
     shooterMaster.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    
-    //settings
+
+    // settings
     shooterMaster.setIZone(0);
-    shooterMaster.enableBrakeMode(false); //motor can move
+    shooterMaster.enableBrakeMode(false); // motor can coast
     shooterMaster.setCloseLoopRampRate(0.0);
-    shooterMaster.setPID(SHOOTERKP, SHOOTERKI, SHOOTERKD , SHOOTERKF, 0, 0, 0);
+    shooterMaster.setPID(SHOOTERKP, SHOOTERKI, SHOOTERKD, SHOOTERKF, 0, 0, 0);
     shooterMaster.configEncoderCodesPerRev(360);
-    
-    //shooterMaster.configPeakOutputVoltage(12.0, 0.0);
+
     shooterMaster.configPeakOutputVoltage(0.0, -12.0);
     shooterMaster.reverseOutput(true);
     shooterMaster.reverseSensor(true);
 
-
-    //slave shooter motor
+    // slave shooter motor
     shooterSlave = new CANTalon(SHOOTERSLAVEID);
     shooterSlave.changeControlMode(TalonControlMode.Follower);
     shooterSlave.set(shooterMaster.getDeviceID());
     shooterSlave.enableBrakeMode(false);
-    
-    //clear sticky faults
+
+    // clear sticky faults
     shooterSlave.clearStickyFaults();
     shooterMaster.clearStickyFaults();
-
 
   }
 
@@ -79,53 +87,53 @@ public class Shooter implements RobotMap {
 
     @Override
     public void loop(double delta) {
-      
-      switch(shooter) {
-        //stops the shooter
-        case STOP :
+
+      switch (shooter) {
+        // stops the shooter
+        case STOP:
           shooterMaster.changeControlMode(TalonControlMode.PercentVbus);
           shooterMaster.set(0);
           lockingShot = false;
           break;
 
-        //only runs shooter motor
-        case ACCELERATING :
+        // only runs shooter motor
+        case ACCELERATING:
           shooterMaster.changeControlMode(TalonControlMode.Speed);
           shooterMaster.set(setpoint);
-          
           break;
-          
-        //only shoots when the shooters up to speed
-        case SHOOT_READY :
+
+        // only shoots when the shooters up to speed
+        case SHOOT_READY:
           shooterMaster.changeControlMode(TalonControlMode.Speed);
           shooterMaster.set(setpoint);
-          if(getAboveTarget()) {
-            Robot.feeder.feedIntoShooter();
-          }
-          break;
-          
-        //shoots when ready and doesnt stop shooting until released
-        case LOCKED_SHOT :
-          shooterMaster.changeControlMode(TalonControlMode.Speed);
-          shooterMaster.set(setpoint);
-          if(getAboveTarget())  lockingShot = true;
-          if(lockingShot) {
+          if (getAboveTarget()) {
             Robot.feeder.feedIntoShooter();
           }
           break;
 
-        default :
+        // shoots when ready and doesnt stop shooting until commanded to stop
+        case LOCKED_SHOT:
+          shooterMaster.changeControlMode(TalonControlMode.Speed);
+          shooterMaster.set(setpoint);
+          if (getAboveTarget()) {
+            lockingShot = true;
+          }
+          if (lockingShot) {
+            Robot.feeder.feedIntoShooter();
+          }
+          break;
+
+        default:
           DriverStation.reportWarning("Hit default case in shooter", false);
           break;
       }
-      
-      if(shooter == shooterStates.STOP) {
+
+      if (shooter == shooterStates.STOP) {
         Robot.ledController.updateShooterState("OFF");
       } else {
         Robot.ledController.updateShooterState(getAboveTarget() ? "SHOOT" : "REVVING");
       }
-      
-      
+
       SmartDashboard.putNumber("Shooter encoder", shooterMaster.getSpeed());
     }
 
@@ -139,13 +147,30 @@ public class Shooter implements RobotMap {
     return loop_;
   }
 
+  /**
+   * allows the robot to use the interpolation equation to set the setpoint based off of distance
+   * @param interpolation : if the robot may use interpolation, or a manual setpoint
+   */
+  public void setInterpolation(boolean interpolation) {
+    interpolate = interpolation;
+    SmartDashboard.putBoolean("interpolation", interpolate);
+  }
 
   /**
    * Sets the setpoint of the shooter
    * @param setpoint
    */
   public void setSetpoint(double setpoint) {
-    this.setpoint = setpoint;
+    if (interpolate) {
+      double dist = Robot.vision.vAngleToTarget();
+      this.setpoint = (22.658 * dist) + 2350;
+    } else {
+      this.setpoint = setpoint;
+    }
+  }
+
+  public boolean getInterpolation() {
+    return interpolate;
   }
 
   /**
@@ -154,7 +179,6 @@ public class Shooter implements RobotMap {
   public void stopShooter() {
     shooter = shooterStates.STOP;
   }
-  
 
   /**
    * Just runs the shooter , no feeder
@@ -171,16 +195,16 @@ public class Shooter implements RobotMap {
   }
 
   /**
-   * Shoots when the shooter gets up to speed and 
-   * doesn't stop until the shooter is set to the stop
-   * state
+   * Shoots when the shooter gets up to speed and doesn't stop until the shooter
+   * is set to the stop state
    */
   public void lockingShot() {
     shooter = shooterStates.LOCKED_SHOT;
   }
-  
+
   /**
    * Gets the setpoint of the shooter
+   * 
    * @return : setpoint in rpm
    */
   public double getSetpoint() {
@@ -189,6 +213,7 @@ public class Shooter implements RobotMap {
 
   /**
    * Gets if the shooter is on target
+   * 
    * @return on target , within 100 rpms
    */
   public boolean getOnTarget() {
@@ -197,22 +222,24 @@ public class Shooter implements RobotMap {
 
   /**
    * gets if the shooter is above the setpoint
+   * 
    * @return : is the shooter above target
    */
   public boolean getAboveTarget() {
-    return this.getSpeed() > (setpoint-50)-500; //-500 because control stabilizes 500 below
+    return this.getSpeed() > ((setpoint - 50) - 500); // -500 because control
+                                                      // stabilizes 500 below,
   }
 
   /**
-   * now with error tracking , checks the shooter encoder value 
+   * checks the shooter encoder value
    * @return : speed of the shooter
    */
   public double getSpeed() {
     try {
       return shooterMaster.getSpeed();
-    } catch(Exception e) {
+    } catch (Exception e) {
       shooter = shooterStates.STOP;
-      DriverStation.reportWarning("Shooter encoder shit itself, shutting down shooter", true);
+      DriverStation.reportWarning("Shooter encoder died, shutting down shooter", true);
       return 0.0;
     }
   }

@@ -4,6 +4,12 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
 
+/**
+ * Checks if we still have a gear in the intake
+ * automatically tries to place it on the peg
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class CheckDrive extends NemesisCommand {
 
   private boolean done;

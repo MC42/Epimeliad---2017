@@ -8,14 +8,22 @@ import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
-import edu.wpi.first.wpilibj.AnalogAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Victor;
 import util.NemesisSolenoid;
 
+/**
+ * The gear Intake subsystem on Eris
+ * AKA the "Dustpan"
+ * Uses current contol to constantly hold onto a gear and detect motor stalling, 
+ * telling the robot that it has a gear without using any external sensors
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class GearIntake implements RobotMap {
 
+  //singleton
   private static GearIntake gearInstance = null;
   public static GearIntake getGearHolder() {
     if(gearInstance == null) {
@@ -34,7 +42,6 @@ public class GearIntake implements RobotMap {
   private boolean gripping;
   private double averageTotal;
   private Queue<Double> runningAverage;
-  private AnalogAccelerometer i2cAccel;
   
   //controller
   PowerDistributionPanel pdp;
@@ -45,7 +52,7 @@ public class GearIntake implements RobotMap {
   NemesisSolenoid gearSolenoid;
 
   public GearIntake() {
-    i2cAccel = new AnalogAccelerometer(0);
+    
     pdp = new PowerDistributionPanel();
     
     //constants
@@ -105,7 +112,7 @@ public class GearIntake implements RobotMap {
           controller.setOn(false);
           break;
         case EXPELL :
-          //stops the motor and drops the geartake
+          //reverses the motor and drops the geartake
           intakeVictor.set(-1);
           controller.setOn(false);
           gearSolenoid.set(true);
@@ -212,6 +219,11 @@ public class GearIntake implements RobotMap {
       gear = GearStates.OUTTAKING;
   }
   
+  /**
+   * Checks that the gear intake and the ball intake arent down together
+   * @param isDesiredDown : if the subsytem wants to drop the dustpan
+   * @return : if the subsystem is allowed to actuate
+   */
   private boolean checkIsLegal(boolean isDesiredDown) {
     return (isDesiredDown && !Robot.intake.isDown()) || !isDesiredDown;
   }

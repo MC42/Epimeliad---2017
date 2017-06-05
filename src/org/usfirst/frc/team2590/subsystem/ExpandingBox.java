@@ -10,6 +10,11 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.Timer;
 import util.NemesisSolenoid;
 
+/**
+ * The Hopper Subsystem for Eris
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class ExpandingBox implements RobotMap {
   
   private static ExpandingBox expandBoxInstance = null;
@@ -77,6 +82,8 @@ public class ExpandingBox implements RobotMap {
           //waits for box
           Timer.delay(cycleSpeed);
           break;
+          
+        //EXPERIMENTAL
         case AUTOMATED_OPEN :
           calculateAverage();
           if(armed) {

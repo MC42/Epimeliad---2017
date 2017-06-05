@@ -6,6 +6,12 @@ import org.usfirst.frc.team2590.robot.Robot;
 
 import edu.wpi.first.wpilibj.Timer;
 
+/**
+ * Places a gear on the front peg
+ * picks up a partners gear and places that on the peg
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class TwoGear extends AutoRoutine{
 
   //drop off the first gear

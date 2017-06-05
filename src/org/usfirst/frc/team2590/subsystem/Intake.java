@@ -8,6 +8,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Victor;
 import util.NemesisSolenoid;
 
+/**
+ * The ball intake subsystem for Eris
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class Intake implements RobotMap {
 
   private static Intake intakeInstance = null;
@@ -125,6 +130,11 @@ public class Intake implements RobotMap {
     intake = intakeStates.AGIGTATE;
   }
   
+  /**
+   * Makes sure that the gear intake and ball intake wont be down togther
+   * @param isDesiredDown : if the subsystem wants to drop the ball intake
+   * @return : if the ball intake is allowed to go down
+   */
   private boolean isLegal(boolean isDesiredDown) {
     return !isDesiredDown || (!Robot.gearHold.isDown());
   }

@@ -5,8 +5,14 @@ import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.Victor;
 
+/**
+ * The Feeder Mechanism for Eris, feeds balls from the hopper to the shooter
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class Feeder implements RobotMap {
 
+  //singleton
   private static Feeder feederInstance = null;
   public static Feeder getFeeder() {
     if(feederInstance == null) {
@@ -15,6 +21,7 @@ public class Feeder implements RobotMap {
     return feederInstance;
   }
 
+  //Feeder states
   private enum FeederStates {
     STOP , FEED_TO_SHOOTER , EXPELL , AGITATE
   };
@@ -26,7 +33,6 @@ public class Feeder implements RobotMap {
   private Victor rightAgitatorMotor;
 
   public Feeder() {
-
     feederMotor = new Victor(FEEDERMOTORPWM);    
     leftAgitatorMotor = new Victor(LEFTAGITATORMOTORPWM);
     rightAgitatorMotor = new Victor(RIGHTAGITATORMOTORPWM);

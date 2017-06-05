@@ -9,7 +9,6 @@ public class DoNothing extends AutoRoutine {
 
  
   public DoNothing() {
-    
   }
 
   @Override

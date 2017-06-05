@@ -8,6 +8,11 @@ import org.usfirst.frc.team2590.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.Timer;
 
+/**
+ * Drops a gear on one of the side pegs
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class SideGearSimple extends AutoRoutine implements RobotMap{
 
   //turn to the peg
@@ -47,7 +52,6 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
     turnInPlace.run();
     waitUntilDone(1, turnInPlace::done);
     Robot.driveT.shiftHigh();
-
     
     //drive into the peg
     driveToGear.run();

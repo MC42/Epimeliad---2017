@@ -1,10 +1,9 @@
 package org.usfirst.frc.team2590.subsystem;
 
 import org.usfirst.frc.team2590.Controllers.DriveAtAngleController;
-import org.usfirst.frc.team2590.Controllers.EnhancedTurnController;
 import org.usfirst.frc.team2590.Controllers.NavigationalSystem;
 import org.usfirst.frc.team2590.Controllers.Path;
-import org.usfirst.frc.team2590.Controllers.PurePursuitController;
+import org.usfirst.frc.team2590.Controllers.PathFollower;
 import org.usfirst.frc.team2590.Controllers.TurningController;
 import org.usfirst.frc.team2590.looper.Loop;
 import org.usfirst.frc.team2590.robot.RobotMap;
@@ -19,8 +18,22 @@ import util.DualSignal;
 import util.NemesisDrive;
 import util.NemesisSolenoid;
 
+/**
+ * The drivetrain subsystem for Eris, includes :
+ * <ul>
+ *    <li>Arcade drive</li>
+ *    <li>Automatic and Manual Shifting</li>
+ *    <li>Driving at an Angle Using a Gyro</li>
+ *    <li>Turning to an Angle Using a Gyro</li>
+ *    <li>On the Fly Path Following Algorithm</li> 
+ *    <li>Encoder and Gyro Odometry to Estimate Robot Position</li>
+ * </ul>
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class DriveTrain implements RobotMap {
 
+  //singleton
   private static DriveTrain driveTrainInstance = null;
   public static DriveTrain getDriveTrain(Joystick leftJ , Joystick rightJ) {
     if(driveTrainInstance == null) {
@@ -35,6 +48,7 @@ public class DriveTrain implements RobotMap {
   };
   private driveStates drives = driveStates.STOP;
 
+  //shifter states
   private enum shiftState {
     MANUAL_HIGH , MANUAL_LOW , AUTOMATIC
   };
@@ -59,11 +73,10 @@ public class DriveTrain implements RobotMap {
   private NemesisSolenoid shifters;
 
   //control systems
+  private PathFollower pureP;
   private TurningController turn;
   private NemesisDrive straightDrive;
-  private PurePursuitController pureP;
   private NavigationalSystem navigationSys;
-  // private EnhancedTurnController newTurn;
   private DriveAtAngleController angledDriveCont;
 
   public DriveTrain(Joystick leftJ , Joystick rightJ) {
@@ -86,15 +99,12 @@ public class DriveTrain implements RobotMap {
     //units are in feet
     leftEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
     rightEncoder.setDistancePerPulse(1.0/360.0 * ((WHEEL_DIAM * Math.PI) / 12));
-    //leftEncoder.setDistancePerPulse(1.0625/360.0);
-    //rightEncoder.setDistancePerPulse(1.0625/360.0);
-
+  
     //control systems
-    turn = new TurningController(TURNKP);
-    //newTurn = new EnhancedTurnController(TURNKP, 0.0, 0.0, 1.0);
-    pureP = new PurePursuitController(PUREKV , MAXACC,  LOOKAHEAD );
+    pureP = new PathFollower(PUREKV,  LOOKAHEAD );
+    turn = new TurningController(TURNKP , 0.0 , MINRBTSPEED);
+    angledDriveCont = new DriveAtAngleController(VELFF, 0.09 , 0.0); 
     straightDrive = new NemesisDrive(gyro,  leftVictor, rightVictor);
-    angledDriveCont = new DriveAtAngleController(VELFF, 0.09 , 0.000); 
     navigationSys = new NavigationalSystem(leftEncoder, rightEncoder , gyro);
   }
 
@@ -131,7 +141,6 @@ public class DriveTrain implements RobotMap {
             
           case TURN :
             driveSignal.updateSignal(-turn.calculate(gyro.getAngle()), turn.calculate(gyro.getAngle()));
-            //driveSignal.updateSignal(-newTurn.calculate(gyro.getAngle()), newTurn.calculate(gyro.getAngle()));
             straightDrive.tankDrive(driveSignal.getSignals()[0], driveSignal.getSignals()[1] );
             break;
             
@@ -167,7 +176,6 @@ public class DriveTrain implements RobotMap {
           SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());
           
           //send signals
-          //sSystem.out.println("signals " + driveSignal.getSignals()[0] + " " + driveSignal.getSignals()[1]);
           straightDrive.tankDrive( driveSignal.getSignals()[0], driveSignal.getSignals()[1] );
         }
       }
@@ -266,11 +274,7 @@ public class DriveTrain implements RobotMap {
    */
   public void driveAtAngle(double driveSet ,double angleSet) {
     drives = driveStates.ANGLED_DRIVE;
-    if(Math.abs(driveSet) < 1.5) {
-      angledDriveCont.changeF(SMALLFF);
-    } else {
-      angledDriveCont.changeF(VELFF);
-    }
+    angledDriveCont.changeF( (Math.abs(driveSet) < 1.5)? SMALLFF : VELFF);
     angledDriveCont.setSetpoint(driveSet , angleSet);
   }
 
@@ -308,21 +312,12 @@ public class DriveTrain implements RobotMap {
    */
   public void turnToAngle(double angle) {
     gyro.reset();
-    if(Math.abs(angle) < 10) {
-      turn.changeKp(SmartDashboard.getNumber("DB/Slider 1", 0.09));
-      turn.changeKi(SmartDashboard.getNumber("DB/Slider 2", 0));
-     /* newTurn.changeGains(SmartDashboard.getNumber("DB/Slider 1",0), 
-                          SmartDashboard.getNumber("DB/Slider 2",0), 0);   */  
-    } else {
-      turn.changeKi(0.0);
-      turn.changeKp(TURNKP); 
-     // newTurn.changeGains(TURNKP, 0, 0);     
-    }
+    
+    turn.changeKp(SmartDashboard.getNumber("DB/Slider 1", 0.09));
+    turn.changeKi(SmartDashboard.getNumber("DB/Slider 2", 0));
     turn.setSetpoint(angle);
-    //newTurn.set(angle);
-    System.out.println("setpoint " + angle);
     drives = driveStates.TURN;
-  }
+  } 
 
   /**
    * Tells if the turn is done
@@ -330,7 +325,6 @@ public class DriveTrain implements RobotMap {
    */
   public boolean getTurnDone() {
     return turn.done();
-    //return newTurn.getDone();
   }
 
   /**

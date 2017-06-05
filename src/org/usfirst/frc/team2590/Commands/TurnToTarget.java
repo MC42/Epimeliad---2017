@@ -2,11 +2,19 @@ package org.usfirst.frc.team2590.Commands;
 
 import org.usfirst.frc.team2590.robot.Robot;
 
+/**
+ * Turns to any target the robot may see
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class TurnToTarget extends NemesisCommand {
 
   private boolean forceDone;
   private TurnToAngle turnToTarget;
 
+  /**
+   * Turns to the target
+   */
   public TurnToTarget() {
     forceDone = false;
     turnToTarget = new TurnToAngle(0);

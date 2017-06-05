@@ -1,12 +1,17 @@
 package util;
 
+/**
+ * Camera target
+ * @author James Aikins
+ *
+ */
 public class Target {
 
   double x;
   double y;
   double area;
 
-  public Target(){
+  public Target() {
     x = 0;
     y = 0;
     area = 0;

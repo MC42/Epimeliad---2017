@@ -8,7 +8,7 @@ import org.usfirst.frc.team2590.robot.RobotMap;
  * the robot to the position
  * @author Connor_Hofenbitzer
  */
-public class PurePursuitController implements RobotMap{
+public class PathFollower implements RobotMap{
 
   private Path path;
   private boolean flip;
@@ -17,7 +17,7 @@ public class PurePursuitController implements RobotMap{
   private Point lookAheadPoint;
   private DriveAtAngleController velCont;
 
-  public PurePursuitController(double kF , double maxAcc , double lookAhead) {
+  public PathFollower(double kF , double lookAhead) {
     
     done = false;
     flip = false;
@@ -40,7 +40,7 @@ public class PurePursuitController implements RobotMap{
 
     double currTheta = Math.toDegrees(currPoint.getTheta());
 
-   
+    
     double theta = new PathSegment(currPoint , lookAheadPoint).getTheta();
 
     //calculates travel from start of path to lookahead

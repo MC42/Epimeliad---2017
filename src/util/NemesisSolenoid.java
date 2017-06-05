@@ -2,6 +2,11 @@ package util;
 
 import edu.wpi.first.wpilibj.Solenoid;
 
+/**
+ * Enhanced solenoid class
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class NemesisSolenoid extends Solenoid{
 
   public NemesisSolenoid(int channel) {
@@ -10,6 +15,7 @@ public class NemesisSolenoid extends Solenoid{
 
   @Override
   public void set(boolean on) {
+    //just makes sure that the piston doesnt try to refire 
     if(on != this.get()) {
       super.set(on);
     }

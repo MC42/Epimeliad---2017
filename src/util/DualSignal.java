@@ -1,5 +1,10 @@
 package util;
 
+/**
+ * Basically a glorified 2D array
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class DualSignal {
 
   private double leftSignal;

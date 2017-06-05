@@ -15,8 +15,8 @@ public interface RobotMap {
   public static final int LEFTAGITATORMOTORPWM = 6;
   public static final int RIGHTAGITATORMOTORPWM = 7;
 
-  public static final int SHOOTERSLAVEID = 0; //1 for real
-  public static final int SHOOTERMASTERID = 1; //0 for real
+  public static final int SHOOTERSLAVEID = 1; //1 for real
+  public static final int SHOOTERMASTERID = 0; //0 for real
 
   //sol
   public static final int INTAKE_SOLENOID = 1;
@@ -46,7 +46,7 @@ public interface RobotMap {
   public static final double ROBOTWIDTH = (29/12);
 
   public static final double TURNKP = 0.08; //0.1 
-
+  public static final double MINRBTSPEED = 0.33;
   
   //pure pursuit
   public static final double PUREKV = 0.8;

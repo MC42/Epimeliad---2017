@@ -1,5 +1,10 @@
 package util;
 
+/**
+ * Vector class
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class NemesisVector {
 
   double startX;

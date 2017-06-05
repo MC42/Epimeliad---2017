@@ -5,6 +5,12 @@ import org.usfirst.frc.team2590.Commands.TurnToTarget;
 import org.usfirst.frc.team2590.robot.Robot;
 import org.usfirst.frc.team2590.robot.RobotMap;
 
+/**
+ * Drops a gear on one of the side pegs and 
+ * shoots the preloaded balls
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class SideGearWithShooting extends AutoRoutine implements RobotMap  {
  
   /**
