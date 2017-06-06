@@ -19,7 +19,7 @@ public class Looper {
   private ArrayList<Loop> loopArray;
 
 
-  private Runnable looper_ = () -> {
+  private Runnable looper = () -> {
     if(running) {
         //periodically update the loops
         currentTime = Timer.getFPGATimestamp();
