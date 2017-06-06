@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 /**
  * 
+ * Controller which handles turning
  * @author Connor_Hofenbitzer
  *
  */
