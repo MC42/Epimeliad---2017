@@ -3,6 +3,12 @@ package org.usfirst.frc.team2590.Controllers;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.SpeedController;
 
+/**
+ * 
+ * Controller which motor current control
+ * @author Connor_Hofenbitzer
+ *
+ */
 public class VoltageController {
   
   //constants
