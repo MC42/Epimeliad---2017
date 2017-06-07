@@ -20,7 +20,7 @@ public class FortyBall extends AutoRoutine {
    * Points
    */
   private Point hopperFace; //the point at which the hopper face lies on an x , y , theta plane
-  private Point middlePoint; //where does the robot start on the field, should be 0,0,0
+  private Point middlePoint; //constraining point
   private Point startPoint; //where does the robot start on the field, should be 0,0,0
   private Point curveOut;
   
@@ -132,7 +132,7 @@ public class FortyBall extends AutoRoutine {
     turnTowardsBoilerSecond.run();
     waitUntilDone(2, turnTowardsBoilerSecond::done); //2 second timeout or turn is done
 
-    Robot.feeder.feedIntoShooter(); //"they call us baller" - RS
+    Robot.feeder.feedIntoShooter();
     
   }
 
