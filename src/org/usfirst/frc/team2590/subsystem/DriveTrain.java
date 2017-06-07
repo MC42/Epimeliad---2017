@@ -133,7 +133,6 @@ public class DriveTrain implements RobotMap {
                 pureP.Calculate(navigationSys.getCurrentPoint() , false , delta));
             break;
             
-            //this method of driving is shit, just noticed , this needs to be changed 
           case ANGLED_DRIVE :
             driveSignal.updateSignal(angledDriveCont.calculate(leftEncoder.getDistance() , gyro.getAngle() , false , delta) ,
                 angledDriveCont.calculate(rightEncoder.getDistance() , gyro.getAngle() , true , delta));
