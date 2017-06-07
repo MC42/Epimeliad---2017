@@ -64,21 +64,14 @@ public class DriveAtAngleController {
 
     //calculate error
     error = distanceStp-processVar;
-
-    //velocity calculations
-    velocity = Math.abs(error);
-    flipped = error < 0;
-
-    //checkk if its inverted
-    velocity *= (flipped ? -1 : 1);
-
+    
     A = kT + ((kI*dt)/2);
     B = ((kI*dt)/2) - kT;
 
     double turnOutPut = lastOut + (A*(angleStp-gyroA)) + (B*lastError);
 
     //if it is flip the output
-    double out = ((velocity*kF)) + (turnOutPut * (right?1:-1));
+    double out = ((error*kF)) + (turnOutPut * (right?1:-1));
     lastError = (angleStp-gyroA);
 
 
