@@ -78,7 +78,7 @@ public class DriveTrain implements RobotMap {
   private NemesisDrive straightDrive;
   private NavigationalSystem navigationSys;
   private DriveAtAngleController angledDriveCont;
-
+  
   public DriveTrain(Joystick leftJ , Joystick rightJ) {
 
     //joysticks
@@ -169,14 +169,16 @@ public class DriveTrain implements RobotMap {
         }
        
       
-        if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE || drives == driveStates.TURN) {
-          SmartDashboard.putNumber("Gyro", gyro.getAngle());
-          SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getDistance());
-          SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());
-          
+        if(drives == driveStates.PATH_FOLLOWING || drives == driveStates.ANGLED_DRIVE) {
+         
           //send signals
           straightDrive.tankDrive( driveSignal.getSignals()[0], driveSignal.getSignals()[1] );
         }
+        
+        SmartDashboard.putNumber("Gyro", gyro.getAngle());
+        SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getDistance());
+        SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getDistance());
+        
       }
 
     }
@@ -311,9 +313,8 @@ public class DriveTrain implements RobotMap {
    */
   public void turnToAngle(double angle) {
     gyro.reset();
-    
-    turn.changeKp(SmartDashboard.getNumber("DB/Slider 1", 0.09));
-    turn.changeKi(SmartDashboard.getNumber("DB/Slider 2", 0));
+    turn.changeKp(SmartDashboard.getNumber("DB/Slider 1", 0.0));
+    turn.changeKi(SmartDashboard.getNumber("DB/Slider 2", 0.0));
     turn.setSetpoint(angle);
     drives = driveStates.TURN;
   } 

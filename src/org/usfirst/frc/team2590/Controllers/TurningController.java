@@ -10,12 +10,14 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class TurningController {
 
-  private double integral;
-  private double errorSum;
+  private final double MAX_CYCLES = 5;
+  
   private boolean done;
   private double cylces;
   private double lastTime;
   private double setpoint;
+  private double integral;
+  private double errorSum;
   private double porportional;
   private double minRobotSpeed;
   
@@ -74,18 +76,19 @@ public class TurningController {
     }
     
     //check the cycles
-    cylces += (Math.abs(error) <= 1)? 1 : 0;
     if(Math.abs(error) > 1) {
       cylces = 0;
+    } else {
+      cylces += 1;
     }
     
-    done = (cylces >= 5);
+    done = (cylces >= MAX_CYCLES);
     
     //set the previous variables
     lastTime = time;
 
     //return the corresponding output
-    return (cylces >= 5) ? 0.0 : output;
+    return done ? 0.0 : output;
     
   }
   

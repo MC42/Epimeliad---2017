@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2590.robot;
 import java.util.HashMap;
 
+import org.usfirst.frc.team2590.IRIRoutines.IRIAutoSideGearDash;
 import org.usfirst.frc.team2590.looper.Looper;
 import org.usfirst.frc.team2590.routine.AutoRoutine;
 import org.usfirst.frc.team2590.routine.DoNothing;
@@ -22,6 +23,7 @@ import org.usfirst.frc.team2590.subsystem.Shooter;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.LEDController;
 import util.NemesisCamera;
@@ -111,8 +113,19 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     LEDLooper.startLoops();
 
     //autonomous modes
-    autoMap = new HashMap<String , AutoRoutine>();
+    /*autoChooser = new SendableChooser<AutoRoutine>();
+    autoChooser.addObject("Two Gear", new TwoGear());
+    autoChooser.addObject("Five", new FivePointBoi());
+    autoChooser.addObject("Front", new FrontGearDrop());
+    autoChooser.addObject("Nothingness", new DoNothing());
+    autoChooser.addObject("Hopper L", new FortyBall(true));
+    autoChooser.addObject("Hopper R", new FortyBall(false));
+    autoChooser.addObject("Turn Left Gear", new SideGearSimple(true));    
+    autoChooser.addObject("Turn Right Gear", new SideGearSimple(false));*/
 
+    
+    autoMap = new HashMap<String , AutoRoutine>();
+    //false turns left
     autoMap.put("Five", new FivePointBoi());    //drives to the five point line
     autoMap.put("Two Gear",  new TwoGear());    // (DO NOT USE) drops a gear on the front peg, gets an alliance partners gear and puts that on the peg
     autoMap.put("Nothing",    new DoNothing()); //does absolutely nothing
@@ -120,10 +133,17 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     autoMap.put("Hopper Left", new FortyBall(true)); //40 ball on the left hopper relative to boiler position from driver as looking at field $$
     autoMap.put("Hopper Right", new FortyBall(false)); //40 ball on the left hopper relative to boiler position from driver as looking at field $$
     autoMap.put("Turn Left Gear",  new SideGearSimple(true)); //Turns to the left peg relative to driver (really turns right, its just onto the left peg) $$
-    autoMap.put("Front Gear Shoot",  new FrontGearShoot()); //(UNTESTED on a field) puts a gear on the middle peg and curves to the boiler
+    autoMap.put("Front Gear Shoot Left",  new FrontGearShoot(true)); //(UNTESTED on a field) puts a gear on the middle peg and curves to the boiler
+    autoMap.put("Front Gear Shoot Right",  new FrontGearShoot(false)); //(UNTESTED on a field) puts a gear on the middle peg and curves to the boiler
     autoMap.put("Turn Right Gear",  new SideGearSimple(false)); //same as left gear see above, but for the right peg
     autoMap.put("Turn Left Gear Shoot",  new SideGearWithShooting(true));  //DOES NOT WORK , Drops a gear on the left peg and shoots 10 balls
     autoMap.put("Turn Right Gear Shoot",  new SideGearWithShooting(false)); //DOES NOT WORK , Drops a gear on the right peg and shoots 10 balls
+    autoMap.put("Turn Left Gear Go Home",  new IRIAutoSideGearDash(true, false));  //DOES NOT WORK , Drops a gear on the left peg and shoots 10 balls
+    autoMap.put("Turn Right Gear Go Home",  new IRIAutoSideGearDash(false , false)); //DOES NOT WORK , Drops a gear on the right peg and shoots 10 balls
+    autoMap.put("Turn Left Gear Go Far",  new IRIAutoSideGearDash(true, true));  //DOES NOT WORK , Drops a gear on the left peg and shoots 10 balls
+    autoMap.put("Turn Right Gear Go Far",  new IRIAutoSideGearDash(false , true)); //DOES NOT WORK , Drops a gear on the right peg and shoots 10 balls
+   
+    //SmartDashboard.putData("Auto Chooser" , autoChooser);
     
     //too many solenoids so we have to plug one
     plug4 = new Solenoid(3);
@@ -181,10 +201,10 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     //turn the leds back on
     ledController.updateDisabledState(false);
 
-    //get the auton to run
-    auto = autoMap.get(SmartDashboard.getString("DB/String 0" , "Left Gear Left"));
+    
+    auto = autoMap.get(SmartDashboard.getString("DB/String 0" , "Left Gear"));
     System.out.println("Starting loops , auto = " + SmartDashboard.getString("DB/String 0" , "Front Gear Left"));
-
+    
     //start the loops
     enabledLooper.startLoops();
 
@@ -208,10 +228,11 @@ public class Robot extends IterativeRobot implements RobotMap , Controls {
     //turn the leds on
     ledController.updateDisabledState(false);
     
-    //ends auto
+    /*ends auto
     if(auto != null) {
       auto.end();
     }
+    */
     
     //start the loops
     enabledLooper.startLoops();

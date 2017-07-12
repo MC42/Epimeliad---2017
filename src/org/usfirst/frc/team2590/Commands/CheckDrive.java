@@ -24,8 +24,10 @@ public class CheckDrive extends NemesisCommand {
 
   @Override
   public void run() {
+    Robot.gearHold.turnOnGrip(true);
+    Robot.gearHold.stopGearIntake();
+    Robot.driveT.shiftHigh();
     if(Robot.gearHold.hasGear()) {
-      
       //drive into the gear
       Robot.driveT.resetSensors();
       driveIn.run();
@@ -37,14 +39,12 @@ public class CheckDrive extends NemesisCommand {
 
       //drive back out
       driveBack.run();
-      waitUntilDone(1, driveBack::done);
+      waitUntilDone(2, driveBack::done);
       
       //raise the dustpan
       Robot.gearHold.stopGearIntake();
-      done = true;
-    } else {
-      done = true;
     }
+    done = true;
     
   }
 

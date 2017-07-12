@@ -78,6 +78,7 @@ public class GearIntake implements RobotMap {
 
     @Override
     public void loop(double delta) {
+      //calculates the pans average current draw
       runCurrentCalc();
       switch(gear) {
         case STOPPED :
@@ -86,6 +87,7 @@ public class GearIntake implements RobotMap {
 
           //this is my gear
           if(gripping) {
+            //sets up the controller
             controller.setMax(4, 2);
             controller.setOn(true);
             controller.calculate(average);
@@ -165,6 +167,7 @@ public class GearIntake implements RobotMap {
    * Calculates the average current
    */
   public void runCurrentCalc() {
+    
     double current = pdp.getCurrent(4);
     runningAverage.add(current);
     averageTotal += current;

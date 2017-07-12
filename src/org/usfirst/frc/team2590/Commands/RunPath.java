@@ -39,6 +39,7 @@ public class RunPath extends NemesisCommand {
   
   @Override
   public void run() {
+    Robot.driveT.shiftHigh();
     Robot.driveT.resetPath();
     Robot.driveT.resetSensors();
     Robot.driveT.changePath(paths);

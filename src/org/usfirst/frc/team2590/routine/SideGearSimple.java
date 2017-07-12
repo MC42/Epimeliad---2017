@@ -50,7 +50,9 @@ public class SideGearSimple extends AutoRoutine implements RobotMap{
     
     //turn to face the peg
     turnInPlace.run();
-    waitUntilDone(1, turnInPlace::done);
+    waitUntilDone(1.5, turnInPlace::done);
+    Robot.driveT.setStop();
+    Timer.delay(.25);
     Robot.driveT.shiftHigh();
     
     //drive into the peg

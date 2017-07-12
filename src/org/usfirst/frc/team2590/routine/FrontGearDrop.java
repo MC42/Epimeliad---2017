@@ -34,7 +34,7 @@ public class FrontGearDrop extends AutoRoutine implements RobotMap{
 
   @Override
   public void run() {
-    
+
     Robot.gearHold.turnOnGrip(true);
     
     //drive to the gear
@@ -46,14 +46,20 @@ public class FrontGearDrop extends AutoRoutine implements RobotMap{
     //drive away from the peg
     Robot.driveT.resetSensors();
     driveOut.run();
-    
-    Timer.delay(.5);
-    waitUntilDone(1, driveOut::done);
-    
+    Robot.driveT.resetSensors();
+    Timer.delay(.25);
+    Robot.gearHold.stopGearIntake();
+    waitUntilDone(2, driveOut::done);
+    Timer.delay(.35);
+
+    Robot.driveT.resetSensors();
     //checks if we still have a gear
     driveInOne.run();
     waitUntilDone(5, driveInOne::done);
-
+    Robot.gearHold.stopGearIntake();
+    Timer.delay(.35);
+    
+    Robot.driveT.resetSensors();
     //checks if we still have a gear
     driveInTwo.run();
     waitUntilDone(5, driveInTwo::done);

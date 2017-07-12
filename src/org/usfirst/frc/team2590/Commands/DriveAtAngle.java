@@ -38,8 +38,9 @@ public class DriveAtAngle extends NemesisCommand {
   @Override
   public void run() {
     //delay to reset sensors
-    Robot.driveT.resetDriveController();
+    Robot.driveT.shiftHigh();
     Robot.driveT.resetSensors();
+    Robot.driveT.resetDriveController();
     Timer.delay(.01);
     Robot.driveT.driveAtAngle(distance , angle);
     started = true;
